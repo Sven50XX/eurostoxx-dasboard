@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OESX Dashboard v12 — Optieschrijver</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f1ea;
+  --surface: #ffffff;
+  --surface2: #ede9e0;
+  --border: #d4cfc4;
+  --border2: #e8e4db;
+  --text: #1a1714;
+  --text2: #5c5650;
+  --text3: #9c9890;
+  --green: #1a6e45;
+  --green-bg: #e8f5ee;
+  --green-border: #a8d5bb;
+  --red: #b52a2a;
+  --red-bg: #fdeaea;
+  --red-border: #e8a8a8;
+  --orange: #b56a00;
+  --orange-bg: #fff3e0;
+  --orange-border: #f0c070;
+  --gold: #8a6a00;
+  --gold-bg: #fff8e0;
+  --blue: #1a3f7a;
+  --blue-bg: #e6edf8;
+  --accent: #c4954a;
+  --purple: #5a2d7a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.5;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:28px 24px;}
+
+/* HEADER */
+header{margin-bottom:28px;padding-bottom:20px;border-bottom:2px solid var(--text);}
+.header-row{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.eyebrow{font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+h1{font-family:'Syne',sans-serif;font-size:clamp(26px,4vw,48px);font-weight:800;letter-spacing:-.03em;line-height:1;}
+h1 em{font-style:normal;color:var(--accent);}
+.header-right{text-align:right;}
+.vstoxx-badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:8px 14px;}
+.vstoxx-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;}
+.vstoxx-label{font-size:10px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;}
+
+/* SECTION HEADERS */
+.sec{margin-bottom:28px;}
+.sec-head{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text2);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.sec-num{width:22px;height:22px;border-radius:50%;background:var(--text);color:var(--bg);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px;}
+.card-sm{padding:14px 16px;}
+
+/* GRID LAYOUTS */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+@media(max-width:900px){.grid4{grid-template-columns:repeat(2,1fr);}.grid3{grid-template-columns:1fr 1fr;}.grid2{grid-template-columns:1fr;}}
+@media(max-width:600px){.grid4{grid-template-columns:1fr 1fr;}.grid3{grid-template-columns:1fr;}}
+
+/* INPUTS */
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-weight:500;}
+input[type=number],input[type=text],select{
+  background:var(--surface);border:1.5px solid var(--border);border-radius:4px;
+  padding:8px 10px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text);
+  width:100%;transition:border-color .15s;
+}
+input:focus,select:focus{outline:none;border-color:var(--accent);}
+input.highlight{border-color:var(--accent);background:var(--gold-bg);}
+
+/* BUTTONS */
+.btn{background:var(--text);color:var(--bg);border:none;border-radius:4px;padding:9px 18px;
+  font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;cursor:pointer;
+  letter-spacing:.05em;transition:opacity .15s;}
+.btn:hover{opacity:.8;}
+.btn-sm{padding:6px 12px;font-size:11px;}
+.btn-outline{background:transparent;color:var(--text);border:1.5px solid var(--border);}
+.btn-outline:hover{background:var(--surface2);}
+.btn-green{background:var(--green);}
+.btn-red{background:var(--red);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px;}
+
+/* STAT BOXES */
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:14px;position:relative;overflow:hidden;}
+.stat::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.stat.g::before{background:var(--green);}
+.stat.r::before{background:var(--red);}
+.stat.b::before{background:var(--blue);}
+.stat.a::before{background:var(--accent);}
+.stat.p::before{background:var(--purple);}
+.stat.o::before{background:var(--orange);}
+.stat-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;font-weight:500;}
+.stat-val{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;line-height:1.1;}
+.stat-val.g{color:var(--green);}
+.stat-val.r{color:var(--red);}
+.stat-val.b{color:var(--blue);}
+.stat-val.a{color:var(--accent);}
+.stat-val.o{color:var(--orange);}
+.stat-sub{font-size:10px;color:var(--text3);margin-top:3px;}
+
+/* STOPLICHT */
+.stoplicht{display:flex;gap:8px;align-items:center;margin:16px 0;}
+.lamp{width:28px;height:28px;border-radius:50%;border:2px solid rgba(0,0,0,.15);transition:all .3s;opacity:.2;}
+.lamp.on-green{background:#22c55e;border-color:#16a34a;opacity:1;box-shadow:0 0 12px rgba(34,197,94,.5);}
+.lamp.on-orange{background:#f59e0b;border-color:#d97706;opacity:1;box-shadow:0 0 12px rgba(245,158,11,.5);}
+.lamp.on-red{background:#ef4444;border-color:#dc2626;opacity:1;box-shadow:0 0 12px rgba(239,68,68,.6);}
+.stoplicht-label{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-left:8px;}
+
+/* POSITIE BAR */
+.pos-bar-wrap{margin:16px 0;}
+.pos-bar-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:4px;}
+.pos-bar-track{height:12px;background:var(--surface2);border-radius:6px;position:relative;border:1px solid var(--border);}
+.pos-bar-fill{height:100%;border-radius:6px;transition:width .4s ease;position:absolute;left:0;top:0;}
+.pos-marker{position:absolute;top:-4px;width:4px;height:20px;border-radius:2px;transform:translateX(-50%);transition:left .4s ease;}
+.pos-marker.put-m{background:var(--red);}
+.pos-marker.call-m{background:var(--blue);}
+.pos-marker.now-m{background:var(--text);width:3px;}
+
+/* SCENARIO CARDS */
+.scenario-card{background:var(--surface);border:1.5px solid var(--border);border-radius:6px;padding:16px;}
+.scenario-card.bear{border-top:3px solid var(--red);}
+.scenario-card.neutral{border-top:3px solid var(--accent);}
+.scenario-card.bull{border-top:3px solid var(--green);}
+.scenario-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;font-weight:600;margin-bottom:12px;}
+.scenario-label.bear{color:var(--red);}
+.scenario-label.neutral{color:var(--gold);}
+.scenario-label.bull{color:var(--green);}
+
+/* STRIKE RESULT TABLE */
+.strike-table{width:100%;border-collapse:collapse;margin-top:10px;}
+.strike-table th{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);padding:5px 8px;text-align:right;border-bottom:1px solid var(--border);}
+.strike-table th:first-child{text-align:left;}
+.strike-table td{padding:7px 8px;text-align:right;font-size:12px;border-bottom:1px solid var(--border2);}
+.strike-table td:first-child{text-align:left;color:var(--text2);}
+.strike-table tr.recommended{background:var(--gold-bg);}
+.strike-table tr.recommended td:first-child::after{content:' ★';color:var(--accent);}
+
+/* PROGRESS BAR MINI */
+.mini-bar{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;margin-top:4px;}
+.mini-bar-fill{height:100%;border-radius:2px;transition:width .3s;}
+
+/* TAGS */
+.tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:3px;font-weight:500;letter-spacing:.05em;}
+.tag-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+.tag-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
+.tag-orange{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border);}
+.tag-blue{background:var(--blue-bg);color:var(--blue);}
+.tag-gold{background:var(--gold-bg);color:var(--gold);}
+
+/* DIVIDER */
+hr{border:none;border-top:1px solid var(--border2);margin:16px 0;}
+
+/* NOTIFICATION */
+.notif{padding:10px 14px;border-radius:4px;font-size:11px;margin-top:10px;border-left:3px solid;}
+.notif-red{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+.notif-orange{background:var(--orange-bg);border-color:var(--orange);color:var(--orange);}
+.notif-green{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+
+/* FOOTER */
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--border);font-size:10px;color:var(--text3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+
+/* HIDDEN */
+.hidden{display:none;}
+
+/* SPLIT LAYOUT */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:800px){.split{grid-template-columns:1fr;}}
+
+/* FORMULA BOX */
+.formula{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px 14px;font-size:11px;color:var(--text2);line-height:1.8;}
+.formula strong{color:var(--text);}
+
+/* TOOLTIP */
+.tip{font-size:10px;color:var(--text3);margin-top:4px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<header>
+  <div class="header-row">
+    <div>
+      <div class="eyebrow">EUREX OESX — Weekopties Schrijver Dashboard</div>
+      <h1>EURO STOXX <em>50</em></h1>
+    </div>
+    <div class="header-right">
+      <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;justify-content:flex-end;">
+        <div class="vstoxx-badge">
+          <div>
+            <div class="vstoxx-label">VSTOXX</div>
+            <div class="vstoxx-val" id="hdr-vstoxx">—</div>
+          </div>
+          <div style="font-size:10px;color:var(--text3);" id="hdr-vstoxx-regime">—</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:10px;color:var(--text3);letter-spacing:.05em;" id="hdr-datum">—</div>
+          <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;" id="hdr-stand">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════
+     BLOK 1: ACTIEVE POSITIE
+═══════════════════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head"><span class="sec-num">1</span> Actieve positie</div>
+  
+  <div class="card" style="margin-bottom:14px;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;">
+      
+      <div class="field">
+        <label>Instap datum</label>
+        <input type="text" id="inp-datum" placeholder="bijv. 07-03-2026" oninput="updateAlles()">
+      </div>
+      <div class="field">
+        <label>Referentiekoers instap</label>
+        <input type="number" id="inp-ref" placeholder="bijv. 5500" step="1" oninput="updateAlles()">
+      </div>
+      <div class="field">
+        <label>PUT strike</label>
+        <input type="number" id="inp-put" placeholder="bijv. 5100" step="25" oninput="updateAlles()">
+      </div>
+      <div class="field">
+        <label>PUT premie ontvangen (€)</label>
+        <input type="number" id="inp-put-prem" placeholder="bijv. 2.50" step="0.05" oninput="updateAlles()">
+      </div>
+      <div class="field">
+        <label>CALL strike</label>
+        <input type="number" id="inp-call" placeholder="bijv. 5850" step="25" oninput="updateAlles()">
+      </div>
+      <div class="field">
+        <label>CALL premie ontvangen (€)</label>
+        <input type="number" id="inp-call-prem" placeholder="bijv. 1.80" step="0.05" oninput="updateAlles()">
+      </div>
+      <div class="field">
+        <label>Aantal contracten</label>
+        <input type="number" id="inp-cnt" placeholder="bijv. 30" step="1" value="30" oninput="updateAlles()">
+      </div>
+      <div class="field">
+        <label>Expiratie datum</label>
+        <input type="text" id="inp-exp" placeholder="bijv. 14-03-2026" oninput="updateAlles()">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-sm" onclick="slaPositieOp()">💾 Sla positie op</button>
+      <button class="btn btn-sm btn-outline" onclick="laadPositie()">📂 Laad opgeslagen</button>
+      <button class="btn btn-sm btn-outline" onclick="resetPositie()">✕ Reset</button>
+    </div>
+  </div>
+
+  <!-- Positie samenvatting stats -->
+  <div class="grid4" id="positie-stats" style="display:none;">
+    <div class="stat a">
+      <div class="stat-label">PUT buffer</div>
+      <div class="stat-val a" id="stat-put-buf">—</div>
+      <div class="stat-sub" id="stat-put-pts">—</div>
+    </div>
+    <div class="stat b">
+      <div class="stat-label">CALL buffer</div>
+      <div class="stat-val b" id="stat-call-buf">—</div>
+      <div class="stat-sub" id="stat-call-pts">—</div>
+    </div>
+    <div class="stat g">
+      <div class="stat-label">Totale premie</div>
+      <div class="stat-val g" id="stat-premie-tot">—</div>
+      <div class="stat-sub" id="stat-premie-sub">—</div>
+    </div>
+    <div class="stat p">
+      <div class="stat-label">Dagen tot expiratie</div>
+      <div class="stat-val p" id="stat-dagen">—</div>
+      <div class="stat-sub" id="stat-dagen-sub">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     BLOK 2: STAND VAN ZAKEN — STOPLICHT
+═══════════════════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head"><span class="sec-num">2</span> Stand van zaken — live check</div>
+  
+  <div class="split">
+    <!-- INPUT PANEL -->
+    <div>
+      <div class="card">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="field">
+            <label>Huidige koers</label>
+            <input type="number" id="inp-nu" placeholder="bijv. 5420" step="1" oninput="updateStoplicht()" class="highlight">
+          </div>
+          <div class="field">
+            <label>Huidig VSTOXX</label>
+            <input type="number" id="inp-vstoxx-nu" placeholder="bijv. 22.5" step="0.5" oninput="updateStoplicht();updateVstoxxHeader()">
+          </div>
+        </div>
+        <div class="tip">Vul huidige koers in → stoplicht en afstanden worden direct bijgewerkt</div>
+      </div>
+
+      <!-- STOPLICHT -->
+      <div class="card card-sm" style="margin-top:12px;" id="stoplicht-card">
+        <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;font-weight:500;">Risicostoplicht PUT</div>
+        <div class="stoplicht">
+          <div class="lamp" id="lamp-green"></div>
+          <div class="lamp" id="lamp-orange"></div>
+          <div class="lamp" id="lamp-red"></div>
+          <div class="stoplicht-label" id="stoplicht-tekst">Voer koers in</div>
+        </div>
+        <div id="stoplicht-msg" class="tip"></div>
+        
+        <hr>
+        
+        <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;font-weight:500;">Risicostoplicht CALL</div>
+        <div class="stoplicht">
+          <div class="lamp" id="lamp-call-green"></div>
+          <div class="lamp" id="lamp-call-orange"></div>
+          <div class="lamp" id="lamp-call-red"></div>
+          <div class="stoplicht-label" id="stoplicht-call-tekst">Voer koers in</div>
+        </div>
+        <div id="stoplicht-call-msg" class="tip"></div>
+      </div>
+    </div>
+
+    <!-- RESULTAAT PANEL -->
+    <div>
+      <div class="card" id="standvanzaken-card">
+        <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:14px;font-weight:500;">Afstanden & P&L</div>
+        
+        <!-- Visuele positiebalk -->
+        <div class="pos-bar-wrap" id="pos-bar-container">
+          <div class="pos-bar-labels">
+            <span id="bar-put-label">PUT —</span>
+            <span id="bar-mid-label">REF —</span>
+            <span id="bar-call-label">CALL —</span>
+          </div>
+          <div class="pos-bar-track" id="pos-bar-track">
+            <div class="pos-bar-fill" id="pos-bar-fill" style="background:var(--green-bg);width:100%;"></div>
+            <div class="pos-marker put-m" id="put-marker" style="left:0%;"></div>
+            <div class="pos-marker now-m" id="now-marker" style="left:50%;"></div>
+            <div class="pos-marker call-m" id="call-marker" style="left:100%;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text3);margin-top:4px;">
+            <span>▲ PUT</span><span>● Nu</span><span>CALL ▲</span>
+          </div>
+        </div>
+        
+        <div class="grid2" style="gap:10px;margin-top:12px;">
+          <div class="stat r">
+            <div class="stat-label">Afstand PUT strike</div>
+            <div class="stat-val" id="afstand-put-val">—</div>
+            <div class="stat-sub" id="afstand-put-pct">—</div>
+            <div class="mini-bar"><div class="mini-bar-fill" id="afstand-put-bar" style="background:var(--green);width:100%;"></div></div>
+          </div>
+          <div class="stat b">
+            <div class="stat-label">Afstand CALL strike</div>
+            <div class="stat-val" id="afstand-call-val">—</div>
+            <div class="stat-sub" id="afstand-call-pct">—</div>
+            <div class="mini-bar"><div class="mini-bar-fill" id="afstand-call-bar" style="background:var(--green);width:100%;"></div></div>
+          </div>
+        </div>
+        
+        <div class="grid2" style="gap:10px;margin-top:10px;">
+          <div class="stat g">
+            <div class="stat-label">P&L nu (beide kanten)</div>
+            <div class="stat-val g" id="pnl-val">—</div>
+            <div class="stat-sub" id="pnl-sub">—</div>
+          </div>
+          <div class="stat a">
+            <div class="stat-label">% buffer PUT resterend</div>
+            <div class="stat-val a" id="buf-rest-val">—</div>
+            <div class="stat-sub" id="buf-rest-sub">—</div>
+          </div>
+        </div>
+        
+        <div id="standvanzaken-alert"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     BLOK 3: DOORROL CALCULATOR
+═══════════════════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head"><span class="sec-num">3</span> Doorrol calculator — 3 scenario's</div>
+  
+  <div class="card" style="margin-bottom:16px;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;align-items:end;">
+      <div class="field">
+        <label>VSTOXX bij doorrol</label>
+        <input type="number" id="doorrol-vstoxx" placeholder="bijv. 25.0" step="0.5" oninput="updateDoorrol()">
+        <div class="tip">Verwachte VSTOXX op het doorrolmoment</div>
+      </div>
+      <div class="field">
+        <label>Terugkooppremie PUT (€)</label>
+        <input type="number" id="doorrol-tbk-put" placeholder="bijv. 8.00" step="0.10" oninput="updateDoorrol()">
+      </div>
+      <div class="field">
+        <label>Terugkooppremie CALL (€)</label>
+        <input type="number" id="doorrol-tbk-call" placeholder="bijv. 3.00" step="0.10" oninput="updateDoorrol()">
+      </div>
+      <div class="field">
+        <label>Wat wil je doorrollenber</label>
+        <select id="doorrol-kant" onchange="updateDoorrol()">
+          <option value="put">Alleen PUT</option>
+          <option value="call">Alleen CALL</option>
+          <option value="beide">Beide kanten</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Formule uitleg -->
+  <div class="formula" style="margin-bottom:16px;">
+    <strong>Formule:</strong> Strike = Koers × (1 − VSTOXX/100 / √52 × σ) &nbsp;|&nbsp; 
+    σ: P95=1.93 · P97=2.28 · P99=2.80 &nbsp;|&nbsp;
+    <strong>VSTOXX gebaseerd — geen intuïtie</strong>
+  </div>
+
+  <!-- 3 SCENARIO INPUTS + OUTPUTS -->
+  <div class="grid3">
+    <!-- BEAR -->
+    <div class="scenario-card bear">
+      <div class="scenario-label bear">🐻 Bear scenario</div>
+      <div class="field" style="margin-bottom:12px;">
+        <label>Koers bij doorrol</label>
+        <input type="number" id="sce-bear-koers" placeholder="bijv. 5200" step="25" oninput="updateDoorrol()">
+      </div>
+      <div id="bear-result"></div>
+    </div>
+    
+    <!-- NEUTRAAL -->
+    <div class="scenario-card neutral">
+      <div class="scenario-label neutral">⚖️ Neutraal scenario</div>
+      <div class="field" style="margin-bottom:12px;">
+        <label>Koers bij doorrol</label>
+        <input type="number" id="sce-neut-koers" placeholder="bijv. 5400" step="25" oninput="updateDoorrol()">
+      </div>
+      <div id="neut-result"></div>
+    </div>
+    
+    <!-- BULL -->
+    <div class="scenario-card bull">
+      <div class="scenario-label bull">🐂 Bull scenario</div>
+      <div class="field" style="margin-bottom:12px;">
+        <label>Koers bij doorrol</label>
+        <input type="number" id="sce-bull-koers" placeholder="bijv. 5600" step="25" oninput="updateDoorrol()">
+      </div>
+      <div id="bull-result"></div>
+    </div>
+  </div>
+  
+  <!-- P&L DOORROL SAMENVATTING -->
+  <div id="doorrol-samenvatting" class="hidden" style="margin-top:16px;">
+    <div class="card card-sm">
+      <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;font-weight:500;">P&L samenvatting doorrol</div>
+      <div id="doorrol-pnl-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     BLOK 4: VSTOXX STRIKE REKENTOOL (instap)
+═══════════════════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head"><span class="sec-num">4</span> Instap rekentool — VSTOXX model</div>
+  
+  <div class="split">
+    <div class="card">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="field">
+          <label>Referentiekoers (instap)</label>
+          <input type="number" id="inst-koers" placeholder="bijv. 5500" step="1" oninput="updateInstap()">
+        </div>
+        <div class="field">
+          <label>VSTOXX instap</label>
+          <input type="number" id="inst-vstoxx" placeholder="bijv. 20.0" step="0.5" oninput="updateInstap()">
+        </div>
+        <div class="field">
+          <label>Gewenst P-niveau</label>
+          <select id="inst-p" onchange="updateInstap()">
+            <option value="95">P95 — 25% model (offensief)</option>
+            <option value="97" selected>P97 — 20% model (midden)</option>
+            <option value="99">P99 — 15% model (defensief)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Bram-correctie (punten)</label>
+          <input type="number" id="inst-bram" placeholder="bijv. 42" value="42" step="25" oninput="updateInstap()">
+          <div class="tip">Sven zit gem. +42 pts boven Bram</div>
+        </div>
+      </div>
+      
+      <hr>
+      
+      <div id="instap-result"></div>
+    </div>
+    
+    <!-- VSTOXX REGIME TABEL -->
+    <div class="card">
+      <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;font-weight:500;">VSTOXX regime referentie</div>
+      <table class="strike-table" id="regime-table">
+        <thead>
+          <tr>
+            <th style="text-align:left;">VSTOXX</th>
+            <th>Regime</th>
+            <th>P95 buf</th>
+            <th>P97 buf</th>
+            <th>P99 buf</th>
+          </tr>
+        </thead>
+        <tbody id="regime-tbody"></tbody>
+      </table>
+      <div class="tip" style="margin-top:8px;">Backtest (2019–2026): P97 formule haalt feitelijk 97.8% trefzekerheid ✓</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>OESX Dashboard v12 — VSTOXX-gebaseerd model</span>
+  <span id="footer-datum">—</span>
+</footer>
+
+</div><!-- /wrap -->
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CONSTANTEN
+// ═══════════════════════════════════════════════════════
+const SIGMA = { 95: 1.93, 97: 2.28, 99: 2.80 };
+const SIGMA_CALL = { 95: 1.39, 97: 1.67, 99: 2.10 };
+const CONTRACTGROOTTE = 10;
+const VSTOXX_REGIMES = [
+  { lo: 0,  hi: 15, label: '< 15',   naam: 'Rustig',    kleur: 'green' },
+  { lo: 15, hi: 18, label: '15–18',  naam: 'Normaal',   kleur: 'green' },
+  { lo: 18, hi: 22, label: '18–22',  naam: 'Verhoogd',  kleur: 'orange'},
+  { lo: 22, hi: 28, label: '22–28',  naam: 'Onrustig',  kleur: 'orange'},
+  { lo: 28, hi: 35, label: '28–35',  naam: 'Stress',    kleur: 'red'   },
+  { lo: 35, hi: 99, label: '> 35',   naam: 'Crisis',    kleur: 'red'   },
+];
+
+// ═══════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════
+function vstoxxBuffer(vstoxx, pNiveau, kant = 'put') {
+  const sigma = kant === 'call' ? SIGMA_CALL[pNiveau] : SIGMA[pNiveau];
+  return (vstoxx / 100) / Math.sqrt(52) * sigma;
+}
+
+function vstoxxRegime(v) {
+  return VSTOXX_REGIMES.find(r => v >= r.lo && v < r.hi) || VSTOXX_REGIMES[5];
+}
+
+function fmt(n, dec = 0) {
+  if (n == null || isNaN(n)) return '—';
+  return n.toFixed(dec).replace('.', ',');
+}
+
+function fmtEur(n) {
+  if (n == null || isNaN(n)) return '—';
+  const sign = n < 0 ? '−' : '+';
+  return sign + '€' + Math.abs(n).toLocaleString('nl-NL', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+}
+
+function getVal(id) {
+  const v = parseFloat(document.getElementById(id).value);
+  return isNaN(v) ? null : v;
+}
+
+function getText(id) {
+  return document.getElementById(id).value.trim();
+}
+
+function set(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+function setHTML(id, html) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = html;
+}
+
+function dagsTot(datumStr) {
+  if (!datumStr) return null;
+  const parts = datumStr.split('-');
+  if (parts.length !== 3) return null;
+  const d = new Date(parts[2], parts[1]-1, parts[0]);
+  const nu = new Date();
+  nu.setHours(0,0,0,0);
+  return Math.round((d - nu) / 86400000);
+}
+
+// ═══════════════════════════════════════════════════════
+// HEADER UPDATE
+// ═══════════════════════════════════════════════════════
+function updateVstoxxHeader() {
+  const vst = getVal('inp-vstoxx-nu');
+  const stand = getVal('inp-nu');
+  
+  if (vst) {
+    document.getElementById('hdr-vstoxx').textContent = fmt(vst, 1);
+    const regime = vstoxxRegime(vst);
+    const regimeEl = document.getElementById('hdr-vstoxx-regime');
+    regimeEl.textContent = regime.naam;
+    regimeEl.style.color = regime.kleur === 'green' ? 'var(--green)' : regime.kleur === 'orange' ? 'var(--orange)' : 'var(--red)';
+  }
+  if (stand) {
+    document.getElementById('hdr-stand').textContent = fmt(stand, 0);
+  }
+  
+  const nu = new Date();
+  document.getElementById('hdr-datum').textContent = nu.toLocaleDateString('nl-NL', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
+  document.getElementById('footer-datum').textContent = 'v12 · ' + nu.toLocaleDateString('nl-NL');
+}
+
+// ═══════════════════════════════════════════════════════
+// BLOK 1: POSITIE STATS
+// ═══════════════════════════════════════════════════════
+function updateAlles() {
+  const ref = getVal('inp-ref');
+  const put = getVal('inp-put');
+  const call = getVal('inp-call');
+  const putPrem = getVal('inp-put-prem');
+  const callPrem = getVal('inp-call-prem');
+  const cnt = getVal('inp-cnt') || 30;
+  const exp = getText('inp-exp');
+  
+  const statsEl = document.getElementById('positie-stats');
+  
+  if (ref && put) {
+    statsEl.style.display = 'grid';
+    const putBuf = (ref - put) / ref * 100;
+    const putPts = ref - put;
+    set('stat-put-buf', fmt(putBuf, 1) + '%');
+    set('stat-put-pts', fmt(putPts, 0) + ' punten');
+    
+    if (call) {
+      const callBuf = (call - ref) / ref * 100;
+      const callPts = call - ref;
+      set('stat-call-buf', fmt(callBuf, 1) + '%');
+      set('stat-call-pts', fmt(callPts, 0) + ' punten');
+    }
+    
+    const totPrem = ((putPrem || 0) + (callPrem || 0)) * CONTRACTGROOTTE * cnt;
+    set('stat-premie-tot', '€' + fmt(totPrem, 0));
+    set('stat-premie-sub', 'PUT €' + fmt((putPrem||0)*CONTRACTGROOTTE*cnt,0) + ' + CALL €' + fmt((callPrem||0)*CONTRACTGROOTTE*cnt,0));
+    
+    if (exp) {
+      const dagen = dagsTot(exp);
+      if (dagen !== null) {
+        set('stat-dagen', dagen + (dagen === 1 ? ' dag' : ' dagen'));
+        const weekDag = ['zo','ma','di','wo','do','vr','za'][new Date().getDay()];
+        set('stat-dagen-sub', 'Vandaag: ' + weekDag + ' · exp. ' + exp);
+      }
+    }
+  }
+  
+  updateStoplicht();
+  updateDoorrol();
+}
+
+// ═══════════════════════════════════════════════════════
+// BLOK 2: STOPLICHT
+// ═══════════════════════════════════════════════════════
+function updateStoplicht() {
+  const nu = getVal('inp-nu');
+  const put = getVal('inp-put');
+  const call = getVal('inp-call');
+  const ref = getVal('inp-ref');
+  const putPrem = getVal('inp-put-prem');
+  const callPrem = getVal('inp-call-prem');
+  const cnt = getVal('inp-cnt') || 30;
+  
+  updateVstoxxHeader();
+  
+  if (!nu || !put) return;
+  
+  // PUT STOPLICHT
+  const putBufTotaal = ref ? ref - put : null;
+  const putAfstand = nu - put;
+  const putBufPct = ref ? (ref - put) / ref * 100 : null;
+  const putRestPct = putBufTotaal ? putAfstand / putBufTotaal * 100 : null;
+  
+  // Drempels: groen >50% buffer rest, oranje 25-50%, rood <25%
+  setLamp('put', putRestPct);
+  
+  // CALL STOPLICHT
+  if (call) {
+    const callBufTotaal = ref ? call - ref : null;
+    const callAfstand = call - nu;
+    const callRestPct = callBufTotaal ? callAfstand / callBufTotaal * 100 : null;
+    setLamp('call', callRestPct);
+  }
+  
+  // AFSTANDEN
+  const afstandPut = nu - put;
+  const afstandPutPct = ref ? afstandPut / ref * 100 : afstandPut / nu * 100;
+  set('afstand-put-val', fmt(afstandPut, 0) + ' pts');
+  set('afstand-put-pct', fmt(afstandPutPct, 1) + '% van referentie');
+  
+  // Progressbar afstand (100% = buffer intact, 0% = op strike)
+  const putBarPct = putBufTotaal ? Math.max(0, Math.min(100, putAfstand / putBufTotaal * 100)) : 50;
+  document.getElementById('afstand-put-bar').style.width = putBarPct + '%';
+  document.getElementById('afstand-put-bar').style.background = putBarPct > 50 ? 'var(--green)' : putBarPct > 25 ? 'var(--orange)' : 'var(--red)';
+  
+  if (call) {
+    const afstandCall = call - nu;
+    const afstandCallPct = ref ? afstandCall / ref * 100 : afstandCall / nu * 100;
+    set('afstand-call-val', fmt(afstandCall, 0) + ' pts');
+    set('afstand-call-pct', fmt(afstandCallPct, 1) + '% van referentie');
+    const callBufTotaal = ref ? call - ref : null;
+    const callBarPct = callBufTotaal ? Math.max(0, Math.min(100, (call - nu) / callBufTotaal * 100)) : 50;
+    document.getElementById('afstand-call-bar').style.width = callBarPct + '%';
+    document.getElementById('afstand-call-bar').style.background = callBarPct > 50 ? 'var(--green)' : callBarPct > 25 ? 'var(--orange)' : 'var(--red)';
+  }
+  
+  // BUFFER RESTEREND %
+  if (putRestPct !== null) {
+    set('buf-rest-val', fmt(putRestPct, 0) + '%');
+    set('buf-rest-sub', fmt(afstandPut, 0) + ' pts resterend van ' + fmt(putBufTotaal || 0, 0) + ' pts totaal');
+  }
+  
+  // P&L schatting (op basis van tijdswaardeverval — simpele benadering)
+  const totaalOntvangen = ((putPrem || 0) + (callPrem || 0)) * CONTRACTGROOTTE * cnt;
+  const nutVal = afstandPut < 0 ? Math.abs(afstandPut) * CONTRACTGROOTTE * cnt : 0; // intrinsieke waarde verlies
+  set('pnl-val', nutVal > 0 ? fmtEur(-nutVal) : fmtEur(totaalOntvangen));
+  set('pnl-sub', nutVal > 0 ? 'PUT zit in the money: −' + fmt(afstandPut < 0 ? Math.abs(afstandPut) : 0, 0) + ' pts intrinsiek' : 'Ontvangen premie · positie intact');
+  
+  // VISUELE BALK
+  updatePosBalk(nu, put, call, ref);
+  
+  // ALERT
+  const alertEl = document.getElementById('standvanzaken-alert');
+  if (nu < put) {
+    alertEl.innerHTML = '<div class="notif notif-red">⚠️ KOERS DOOR PUT STRIKE — intrinsiek verlies van ' + fmt(put - nu, 0) + ' punten (€' + fmt((put - nu) * CONTRACTGROOTTE * cnt, 0) + ')</div>';
+  } else if (putRestPct !== null && putRestPct < 25) {
+    alertEl.innerHTML = '<div class="notif notif-orange">⚡ Minder dan 25% buffer resterend — overweeg doorrol</div>';
+  } else {
+    alertEl.innerHTML = '';
+  }
+}
+
+function setLamp(kant, restPct) {
+  const prefix = kant === 'put' ? 'lamp' : 'lamp-call';
+  const tekst = kant === 'put' ? 'stoplicht-tekst' : 'stoplicht-call-tekst';
+  const msg = kant === 'put' ? 'stoplicht-msg' : 'stoplicht-call-msg';
+  
+  document.getElementById(prefix + '-green').className = 'lamp';
+  document.getElementById(prefix + '-orange').className = 'lamp';
+  document.getElementById(prefix + '-red').className = 'lamp';
+  
+  if (restPct === null) return;
+  
+  if (restPct > 50) {
+    document.getElementById(prefix + '-green').className = 'lamp on-green';
+    set(tekst, 'VEILIG');
+    set(msg, fmt(restPct, 0) + '% van buffer nog intact');
+  } else if (restPct > 25) {
+    document.getElementById(prefix + '-orange').className = 'lamp on-orange';
+    set(tekst, 'ALERT');
+    set(msg, 'Let op — ' + fmt(restPct, 0) + '% buffer resterend');
+  } else if (restPct > 0) {
+    document.getElementById(prefix + '-red').className = 'lamp on-red';
+    set(tekst, 'GEVAAR');
+    set(msg, 'Nog ' + fmt(restPct, 0) + '% buffer — doorrol overwegen!');
+  } else {
+    document.getElementById(prefix + '-red').className = 'lamp on-red';
+    set(tekst, 'IN THE MONEY');
+    set(msg, 'Strike doorbroken — actie vereist!');
+  }
+}
+
+function updatePosBalk(nu, put, call, ref) {
+  if (!nu || !put || !call) return;
+  const lo = put * 0.97;
+  const hi = call * 1.03;
+  const range = hi - lo;
+  
+  const putPos = (put - lo) / range * 100;
+  const callPos = (call - lo) / range * 100;
+  const nuPos = Math.max(0, Math.min(100, (nu - lo) / range * 100));
+  const refPos = ref ? Math.max(0, Math.min(100, (ref - lo) / range * 100)) : 50;
+  
+  document.getElementById('put-marker').style.left = putPos + '%';
+  document.getElementById('call-marker').style.left = callPos + '%';
+  document.getElementById('now-marker').style.left = nuPos + '%';
+  
+  set('bar-put-label', 'PUT ' + fmt(put, 0));
+  set('bar-mid-label', 'REF ' + (ref ? fmt(ref, 0) : fmt(nu, 0)));
+  set('bar-call-label', 'CALL ' + (call ? fmt(call, 0) : '—'));
+  
+  // Kleur balk: groen = veilige zone
+  const fill = document.getElementById('pos-bar-fill');
+  const isVeilig = nu > put && (!call || nu < call);
+  fill.style.background = isVeilig ? 'var(--green-bg)' : 'var(--red-bg)';
+  fill.style.left = putPos + '%';
+  fill.style.width = (callPos - putPos) + '%';
+}
+
+// ═══════════════════════════════════════════════════════
+// BLOK 3: DOORROL CALCULATOR
+// ═══════════════════════════════════════════════════════
+function berekenDoorrolScenario(koers, vstoxx, kant, tbkPut, tbkCall, cnt) {
+  if (!koers || !vstoxx) return '<div class="tip">Vul koers en VSTOXX in</div>';
+  
+  const pNiveaus = [95, 97, 99];
+  const labels = ['P95 offensief', 'P97 midden ★', 'P99 defensief'];
+  
+  let html = '<table class="strike-table"><thead><tr><th style="text-align:left;">Model</th>';
+  
+  if (kant !== 'call') html += '<th>PUT strike</th><th>PUT buf%</th>';
+  if (kant !== 'put') html += '<th>CALL strike</th><th>CALL buf%</th>';
+  html += '<th>Netto P&L</th></tr></thead><tbody>';
+  
+  pNiveaus.forEach((p, i) => {
+    const isRec = p === 97;
+    html += `<tr${isRec ? ' class="recommended"' : ''}>`;
+    html += `<td>${labels[i]}</td>`;
+    
+    let pnl = 0;
+    if (tbkPut && kant !== 'call') pnl -= tbkPut * CONTRACTGROOTTE * cnt;
+    if (tbkCall && kant !== 'put') pnl -= tbkCall * CONTRACTGROOTTE * cnt;
+    
+    if (kant !== 'call') {
+      const bufPct = vstoxxBuffer(vstoxx, p, 'put');
+      const strike = Math.round(koers * (1 - bufPct) / 25) * 25;
+      const bufPts = koers - strike;
+      // Geschatte nieuwe premie (benadering)
+      const nieuweP = koers * (vstoxx/100/Math.sqrt(52)) * Math.exp(-0.5 * SIGMA[p]**2) * 0.4;
+      pnl += nieuweP * CONTRACTGROOTTE * cnt;
+      html += `<td><strong>${fmt(strike, 0)}</strong></td><td>${fmt(bufPct*100,1)}% / ${fmt(bufPts,0)}pts</td>`;
+    }
+    
+    if (kant !== 'put') {
+      const bufPct = vstoxxBuffer(vstoxx, p, 'call');
+      const strike = Math.round(koers * (1 + bufPct) / 25) * 25;
+      const bufPts = strike - koers;
+      const nieuweP = koers * (vstoxx/100/Math.sqrt(52)) * Math.exp(-0.5 * SIGMA_CALL[p]**2) * 0.4;
+      pnl += nieuweP * CONTRACTGROOTTE * cnt;
+      html += `<td><strong>${fmt(strike, 0)}</strong></td><td>${fmt(bufPct*100,1)}% / ${fmt(bufPts,0)}pts</td>`;
+    }
+    
+    const pnlKleur = pnl >= 0 ? 'var(--green)' : 'var(--red)';
+    html += `<td style="color:${pnlKleur};font-weight:500;">${fmtEur(pnl)}</td>`;
+    html += '</tr>';
+  });
+  
+  html += '</tbody></table>';
+  return html;
+}
+
+function updateDoorrol() {
+  const vstoxx = getVal('doorrol-vstoxx') || getVal('inp-vstoxx-nu');
+  const tbkPut = getVal('doorrol-tbk-put');
+  const tbkCall = getVal('doorrol-tbk-call');
+  const kant = document.getElementById('doorrol-kant').value;
+  const cnt = getVal('inp-cnt') || 30;
+  
+  const scenarios = [
+    { id: 'sce-bear-koers', resultId: 'bear-result' },
+    { id: 'sce-neut-koers', resultId: 'neut-result' },
+    { id: 'sce-bull-koers', resultId: 'bull-result' },
+  ];
+  
+  let anyResult = false;
+  scenarios.forEach(s => {
+    const koers = getVal(s.id);
+    if (koers && vstoxx) {
+      setHTML(s.resultId, berekenDoorrolScenario(koers, vstoxx, kant, tbkPut, tbkCall, cnt));
+      anyResult = true;
+    } else {
+      setHTML(s.resultId, '<div class="tip">Voer koers in</div>');
+    }
+  });
+  
+  // Samenvatting
+  if (anyResult && (tbkPut || tbkCall)) {
+    document.getElementById('doorrol-samenvatting').classList.remove('hidden');
+    const totTbk = ((tbkPut || 0) + (tbkCall || 0)) * CONTRACTGROOTTE * cnt;
+    setHTML('doorrol-pnl-content', 
+      `<div style="display:flex;gap:20px;flex-wrap:wrap;">
+        <div><div class="stat-label">Totale terugkoopkosten</div><div class="stat-val r">${fmtEur(-totTbk)}</div></div>
+        <div><div class="stat-label">Break-even nieuwe premie</div><div class="stat-val a">€${fmt(totTbk / (CONTRACTGROOTTE * cnt), 2)} p/c</div></div>
+      </div>`
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// BLOK 4: INSTAP REKENTOOL
+// ═══════════════════════════════════════════════════════
+function updateInstap() {
+  const koers = getVal('inst-koers');
+  const vstoxx = getVal('inst-vstoxx');
+  const p = parseInt(document.getElementById('inst-p').value);
+  const bramCorrectie = getVal('inst-bram') || 0;
+  
+  if (!koers || !vstoxx) {
+    setHTML('instap-result', '<div class="tip">Vul koers en VSTOXX in</div>');
+    return;
+  }
+  
+  const bufPut = vstoxxBuffer(vstoxx, p, 'put');
+  const bufCall = vstoxxBuffer(vstoxx, p, 'call');
+  
+  const strikeFormule = Math.round(koers * (1 - bufPut) / 25) * 25;
+  const strikeBram = strikeFormule; // Bram's niveau
+  const strikeSven = Math.round((strikeFormule + bramCorrectie) / 25) * 25; // Sven +correctie
+  
+  const strikeCall = Math.round(koers * (1 + bufCall) / 25) * 25;
+  
+  const regime = vstoxxRegime(vstoxx);
+  const regKleur = regime.kleur === 'green' ? 'var(--green)' : regime.kleur === 'orange' ? 'var(--orange)' : 'var(--red)';
+  
+  setHTML('instap-result', `
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;">
+      <span class="tag" style="background:${regKleur}15;color:${regKleur};border:1px solid ${regKleur}40;">VSTOXX ${vstoxx} — ${regime.naam}</span>
+      <span class="tag tag-gold">P${p} model</span>
+    </div>
+    
+    <div class="grid2" style="gap:10px;margin-bottom:12px;">
+      <div class="stat r">
+        <div class="stat-label">PUT strike (Bram model)</div>
+        <div class="stat-val r">${fmt(strikeBram, 0)}</div>
+        <div class="stat-sub">${fmt(bufPut*100, 1)}% buffer · ${fmt(koers - strikeBram, 0)} pts</div>
+      </div>
+      <div class="stat a">
+        <div class="stat-label">PUT strike (Sven +${fmt(bramCorrectie,0)}pts)</div>
+        <div class="stat-val a">${fmt(strikeSven, 0)}</div>
+        <div class="stat-sub">${fmt((koers - strikeSven)/koers*100, 1)}% buffer · ${fmt(koers - strikeSven, 0)} pts</div>
+      </div>
+    </div>
+    <div class="stat b" style="margin-bottom:12px;">
+      <div class="stat-label">CALL strike (${p}% model)</div>
+      <div class="stat-val b">${fmt(strikeCall, 0)}</div>
+      <div class="stat-sub">${fmt(bufCall*100, 1)}% buffer · ${fmt(strikeCall - koers, 0)} pts boven koers</div>
+    </div>
+    <div class="formula">
+      PUT: ${fmt(koers,0)} × (1 − ${fmt(vstoxx,1)}/100 / √52 × ${SIGMA[p]}) = <strong>${fmt(koers * (1 - bufPut), 1)}</strong> → afgerond <strong>${fmt(strikeBram, 0)}</strong><br>
+      CALL: ${fmt(koers,0)} × (1 + ${fmt(vstoxx,1)}/100 / √52 × ${SIGMA_CALL[p]}) = <strong>${fmt(koers * (1 + bufCall), 1)}</strong> → afgerond <strong>${fmt(strikeCall, 0)}</strong>
+    </div>
+  `);
+}
+
+// ═══════════════════════════════════════════════════════
+// REGIME TABEL OPBOUWEN
+// ═══════════════════════════════════════════════════════
+function bouwRegimeTabel() {
+  const tbody = document.getElementById('regime-tbody');
+  const vstoxxWaarden = [12, 15, 17, 19, 21, 24, 28, 32, 38];
+  const stand = 5500; // referentie
+  
+  vstoxxWaarden.forEach(v => {
+    const regime = vstoxxRegime(v);
+    const kleur = regime.kleur === 'green' ? 'var(--green)' : regime.kleur === 'orange' ? 'var(--orange)' : 'var(--red)';
+    const buf95 = vstoxxBuffer(v, 95, 'put') * 100;
+    const buf97 = vstoxxBuffer(v, 97, 'put') * 100;
+    const buf99 = vstoxxBuffer(v, 99, 'put') * 100;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${v}</strong></td>
+      <td><span class="tag" style="background:${kleur}15;color:${kleur};border:1px solid ${kleur}40;">${regime.naam}</span></td>
+      <td>${fmt(buf95, 1)}%</td>
+      <td><strong>${fmt(buf97, 1)}%</strong></td>
+      <td>${fmt(buf99, 1)}%</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// LOKALE OPSLAG
+// ═══════════════════════════════════════════════════════
+function slaPositieOp() {
+  const pos = {
+    datum: getText('inp-datum'), ref: getVal('inp-ref'),
+    put: getVal('inp-put'), putPrem: getVal('inp-put-prem'),
+    call: getVal('inp-call'), callPrem: getVal('inp-call-prem'),
+    cnt: getVal('inp-cnt'), exp: getText('inp-exp'),
+    vstoxx: getVal('inp-vstoxx-nu'), savedAt: new Date().toISOString()
+  };
+  localStorage.setItem('oesx_positie', JSON.stringify(pos));
+  alert('✓ Positie opgeslagen');
+}
+
+function laadPositie() {
+  const raw = localStorage.getItem('oesx_positie');
+  if (!raw) { alert('Geen opgeslagen positie gevonden'); return; }
+  const pos = JSON.parse(raw);
+  if (pos.datum) document.getElementById('inp-datum').value = pos.datum;
+  if (pos.ref) document.getElementById('inp-ref').value = pos.ref;
+  if (pos.put) document.getElementById('inp-put').value = pos.put;
+  if (pos.putPrem) document.getElementById('inp-put-prem').value = pos.putPrem;
+  if (pos.call) document.getElementById('inp-call').value = pos.call;
+  if (pos.callPrem) document.getElementById('inp-call-prem').value = pos.callPrem;
+  if (pos.cnt) document.getElementById('inp-cnt').value = pos.cnt;
+  if (pos.exp) document.getElementById('inp-exp').value = pos.exp;
+  if (pos.vstoxx) document.getElementById('inp-vstoxx-nu').value = pos.vstoxx;
+  updateAlles();
+  const d = new Date(pos.savedAt);
+  alert('✓ Positie geladen (opgeslagen ' + d.toLocaleString('nl-NL') + ')');
+}
+
+function resetPositie() {
+  if (!confirm('Huidige invoer wissen?')) return;
+  ['inp-datum','inp-ref','inp-put','inp-put-prem','inp-call','inp-call-prem','inp-exp'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('inp-cnt').value = 30;
+  document.getElementById('positie-stats').style.display = 'none';
+  updateAlles();
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+bouwRegimeTabel();
+updateVstoxxHeader();
+
+// Pre-fill met huidig VSTOXX (meest recente bekend = 26.90 op 10 mrt 2026)
+document.getElementById('inp-vstoxx-nu').value = '26.9';
+updateVstoxxHeader();
+</script>
+</body>
+</html>
