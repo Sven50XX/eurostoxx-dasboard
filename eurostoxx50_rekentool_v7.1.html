@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OESX Instap Rekentool v7.1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f1ea; --surface: #ffffff; --surface2: #ede9e0;
+  --border: #d4cfc4; --border2: #e8e4db;
+  --text: #1a1714; --text2: #5c5650; --text3: #9c9890;
+  --green: #1a6e45; --green-bg: #e8f5ee; --green-border: #a8d5bb;
+  --red: #b52a2a; --red-bg: #fdeaea; --red-border: #e8a8a8;
+  --orange: #b56a00; --orange-bg: #fff3e0; --orange-border: #f0c070;
+  --gold: #8a6a00; --gold-bg: #fff8e0;
+  --blue: #1a3f7a; --blue-bg: #e6edf8;
+  --accent: #c4954a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'IBM Plex Mono', monospace; background: var(--bg); color: var(--text); min-height: 100vh; padding: 20px 16px 60px; }
+
+.page-header { max-width: 900px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.page-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
+.page-title span { color: var(--accent); }
+.back-btn { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; padding: 7px 14px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text2); cursor: pointer; letter-spacing: .04em; text-decoration: none; transition: all .15s; }
+.back-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── LOCALSTORAGE STATUS BALK ─────────────────────── */
+.ls-balk {
+  max-width: 900px; margin: 0 auto 16px;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  padding: 9px 14px; border-radius: 8px; font-size: 10px;
+  border: 1.5px solid var(--border); background: var(--surface2); color: var(--text3);
+  transition: all .3s;
+}
+.ls-balk.geladen {
+  background: var(--green-bg); border-color: var(--green-border); color: var(--green);
+}
+.ls-wis-btn {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 500;
+  padding: 4px 10px; border: 1.5px solid var(--red-border); border-radius: 5px;
+  background: var(--red-bg); color: var(--red); cursor: pointer; letter-spacing: .04em;
+  transition: all .15s;
+}
+.ls-wis-btn:hover { background: var(--red); color: #fff; }
+
+.wrap { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 20px; }
+.card-title { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--text3); margin-bottom: 16px; }
+
+.day-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 14px; }
+@media(max-width:520px) { .day-grid { grid-template-columns: repeat(3,1fr); } }
+.day-btn { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; padding: 10px 6px; border: 1.5px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--text2); cursor: pointer; text-align: center; transition: all .15s; }
+.day-btn:hover { border-color: var(--accent); }
+.day-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.day-btn .sub { display: block; font-size: 9px; opacity: .7; margin-top: 2px; }
+
+.input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width:480px) { .input-grid { grid-template-columns: 1fr; } }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 10px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); }
+.field input { font-family: 'IBM Plex Mono', monospace; font-size: 13px; padding: 9px 11px; border: 1.5px solid var(--border); border-radius: 7px; background: var(--bg); color: var(--text); width: 100%; transition: border-color .15s; }
+.field input:focus { outline: none; border-color: var(--accent); }
+
+.p-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.p-tab { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; padding: 7px 14px; border: 1.5px solid var(--border); border-radius: 6px; background: transparent; color: var(--text2); cursor: pointer; transition: all .15s; letter-spacing: .04em; }
+.p-tab.ap95 { background: var(--orange-bg); border-color: var(--orange); color: var(--orange); font-weight: 600; }
+.p-tab.ap97 { background: var(--gold-bg); border-color: var(--gold); color: var(--gold); font-weight: 600; }
+.p-tab.ap99 { background: var(--green-bg); border-color: var(--green); color: var(--green); font-weight: 600; }
+
+.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.result-box { border-radius: 8px; padding: 16px; text-align: center; }
+.result-box.put { background: var(--red-bg); border: 1.5px solid var(--red-border); }
+.result-box.call { background: var(--blue-bg); border: 1.5px solid #a8c0e0; }
+.result-label { font-size: 9px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 6px; }
+.result-box.put .result-label { color: var(--red); }
+.result-box.call .result-label { color: var(--blue); }
+.result-strike { font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 700; letter-spacing: -.02em; }
+.result-box.put .result-strike { color: var(--red); }
+.result-box.call .result-strike { color: var(--blue); }
+.result-sub { font-size: 10px; color: var(--text3); margin-top: 4px; }
+
+.formula { font-size: 10px; color: var(--text3); background: var(--surface2); border-radius: 6px; padding: 10px 12px; line-height: 1.8; margin-top: 12px; }
+.tag { font-size: 9px; font-weight: 500; padding: 3px 8px; border-radius: 4px; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; display: inline-block; }
+.tip { font-size: 10px; color: var(--text3); line-height: 1.5; }
+
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media(max-width:600px) { .split { grid-template-columns: 1fr; } }
+
+.strike-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.strike-table th { font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text3); padding: 6px 8px; border-bottom: 1.5px solid var(--border); text-align: center; }
+.strike-table th:first-child { text-align: left; }
+.strike-table td { padding: 8px; border-bottom: 1px solid var(--border2); text-align: center; }
+.strike-table td:first-child { text-align: left; }
+.strike-table tr:last-child td { border-bottom: none; }
+.strike-table tr.hl td { background: var(--gold-bg); font-weight: 600; }
+
+.tijd-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding: 10px 14px; background: var(--surface2); border-radius: 8px; font-size: 11px; color: var(--text2); flex-wrap: wrap; }
+.tijd-dots { display: flex; gap: 4px; }
+.tdot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); }
+.tdot.f { background: var(--accent); }
+.tdot.t { background: var(--text); border: 2px solid var(--accent); width: 12px; height: 12px; }
+
+hr { border: none; border-top: 1px solid var(--border2); margin: 14px 0; }
+
+.buffer-meter { margin: 14px 0; }
+.buffer-label { display:flex; justify-content:space-between; font-size:10px; color:var(--text2); margin-bottom:5px; }
+.buffer-track { height:8px; background:var(--surface2); border-radius:4px; overflow:hidden; position:relative; }
+.buffer-fill { height:100%; border-radius:4px; transition:width .3s; }
+.buffer-fill.ok     { background: var(--green); }
+.buffer-fill.warn   { background: var(--orange); }
+.buffer-fill.danger { background: var(--red); }
+
+.warn-box { border-radius:8px; padding:12px 14px; font-size:11px; line-height:1.6; margin-bottom:14px; }
+.warn-box.oranje { background:var(--orange-bg); border:1.5px solid var(--orange-border); color:var(--orange); }
+.warn-box.rood   { background:var(--red-bg);    border:1.5px solid var(--red-border);    color:var(--red); }
+.warn-box.groen  { background:var(--green-bg);  border:1.5px solid var(--green-border);  color:var(--green); }
+.warn-box strong { font-weight:600; }
+
+.uitleg-toggle { font-size:10px; color:var(--accent); cursor:pointer; letter-spacing:.04em; border:none; background:none; font-family:inherit; padding:0; margin-top:10px; text-decoration:underline; }
+.uitleg-body { display:none; margin-top:12px; padding:12px; background:var(--surface2); border-radius:8px; font-size:11px; line-height:1.7; color:var(--text2); }
+.uitleg-body.open { display:block; }
+.uitleg-body h4 { font-size:10px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--text3); margin:10px 0 4px; }
+.uitleg-body h4:first-child { margin-top:0; }
+
+.veld-fout input { border-color:var(--red) !important; }
+
+.footer { text-align: center; font-size: 9px; color: var(--text3); letter-spacing: .08em; margin-top: 24px; text-transform: uppercase; }
+
+.dual-section { margin-bottom: 14px; }
+.dual-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.sk { border-radius: 8px; padding: 13px; text-align: center; }
+.sk.put-c  { background: var(--red-bg);  border: 1.5px solid var(--red-border); }
+.sk.put-l  { background: #fff0f0;        border: 2px dashed #cc5555; }
+.sk.call-c { background: var(--blue-bg); border: 1.5px solid #a8c0e0; }
+.sk.call-h { background: #eaf0ff;        border: 2px dashed #4466bb; }
+.sk-lbl { font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 5px; }
+.sk.put-c  .sk-lbl { color: var(--red); }
+.sk.put-l  .sk-lbl { color: #aa2222; }
+.sk.call-c .sk-lbl { color: var(--blue); }
+.sk.call-h .sk-lbl { color: #224488; }
+.sk-val { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700; letter-spacing: -.02em; }
+.sk.put-c  .sk-val { color: var(--red); }
+.sk.put-l  .sk-val { color: #aa2222; }
+.sk.call-c .sk-val { color: var(--blue); }
+.sk.call-h .sk-val { color: #224488; }
+.sk-sub { font-size: 10px; color: var(--text3); margin-top: 3px; }
+.sk-badge { font-size: 8px; font-weight: 600; padding: 2px 7px; border-radius: 3px; letter-spacing: .06em; text-transform: uppercase; display: inline-block; margin-top: 4px; }
+.sk.put-l  .sk-badge { background: #ffd0d0; color: #aa2222; }
+.sk.call-h .sk-badge { background: #ccd8ff; color: #224488; }
+.dual-col-labels { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 6px; }
+.dual-col-lbl { font-size: 9px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; text-align: center; padding: 5px 8px; border-radius: 5px; }
+.dcl-close { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+.dcl-intra { background: #fff0f0; color: #aa2222; border: 1px dashed #cc5555; }
+
+.mbox { border-radius: 9px; padding: 14px 16px; margin-bottom: 14px; }
+.mbox.ok     { background: var(--green-bg); border: 1.5px solid var(--green-border); }
+.mbox.warn   { background: var(--orange-bg); border: 1.5px solid var(--orange-border); }
+.mbox.danger { background: var(--red-bg); border: 1.5px solid var(--red-border); }
+.mbox-title { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 10px; }
+.mbox.ok     .mbox-title { color: var(--green); }
+.mbox.warn   .mbox-title { color: var(--orange); }
+.mbox.danger .mbox-title { color: var(--red); }
+.mbox-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.mbox-stat { text-align: center; }
+.mbox-val { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; }
+.mbox.ok     .mbox-val { color: var(--green); }
+.mbox.warn   .mbox-val { color: var(--orange); }
+.mbox.danger .mbox-val { color: var(--red); }
+.mbox-sub { font-size: 9px; color: var(--text3); margin-top: 2px; line-height: 1.4; }
+
+.all-p-tbl th.ch  { background: var(--surface2); color: var(--text2); }
+.all-p-tbl th.lh  { background: #fff0f0; color: #aa2222; }
+.all-p-tbl th.hh  { background: #eaf0ff; color: #224488; }
+.all-p-tbl td.lv  { color: #aa2222; font-weight: 500; }
+.all-p-tbl td.hv  { color: #224488; font-weight: 500; }
+.all-p-tbl td.kl  { font-size: 9px; color: var(--text3); }
+
+.model-switch {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px; border-radius: 8px; margin-bottom: 14px;
+  font-size: 11px; font-weight: 500; line-height: 1.4;
+}
+.model-switch.close-model {
+  background: var(--blue-bg); border: 1.5px solid #a8c0e0; color: var(--blue);
+}
+.model-switch.intradag-model {
+  background: #fff0e8; border: 1.5px solid #e0a878; color: #8b4500;
+}
+.model-icon { font-size: 18px; flex-shrink: 0; }
+.model-text strong { display: block; font-size: 12px; margin-bottom: 2px; }
+.model-text span { font-size: 10px; opacity: .8; }
+
+.sk .aanbevolen {
+  display: inline-block; font-size: 8px; font-weight: 700;
+  padding: 2px 8px; border-radius: 3px; letter-spacing: .08em;
+  text-transform: uppercase; margin-top: 5px;
+  background: #1a6e45; color: #fff;
+}
+.sk.dim { opacity: 0.5; }
+.sk.featured { box-shadow: 0 0 0 2px var(--accent); }
+
+.call-block {
+  border-radius: 9px; padding: 16px; margin-bottom: 10px;
+  background: #fff0f0; border: 2px solid var(--red);
+  text-align: center;
+}
+.call-block-icon { font-size: 28px; margin-bottom: 6px; }
+.call-block-title { font-size: 13px; font-weight: 700; color: var(--red); margin-bottom: 6px; letter-spacing: .04em; }
+.call-block-sub { font-size: 11px; color: var(--text2); line-height: 1.6; }
+
+.call-warn {
+  border-radius: 7px; padding: 10px 14px; margin-bottom: 10px;
+  background: #fff5e8; border: 1.5px solid var(--orange);
+  font-size: 11px; color: #7a3800; line-height: 1.5;
+}
+.call-warn strong { color: var(--orange); }
+
+.put-tip {
+  border-radius: 7px; padding: 10px 14px; margin-bottom: 10px;
+  background: var(--green-bg); border: 1.5px solid var(--green-border);
+  font-size: 11px; color: var(--green); line-height: 1.5;
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <div class="page-title">📐 OESX Instap <span>Rekentool</span> v7.1</div>
+    <div style="font-size:10px;color:var(--text3);letter-spacing:.06em;margin-top:3px;">VSTOXX <em>("Angstmeter")</em> · P95 / P97 / P99</div>
+  </div>
+  <a href="eurostoxx50_dashboard_v16_4.html" class="back-btn">← Dashboard</a>
+</div>
+
+<!-- LOCALSTORAGE STATUS BALK -->
+<div class="ls-balk" id="ls-balk">
+  <span id="ls-status">⏳ Geen opgeslagen invoer gevonden</span>
+  <button class="ls-wis-btn" id="ls-wis-btn" onclick="wisInvoer()" style="display:none;">✕ Wis invoer</button>
+</div>
+
+<!-- VSTOXX LINK BANNER -->
+<div style="max-width:900px;margin:-8px auto 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:10px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;font-size:11px;color:var(--text2);">
+  <span>📊 Live VSTOXX <em>("Angstmeter")</em> ophalen voor de juiste instapwaarde:</span>
+  <a href="https://stoxx.com/index/v2tx/" target="_blank" rel="noopener" style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:6px 12px;background:var(--gold-bg);border:1.5px solid var(--gold);border-radius:5px;color:var(--gold);text-decoration:none;letter-spacing:.04em;white-space:nowrap;">stoxx.com/index/v2tx/ → (VSTOXX live)</a>
+</div>
+
+<div class="wrap">
+
+  <!-- STAP 1: DAG + INVOER -->
+  <div class="card">
+    <div class="card-title">Stap 1 — Instapdag <span id="dag-hint" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3);"></span></div>
+    <div class="day-grid">
+      <button class="day-btn" data-dag="1" onclick="setDag(1)">Vrijdag<span class="sub">5 dg · vol</span></button>
+      <button class="day-btn" data-dag="2" onclick="setDag(2)">Maandag<span class="sub">4 dg</span></button>
+      <button class="day-btn" data-dag="3" onclick="setDag(3)">Dinsdag<span class="sub">3 dg</span></button>
+      <button class="day-btn" data-dag="4" onclick="setDag(4)">Woensdag<span class="sub">2 dg</span></button>
+      <button class="day-btn" data-dag="5" onclick="setDag(5)">Donderdag<span class="sub">1 dg</span></button>
+    </div>
+    <div class="tijd-bar" id="tijd-bar"></div>
+
+    <div class="input-grid">
+      <div class="field">
+        <label>Actuele koers (instapmoment) *</label>
+        <input type="number" id="koers" placeholder="bijv. 5450" step="1" oninput="bereken();slaOp()">
+      </div>
+      <div class="field">
+        <label>VSTOXX ("Angstmeter") nu *</label>
+        <input type="number" id="vstoxx" placeholder="bijv. 20.0" step="0.1" oninput="bereken();slaOp()">
+      </div>
+      <div class="field" id="veld-ref-koers" style="display:none;">
+        <label>Vrijdag slotkoers <span style="color:var(--red);font-size:9px;">VERPLICHT</span></label>
+        <input type="number" id="ref-koers" placeholder="bijv. 5500" step="1" oninput="bereken();slaOp()">
+      </div>
+      <div class="field" id="veld-ref-vstoxx" style="display:none;">
+        <label>VSTOXX vrijdag slot <span style="color:var(--red);font-size:9px;">VERPLICHT</span></label>
+        <input type="number" id="ref-vstoxx" placeholder="bijv. 18.5" step="0.1" oninput="bereken();slaOp()">
+      </div>
+    </div>
+  </div>
+
+  <!-- STAP 2: P-NIVEAU -->
+  <div class="card">
+    <div class="card-title">Stap 2 — P-niveau & resultaat</div>
+    <div class="p-tabs">
+      <button class="p-tab" id="ptab-95" onclick="setP(95)">P95 — offensief (25%/jr)</button>
+      <button class="p-tab" id="ptab-97" onclick="setP(97)">P97 — midden (20%/jr) ★</button>
+      <button class="p-tab" id="ptab-99" onclick="setP(99)">P99 — defensief (15%/jr)</button>
+    </div>
+    <div id="result-main">
+      <div style="text-align:center;color:var(--text3);font-size:11px;padding:20px 0;">Vul koers en VSTOXX in ↑</div>
+    </div>
+  </div>
+
+  <!-- OVERZICHT: ALLE P-NIVEAUS + REGIME -->
+  <div class="split">
+    <div class="card">
+      <div class="card-title">Alle P-niveaus — ✓ = aanbevolen model</div>
+      <div id="alle-p"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">VSTOXX regime referentie</div>
+      <table class="strike-table">
+        <thead><tr>
+          <th style="text-align:left;">VSTOXX</th><th>Regime</th><th>P97 PUT</th><th>P97 CALL</th>
+        </tr></thead>
+        <tbody id="regime-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CONTEXT (alleen als optionele velden ingevuld) -->
+  <div class="card" id="context-card" style="display:none;">
+    <div class="card-title">Context — week verloop</div>
+    <div id="context-inhoud"></div>
+  </div>
+
+</div>
+
+  <!-- MODULE UITLEG -->
+  <div class="card" style="max-width:900px;margin:16px auto 0;">
+    <div class="card-title">💡 Hoe werkt dit model? — uitleg voor de schrijver</div>
+    <div style="font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:12px;">
+      Dit is een <strong>volatiliteitsgestuurd strike-model</strong>. De VSTOXX is de enige motor. Hieronder staat in gewone taal wat het model doet, en wat niet.
+    </div>
+
+    <button class="uitleg-toggle" onclick="toggleUitleg('u1')">▶ De VSTOXX ("Angstmeter"): wat is het en waarom is het de motor?</button>
+    <div class="uitleg-body" id="u1">
+      <h4>Wat is VSTOXX ("Angstmeter")?</h4>
+      De VSTOXX ("Angstmeter") meet hoeveel beweging de optiemarkt <em>verwacht</em> voor de komende 30 dagen op de Euro Stoxx 50. Het is geen historisch getal — het is wat beleggers nu bereid zijn te betalen voor bescherming. VSTOXX 15 = rustige markt, kleine bewegingen verwacht. VSTOXX 40 = paniek, grote schommelingen ingeprijsd.
+      <h4>Waarom is het de motor van dit model?</h4>
+      De premie die jij ontvangt als schrijver hangt direct samen met de VSTOXX. Hoge VSTOXX = hoge premie, veiliger strikes mogelijk. Lage VSTOXX = lage premie, je moet dichter bij de koers schrijven om hetzelfde rendement te halen. <strong>Let op: lage VSTOXX is dus NIET "veilig" — het betekent dat je rendementsdoel agressievere strikes afdwingt.</strong>
+    </div>
+
+    <button class="uitleg-toggle" onclick="toggleUitleg('u2')" style="margin-top:8px;">▶ De tijdsfactor: wat doet √(dagen/5)?</button>
+    <div class="uitleg-body" id="u2">
+      <h4>Kortere looptijd = kleinere buffer</h4>
+      Een volle week duurt 5 handelsdagen. Als je op dinsdag instapt, zijn er nog maar 3 dagen. De buffer die je nodig hebt is dus kleiner — de markt heeft minder tijd om ver te bewegen. Het model schaalt de buffer met √(dagen/5). Voorbeeld: dinsdag → √(3/5) = 0.775 → je buffer is 77.5% van een normale weekbuffer.
+      <h4>Waarom vierkantswortel en niet gewoon delen?</h4>
+      Koersbewegingen stapelen niet lineair op — ze volgen een willekeurig pad. In de statistiek geldt dat de spreiding groeit met de vierkantswortel van de tijd. Dit is hetzelfde principe als in Black-Scholes.
+      <h4>Wat het model NIET doet</h4>
+      Het model houdt geen rekening met gamma-risico (zie waarschuwing bij &lt;3 dagen) en berekent geen premie. Het geeft alleen aan waar je strike statistisch veilig ligt — niet of die strike ook rendeert.
+    </div>
+
+    <button class="uitleg-toggle" onclick="toggleUitleg('u3')" style="margin-top:8px;">▶ Vrijdag slotkoers: waarom verplicht?</button>
+    <div class="uitleg-body" id="u3">
+      <h4>De week heeft al bewogen</h4>
+      Als je op dinsdag instapt, is de markt al 2 dagen bewogen. Die beweging telt mee voor jouw resterende buffer. Stel: vrijdag slot 5500, dinsdag koers 5420. De markt is al 80 punten gedaald — bijna 1.5%. Als jouw weekbuffer op P97 bij VSTOXX 18 zo'n 3.5% is, dan is er al 40% van die buffer "verbruikt" door de markt vóórdat je ook maar één contract schrijft. Je ziet dit in de bufferverbruik-indicator hierboven.
+      <h4>Lage VSTOXX maakt dit gevaarlijker</h4>
+      Bij VSTOXX 15 is de weekbuffer klein. Een beweging van 1% van vrijdag tot dinsdag is dan al een groot deel van je totale buffer. Combineer dit met een rendementsdoel van 20%/jaar en je begrijpt waarom je bij lage VSTOXX extra alert moet zijn op wat er al bewogen is.
+      <h4>VSTOXX vrijdag vs. VSTOXX nu</h4>
+      Als VSTOXX is gestegen van 15 naar 20 sinds vrijdag, is er iets veranderd in de markt. Die nieuwe VSTOXX gebruik je voor je strikes — maar de stijging zelf is een signaal van toegenomen onzekerheid.
+    </div>
+
+    <button class="uitleg-toggle" onclick="toggleUitleg('u4')" style="margin-top:8px;">▶ Gamma-risico: waarom gevaarlijk bij korte looptijd?</button>
+    <div class="uitleg-body" id="u4">
+      <h4>Wat is gamma?</h4>
+      Gamma meet hoe snel de gevoeligheid van een optie voor koersbewegingen verandert. Bij een lange looptijd (5 dagen) is een optie die 2% OTM ligt relatief stabiel — een beweging van 0.5% verandert de waarde wat, maar niet dramatisch. Bij 1 of 2 dagen resterend is diezelfde 2% OTM optie explosief: een beweging van 0.5% richting je strike kan de optiewaarde verdubbelen of verdrievoudigen.
+      <h4>Wat betekent dit praktisch?</h4>
+      Op donderdag inschrijven voor een kleine premie is verleidelijk — maar het risico is asymmetrisch. Als het misgaat, gaat het snel en hard. Professionele schrijvers vermijden dit of gebruiken strakke stop-losses. Op donderdag is de premie ook minimaal, dus het risico/rendement is ongunstig.
+      <h4>Vuistregel</h4>
+      Bij ≤ 2 dagen resterend: alleen instappen als de markt extreem rustig is én je de positie nauwgezet bewaakt. Bij 1 dag: vrijwel nooit aantrekkelijk als standalone strategie.
+    </div>
+
+    <button class="uitleg-toggle" onclick="toggleUitleg('u5')" style="margin-top:8px;">▶ P95 / P97 / P99: wat betekent het echt?</button>
+    <div class="uitleg-body" id="u5">
+      <h4>Statistische trefzekerheid</h4>
+      P97 betekent: in 97% van de weken sluit de markt binnen jouw strike-range. In 3% niet — dan verlies je. Over 52 weken per jaar zijn dat gemiddeld 1-2 slechte weken. Backtest 2019-2026: P97 formule haalt feitelijk 97.8% trefzekerheid.
+      <h4>Rendement vs. veiligheid</h4>
+      P95 = hogere premie, meer risico (25%/jaar doel). P97 = balans (20%/jaar doel). P99 = lage premie, weinig risico (15%/jaar doel). De keuze hangt af van je kapitaalsbescherming en risicotolerantie.
+      <h4>Wat P97 NIET garandeert</h4>
+      P97 zegt niets over hoe erg het misgaat in die 3%. Een crash van 10% in één week valt ook in die 3%. Positiebeheer en doorrol-discipline zijn daarom minstens zo belangrijk als de strike-keuze.
+    </div>
+
+    <button class="uitleg-toggle" onclick="toggleUitleg('u6')" style="margin-top:8px;">▶ Automatisch model: waarom switcht de tool op VSTOXX 22?</button>
+    <div class="uitleg-body" id="u6">
+      <h4>De drempel: waarom precies VSTOXX 22?</h4>
+      Uit analyse van 3.637 handelsdagen (2011–2026) blijkt dat bij VSTOXX boven 22 de dagelijkse intraday range (high minus low) op 91% van alle dagen al boven de 1% uitkomt — dat is 55+ punten bij een koers van 5500. De kans op een onnodige gedwongen exit is dan 8–12% per week. Onder VSTOXX 22 is de intradag beweging gemiddeld 55–70 punten — vervelend maar zelden genoeg voor een margin call.
+      <h4>VSTOXX ≤ 22 — O→Close model aanbevolen</h4>
+      De markt beweegt intradag beperkt. De weekslotkoers is de juiste maatstaf. O→Close strikes zijn statistisch correct en geven de beste premie voor het risico.
+      <h4>VSTOXX > 22 — O→Low/High model aanbevolen</h4>
+      De markt beweegt zo sterk tijdens de week dat je close-gebaseerde strike regelmatig geraakt wordt, ook in weken die goed eindigen op close basis. De O→Low/High strike geeft echte veiligheid tijdens de week. De premie is lager, maar je vermijdt gedwongen exits op het slechtste moment van de week.
+      <h4>Beide strikes altijd zichtbaar</h4>
+      De tool toont altijd beide varianten. Het model selecteert automatisch de aanbevolen variant (groen ✓ badge). Jij beslist uiteindelijk welk risico je accepteert — maar je ziet nu exact wat de keuze kost in punten.
+    </div>
+  </div>
+
+<div class="footer">OESX Rekentool v7.1 · PUT altijd · CALL grens bij VSTOXX 45 · Invoer automatisch bewaard (localStorage)</div>
+
+<script>
+const SIGMA      = { 95: 1.93, 97: 2.28, 99: 2.80 };
+const SIGMA_CALL = { 95: 1.39, 97: 1.67, 99: 2.10 };
+const REGIMES = [
+  { lo: 0,  hi: 15, naam: 'Rustig',   kleur: 'green'  },
+  { lo: 15, hi: 18, naam: 'Normaal',  kleur: 'green'  },
+  { lo: 18, hi: 22, naam: 'Verhoogd', kleur: 'orange' },
+  { lo: 22, hi: 28, naam: 'Onrustig', kleur: 'orange' },
+  { lo: 28, hi: 35, naam: 'Stress',   kleur: 'red'    },
+  { lo: 35, hi: 99, naam: 'Crisis',   kleur: 'red'    },
+];
+
+const OLOW_REGIME = {
+  'Rustig':   { put:{95:-3.836,97:-3.905,99:-4.287}, call:{95:1.738,97:1.854,99:2.359} },
+  'Normaal':  { put:{95:-3.959,97:-4.438,99:-6.294}, call:{95:3.061,97:3.556,99:4.329} },
+  'Verhoogd': { put:{95:-4.746,97:-5.205,99:-7.822}, call:{95:4.018,97:4.496,99:6.076} },
+  'Onrustig': { put:{95:-6.728,97:-7.103,99:-8.148}, call:{95:5.792,97:5.985,99:6.699} },
+  'Stress':   { put:{95:-6.576,97:-9.537,99:-9.537}, call:{95:6.896,97:8.926,99:9.237} },
+  'Crisis':   { put:{95:-12.957,97:-14.126,99:-21.987}, call:{95:13.70,97:14.03,99:25.12} },
+};
+
+const RAAK_RISICO = {
+  'Rustig':   { 95: 3.5, 97: 0.7, 99: 0.0 },
+  'Normaal':  { 95: 3.6, 97: 1.5, 99: 0.0 },
+  'Verhoogd': { 95: 4.2, 97: 1.3, 99: 0.4 },
+  'Onrustig': { 95: 4.1, 97: 4.1, 99: 0.0 },
+  'Stress':   { 95: 1.2, 97: 0.0, 99: 0.0 },
+  'Crisis':   { 95: 4.5, 97: 2.3, 99: 0.0 },
+};
+
+const VSTOXX_DREMPEL  = 22;
+const CALL_WARN_GRENS = 35;
+const CALL_STOP_GRENS = 45;
+
+// ═══════════════════════════════════════════════════════
+// LOCALSTORAGE — sleutel + functies
+// ═══════════════════════════════════════════════════════
+const LS_KEY = 'oesx_rekentool_v7';
+
+function slaOp() {
+  try {
+    const data = {
+      dag:      activeDag,
+      p:        activeP,
+      koers:    document.getElementById('koers').value,
+      vstoxx:   document.getElementById('vstoxx').value,
+      refKoers: document.getElementById('ref-koers').value,
+      refVstoxx:document.getElementById('ref-vstoxx').value,
+      tijdstip: new Date().toISOString()
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+    updateLsBalk(data);
+  } catch(e) {
+    console.warn('localStorage niet beschikbaar:', e);
+  }
+}
+
+function laadOp() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) { updateLsBalk(null); return false; }
+    const data = JSON.parse(raw);
+
+    // Dag herstellen (intern, zonder slaOp aan te roepen)
+    activeDag = data.dag || 1;
+    document.querySelectorAll('.day-btn').forEach(b =>
+      b.classList.toggle('active', parseInt(b.dataset.dag) === activeDag)
+    );
+    const toonRef = activeDag > 1;
+    document.getElementById('veld-ref-koers').style.display  = toonRef ? '' : 'none';
+    document.getElementById('veld-ref-vstoxx').style.display = toonRef ? '' : 'none';
+    updateTijdBar();
+
+    // P herstellen (intern)
+    activeP = data.p || 97;
+    ['95','97','99'].forEach(n => {
+      document.getElementById('ptab-'+n).className =
+        'p-tab' + (parseInt(n) === activeP ? ' ap'+n : '');
+    });
+
+    // Velden herstellen
+    if (data.koers)     document.getElementById('koers').value     = data.koers;
+    if (data.vstoxx)    document.getElementById('vstoxx').value    = data.vstoxx;
+    if (data.refKoers)  document.getElementById('ref-koers').value = data.refKoers;
+    if (data.refVstoxx) document.getElementById('ref-vstoxx').value= data.refVstoxx;
+
+    updateLsBalk(data);
+    bereken();
+    return true;
+  } catch(e) {
+    console.warn('Laden mislukt:', e);
+    updateLsBalk(null);
+    return false;
+  }
+}
+
+function wisInvoer() {
+  if (!confirm('Opgeslagen invoer wissen?')) return;
+  try { localStorage.removeItem(LS_KEY); } catch(e) {}
+  document.getElementById('koers').value      = '';
+  document.getElementById('vstoxx').value     = '';
+  document.getElementById('ref-koers').value  = '';
+  document.getElementById('ref-vstoxx').value = '';
+  // Reset naar defaults
+  activeDag = 1; activeP = 97;
+  document.querySelectorAll('.day-btn').forEach(b =>
+    b.classList.toggle('active', parseInt(b.dataset.dag) === 1)
+  );
+  ['95','97','99'].forEach(n => {
+    document.getElementById('ptab-'+n).className =
+      'p-tab' + (parseInt(n) === 97 ? ' ap97' : '');
+  });
+  document.getElementById('veld-ref-koers').style.display  = 'none';
+  document.getElementById('veld-ref-vstoxx').style.display = 'none';
+  updateTijdBar();
+  updateLsBalk(null);
+  document.getElementById('result-main').innerHTML =
+    '<div style="text-align:center;color:var(--text3);font-size:11px;padding:20px 0;">Vul koers en VSTOXX in ↑</div>';
+  document.getElementById('alle-p').innerHTML = '';
+  document.getElementById('context-card').style.display = 'none';
+}
+
+function updateLsBalk(data) {
+  const balk   = document.getElementById('ls-balk');
+  const status = document.getElementById('ls-status');
+  const wisBtn = document.getElementById('ls-wis-btn');
+  const DAG_NAMEN = {1:'Vrijdag',2:'Maandag',3:'Dinsdag',4:'Woensdag',5:'Donderdag'};
+
+  if (data && (data.koers || data.vstoxx)) {
+    const d = new Date(data.tijdstip);
+    const tijdStr = d.toLocaleString('nl-NL', {
+      day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'
+    });
+    balk.className = 'ls-balk geladen';
+    status.textContent = `💾 Invoer hersteld van ${tijdStr} — ${DAG_NAMEN[data.dag]||'Vrijdag'} · VSTOXX ${data.vstoxx||'?'} · Koers ${data.koers||'?'}`;
+    wisBtn.style.display = '';
+  } else {
+    balk.className = 'ls-balk';
+    status.textContent = '⏳ Geen opgeslagen invoer — vul koers en VSTOXX in om te beginnen';
+    wisBtn.style.display = 'none';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// BESTAANDE FUNCTIES (ongewijzigd behalve slaOp() toevoegen)
+// ═══════════════════════════════════════════════════════
+function callStatus(v) {
+  if (v > CALL_STOP_GRENS) return 'stop';
+  if (v > CALL_WARN_GRENS) return 'warn';
+  return 'ok';
+}
+function putStatus(v) { return v > CALL_WARN_GRENS ? 'tip' : 'ok'; }
+function getModel(vstoxx) { return vstoxx <= VSTOXX_DREMPEL ? 'close' : 'intradag'; }
+
+function getOlowStrike(vstoxx, p, kant, koers, dagen, closeStrike) {
+  const r = vstoxxRegime(vstoxx);
+  const regime = OLOW_REGIME[r.naam];
+  if (!regime) return null;
+  const weekPct = kant === 'put' ? regime.put[p] : regime.call[p];
+  if (weekPct == null) return null;
+  const tijdFactor = Math.sqrt(dagen / 5);
+  const pct = weekPct * tijdFactor;
+  let rawStrike = koers * (1 + pct / 100);
+  rawStrike = Math.round(rawStrike / 25) * 25;
+  if (kant === 'put')  return Math.min(rawStrike, closeStrike);
+  if (kant === 'call') return Math.max(rawStrike, closeStrike);
+  return rawStrike;
+}
+
+function getRaakRisico(vstoxx, p) {
+  const r = vstoxxRegime(vstoxx);
+  const tbl = RAAK_RISICO[r.naam];
+  if (!tbl) return 0;
+  return tbl[p] || 0;
+}
+
+const DAG_INFO = {
+  1: { naam: 'Vrijdag',   dagen: 5, label: 'Volle week · 5 handelsdagen' },
+  2: { naam: 'Maandag',   dagen: 4, label: '4 handelsdagen resterend' },
+  3: { naam: 'Dinsdag',   dagen: 3, label: '3 handelsdagen resterend' },
+  4: { naam: 'Woensdag',  dagen: 2, label: '2 handelsdagen resterend' },
+  5: { naam: 'Donderdag', dagen: 1, label: '1 handelsdag resterend' },
+};
+let activeDag = 1, activeP = 97;
+
+function fmt(v, d=2) {
+  if (v===null||v===undefined||isNaN(v)) return '—';
+  return v.toLocaleString('nl-NL',{minimumFractionDigits:d,maximumFractionDigits:d});
+}
+function getVal(id) { const v=parseFloat(document.getElementById(id).value); return isNaN(v)?null:v; }
+function setHTML(id,html) { const el=document.getElementById(id); if(el) el.innerHTML=html; }
+function vstoxxRegime(v) { return REGIMES.find((r,i)=>i===0?v<=r.hi:v>r.lo&&v<=r.hi)||REGIMES[REGIMES.length-1]; }
+function rKleur(k) { return k==='green'?'var(--green)':k==='orange'?'var(--orange)':'var(--red)'; }
+
+function vstoxxBuffer(vstoxx, p, kant, dagen) {
+  const sigma = kant==='put' ? SIGMA[p] : SIGMA_CALL[p];
+  const weekBuf = (vstoxx/100) / Math.sqrt(52) * sigma;
+  return weekBuf * Math.sqrt(dagen/5);
+}
+
+function setDag(dag) {
+  activeDag = dag;
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.dag)===dag));
+  const toonRef = dag > 1;
+  document.getElementById('veld-ref-koers').style.display  = toonRef ? '' : 'none';
+  document.getElementById('veld-ref-vstoxx').style.display = toonRef ? '' : 'none';
+  if (!toonRef) {
+    document.getElementById('ref-koers').value  = '';
+    document.getElementById('ref-vstoxx').value = '';
+  }
+  updateTijdBar();
+  bereken();
+  slaOp();
+}
+
+function setP(p) {
+  activeP = p;
+  ['95','97','99'].forEach(n => {
+    const btn = document.getElementById('ptab-'+n);
+    btn.className = 'p-tab' + (parseInt(n)===p ? ' ap'+n : '');
+  });
+  bereken();
+  slaOp();
+}
+
+function updateTijdBar() {
+  const info = DAG_INFO[activeDag];
+  const d = info.dagen;
+  let dots = '';
+  for (let i=5; i>=1; i--) {
+    if (i===d) dots += `<div class="tdot t"></div>`;
+    else if (i<d) dots += `<div class="tdot f"></div>`;
+    else dots += `<div class="tdot"></div>`;
+  }
+  const pct = Math.round(Math.sqrt(d/5)*100);
+  const extraLabel = activeDag === 1
+    ? '<span style="font-size:10px;color:var(--green);font-weight:600;">Week start — vul actuele koers in als referentie</span>'
+    : '<span style="font-size:10px;color:var(--orange);">Week loopt al — vrijdag slot verplicht ↓</span>';
+  setHTML('tijd-bar', `
+    <div class="tijd-dots">${dots}</div>
+    <div style="display:flex;flex-direction:column;gap:2px;"><strong>${info.naam}</strong> ${extraLabel}</div>
+    <div style="margin-left:auto;color:var(--accent);font-weight:600;">${pct}% van weekbuffer</div>
+  `);
+}
+
+function bereken() {
+  const koers    = getVal('koers');
+  const vstoxx   = getVal('vstoxx');
+  const refKoers  = getVal('ref-koers');
+  const refVstoxx = getVal('ref-vstoxx');
+  const info  = DAG_INFO[activeDag];
+  const dagen = info.dagen;
+  const missingRef = activeDag > 1 && (!refKoers || !refVstoxx);
+
+  if (!koers || !vstoxx) {
+    setHTML('result-main','<div style="text-align:center;color:var(--text3);font-size:11px;padding:20px 0;">Vul actuele koers en VSTOXX in ↑</div>');
+    setHTML('alle-p','<div style="font-size:11px;color:var(--text3);">Vul koers en VSTOXX in</div>');
+    document.getElementById('context-card').style.display='none';
+    return;
+  }
+
+  const p    = activeP;
+  const r    = vstoxxRegime(vstoxx);
+  const kl   = rKleur(r.kleur);
+  const bufPut  = vstoxxBuffer(vstoxx, p, 'put',  dagen);
+  const bufCall = vstoxxBuffer(vstoxx, p, 'call', dagen);
+  const putStrike  = Math.round(koers*(1-bufPut )/25)*25;
+  const callStrike = Math.round(koers*(1+bufCall)/25)*25;
+  const tijdPct = Math.round(Math.sqrt(dagen/5)*100);
+
+  let bufferHTML = '';
+  if (refKoers && refVstoxx && activeDag > 1) {
+    const weekBufPut  = vstoxxBuffer(refVstoxx, p, 'put',  5);
+    const weekBufCall = vstoxxBuffer(refVstoxx, p, 'call', 5);
+    const bewegingPts   = refKoers - koers;
+    const bewegingPctWk = bewegingPts / refKoers;
+    const verbruiktPut  = weekBufPut > 0 ? Math.min(bewegingPctWk / weekBufPut, 1.5) : 0;
+    const verbruiktPct  = Math.round(Math.max(verbruiktPut, 0) * 100);
+    const fillKlasse    = verbruiktPct < 40 ? 'ok' : verbruiktPct < 70 ? 'warn' : 'danger';
+    const fillBreedte   = Math.min(verbruiktPct, 100);
+    bufferHTML = `
+    <div class="buffer-meter">
+      <div class="buffer-label">
+        <span>Weekbuffer verbruikt (PUT kant)</span>
+        <span style="font-weight:600;color:${fillKlasse==='ok'?'var(--green)':fillKlasse==='warn'?'var(--orange)':'var(--red)'};">${verbruiktPct}%</span>
+      </div>
+      <div class="buffer-track">
+        <div class="buffer-fill ${fillKlasse}" style="width:${fillBreedte}%;"></div>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-top:4px;">
+        Markt bewoog ${bewegingPts>0?'↓':'↑'} ${fmt(Math.abs(bewegingPts),0)} pts (${fmt(Math.abs(bewegingPctWk*100),2)}%) t.o.v. vrijdag slot ${fmt(refKoers,0)} — weekbuffer PUT was ${fmt(weekBufPut*100,2)}%
+      </div>
+    </div>`;
+  } else if (activeDag === 1) {
+    bufferHTML = `<div class="warn-box groen" style="margin-bottom:14px;">
+      ✅ <strong>Instap op vrijdag — bufferverbruik 0%</strong><br>
+      Je schrijft aan het begin van de week. De actuele koers is je referentiekoers. Je hebt de volledige weekbuffer beschikbaar.
+    </div>`;
+  } else if (missingRef) {
+    bufferHTML = `<div class="warn-box oranje" style="margin-bottom:14px;">
+      ⚠️ <strong>Vul vrijdag slotkoers en VSTOXX in</strong> — zonder deze waarden kan het bufferverbruik niet berekend worden. Dit is essentieel bij een instap halverwege de week.
+    </div>`;
+  }
+
+  let gammaHTML = '';
+  if (dagen <= 2) {
+    const ernst = dagen === 1 ? 'rood' : 'oranje';
+    gammaHTML = `<div class="warn-box ${ernst}">
+      ⚡ <strong>Gamma-waarschuwing — ${dagen} dag${dagen>1?'en':''} resterend</strong><br>
+      ${dagen === 1
+        ? 'Op donderdag inschrijven is extreem risicovol. Gamma is op het hoogste punt: een kleine koersbeweging richting je strike kan de optiewaarde razendsnel doen exploderen. De premie staat in geen verhouding tot dit risico.'
+        : 'Bij 2 dagen resterend is gamma al hoog. Een beweging van 0.5% richting je strike kan je positie dramatisch in waarde doen stijgen. Alleen doen als de markt extreem rustig is én je de positie actief bewaakt.'
+      }<br><br>
+      <strong>Tijdsfactor: ${fmt(Math.sqrt(dagen/5),3)} → buffer is slechts ${tijdPct}% van een volle week. De premie is navenant laag.</strong>
+    </div>`;
+  }
+
+  let vstoxxWarnHTML = '';
+  if (vstoxx < 15) {
+    vstoxxWarnHTML = `<div class="warn-box oranje">
+      📉 <strong>Lage VSTOXX (${fmt(vstoxx,1)}) — schijnveiligheid</strong><br>
+      Een lage VSTOXX voelt veilig, maar betekent lage premies. Om 20%/jaar te halen bij VSTOXX ${fmt(vstoxx,1)} moet je dichter bij de koers schrijven dan het model bij hogere VSTOXX zou voorschrijven.
+    </div>`;
+  }
+
+  const model      = getModel(vstoxx);
+  const isIntradag = model === 'intradag';
+  const cStatus    = callStatus(vstoxx);
+  const pStatus    = putStatus(vstoxx);
+
+  const putLow   = getOlowStrike(vstoxx, p, 'put',  koers, dagen, putStrike);
+  const callHigh = getOlowStrike(vstoxx, p, 'call', koers, dagen, callStrike);
+  const putKloof  = putStrike  - putLow;
+  const callKloof = callHigh   - callStrike;
+  const putAanbevolen  = isIntradag ? putLow   : putStrike;
+  const callAanbevolen = isIntradag ? callHigh  : callStrike;
+  const mPct    = getRaakRisico(vstoxx, p);
+  const mKlasse = mPct < 1 ? 'ok' : mPct < 3 ? 'warn' : 'danger';
+  const mIcon   = mPct < 1 ? '✅' : mPct < 3 ? '⚠️' : '⚡';
+
+  const modelHTML = isIntradag
+    ? `<div class="model-switch intradag-model"><div class="model-icon">📊</div><div class="model-text"><strong>O→Low/High model actief — VSTOXX ${fmt(vstoxx,1)} &gt; 22</strong><span>Strikes tijdens de week aanbevolen · dagrange gemiddeld ${vstoxx<=28?'93–127':'127+'} punten · raakrisico reëel</span></div></div>`
+    : `<div class="model-switch close-model"><div class="model-icon">📈</div><div class="model-text"><strong>O→Close model actief — VSTOXX ${fmt(vstoxx,1)} ≤ 22</strong><span>Slotbasis strikes aanbevolen · intradag noise beheersbaar</span></div></div>`;
+
+  const putTipHTML = pStatus === 'tip'
+    ? `<div class="put-tip">✅ PUT is historisch veilig — ook bij VSTOXX ${fmt(vstoxx,1)}. P97 hit rate = 0% in alle regimes t/m VSTOXX 80+.</div>`
+    : '';
+
+  const putHTML = `
+    ${putTipHTML}
+    <div class="dual-col-labels">
+      <div class="dual-col-lbl dcl-close">O→Close${!isIntradag?' ✓ aanbevolen':''}</div>
+      <div class="dual-col-lbl dcl-intra">O→Low${isIntradag?' ✓ aanbevolen':''}</div>
+    </div>
+    <div class="dual-row">
+      <div class="sk put-c${isIntradag?' dim':''}">
+        <div class="sk-lbl">PUT — slotbasis</div>
+        <div class="sk-val">${fmt(putStrike,0)}</div>
+        <div class="sk-sub">${fmt(bufPut*100,1)}% · ${fmt(koers-putStrike,0)} pts</div>
+        ${!isIntradag ? '<span class="aanbevolen">✓ aanbevolen</span>' : ''}
+      </div>
+      <div class="sk put-l${isIntradag?' featured':''}">
+        <div class="sk-lbl">PUT — veilig tijdens de week</div>
+        <div class="sk-val">${fmt(putLow,0)}</div>
+        <div class="sk-sub">${fmt(koers-putLow,0)} pts · +${fmt(putKloof,0)} pts extra</div>
+        ${isIntradag ? '<span class="aanbevolen">✓ aanbevolen</span>' : '<span class="sk-badge">week-safe</span>'}
+      </div>
+    </div>`;
+
+  let callHTML = '';
+  if (cStatus === 'stop') {
+    callHTML = `<div class="call-block">
+      <div class="call-block-icon">⛔</div>
+      <div class="call-block-title">CALL schrijven niet aanbevolen — VSTOXX ${fmt(vstoxx,1)} &gt; 45</div>
+      <div class="call-block-sub">
+        Bij VSTOXX &gt; 45 sluit de markt in 72% van de weken <em>hoger</em> dan de open.<br>
+        Intradag stijgingen overstijgen dalingen: O→High P97 = 25%+.<br>
+        <strong>Schrijf alleen PUT bij deze VSTOXX.</strong>
+      </div>
+    </div>`;
+  } else if (cStatus === 'warn') {
+    callHTML = `
+    <div class="call-warn">
+      ⚠️ <strong>CALL — verhoogd risico (VSTOXX ${fmt(vstoxx,1)} &gt; 35)</strong><br>
+      Bij VSTOXX 35–45 raakt de intradag HIGH de P97 call strike in 6.7% van de weken.
+    </div>
+    <div class="dual-col-labels">
+      <div class="dual-col-lbl dcl-close">O→Close${!isIntradag?' ✓':''}</div>
+      <div class="dual-col-lbl dcl-intra">O→High${isIntradag?' ✓ aanbevolen':''}</div>
+    </div>
+    <div class="dual-row">
+      <div class="sk call-c${isIntradag?' dim':''}">
+        <div class="sk-lbl">CALL — slotbasis</div>
+        <div class="sk-val">${fmt(callStrike,0)}</div>
+        <div class="sk-sub">${fmt(bufCall*100,1)}% · ${fmt(callStrike-koers,0)} pts</div>
+      </div>
+      <div class="sk call-h${isIntradag?' featured':''}">
+        <div class="sk-lbl">CALL — veilig tijdens de week</div>
+        <div class="sk-val">${fmt(callHigh,0)}</div>
+        <div class="sk-sub">${fmt(callHigh-koers,0)} pts · +${fmt(callKloof,0)} pts extra</div>
+        ${isIntradag ? '<span class="aanbevolen">✓ aanbevolen</span>' : '<span class="sk-badge">week-safe</span>'}
+      </div>
+    </div>`;
+  } else {
+    callHTML = `
+    <div class="dual-col-labels">
+      <div class="dual-col-lbl dcl-close">O→Close${!isIntradag?' ✓ aanbevolen':''}</div>
+      <div class="dual-col-lbl dcl-intra">O→High${isIntradag?' ✓ aanbevolen':''}</div>
+    </div>
+    <div class="dual-row">
+      <div class="sk call-c${isIntradag?' dim':''}">
+        <div class="sk-lbl">CALL — slotbasis</div>
+        <div class="sk-val">${fmt(callStrike,0)}</div>
+        <div class="sk-sub">${fmt(bufCall*100,1)}% · ${fmt(callStrike-koers,0)} pts</div>
+        ${!isIntradag ? '<span class="aanbevolen">✓ aanbevolen</span>' : ''}
+      </div>
+      <div class="sk call-h${isIntradag?' featured':''}">
+        <div class="sk-lbl">CALL — veilig tijdens de week</div>
+        <div class="sk-val">${fmt(callHigh,0)}</div>
+        <div class="sk-sub">${fmt(callHigh-koers,0)} pts · +${fmt(callKloof,0)} pts extra</div>
+        ${isIntradag ? '<span class="aanbevolen">✓ aanbevolen</span>' : '<span class="sk-badge">week-safe</span>'}
+      </div>
+    </div>`;
+  }
+
+  setHTML('result-main', `
+    ${gammaHTML}${vstoxxWarnHTML}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+      <span class="tag" style="background:${kl}15;color:${kl};border:1px solid ${kl}40;">VSTOXX ${fmt(vstoxx,1)} — ${r.naam}</span>
+      <span class="tag" style="background:var(--gold-bg);color:var(--gold);border:1px solid #e0c060;">P${p}</span>
+      <span class="tag" style="background:var(--surface2);color:var(--text2);border:1px solid var(--border);">${info.naam} · ${dagen}d · ${tijdPct}% buffer</span>
+    </div>
+    ${modelHTML}${bufferHTML}
+    <div class="mbox ${mKlasse}" style="margin-bottom:14px;">
+      <div class="mbox-title">${mIcon} Raakrisico strike(s) tijdens de week — ${r.naam} regime</div>
+      <div class="mbox-grid">
+        <div class="mbox-stat"><div class="mbox-val">${fmt(mPct,1)}%</div><div class="mbox-sub">kans strike(s) geraakt tijdens de week, week eindigt veilig</div></div>
+        <div class="mbox-stat"><div class="mbox-val">${fmt(putKloof,0)} pts</div><div class="mbox-sub">extra PUT buffer tijdens de week</div></div>
+        <div class="mbox-stat"><div class="mbox-val">${cStatus==='stop'?'n.v.t.':fmt(callKloof,0)+' pts'}</div><div class="mbox-sub">extra CALL buffer tijdens de week</div></div>
+      </div>
+    </div>
+    <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">PUT STRIKE</div>
+    ${putHTML}
+    <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin:14px 0 8px;">CALL STRIKE</div>
+    ${callHTML}
+    <div class="formula">
+      PUT aanbevolen: <strong>${fmt(putAanbevolen,0)}</strong>${cStatus!=='stop' ? ' · CALL aanbevolen: <strong>' + fmt(callAanbevolen,0) + '</strong>' : ' · CALL: niet schrijven'}<br>
+      <span style="color:var(--accent);">Tijdsfactor √(${dagen}/5) = ${fmt(Math.sqrt(dagen/5),3)} · drempel: PUT altijd · CALL stop VSTOXX >45 · bron: 490 weken</span>
+    </div>
+  `);
+
+  let rowsFiltered = '';
+  [95,97,99].forEach(pN => {
+    const bP2  = vstoxxBuffer(vstoxx, pN, 'put',  dagen);
+    const bC2  = vstoxxBuffer(vstoxx, pN, 'call', dagen);
+    const sP2  = Math.round(koers*(1-bP2)/25)*25;
+    const sC2  = Math.round(koers*(1+bC2)/25)*25;
+    const sOL2 = getOlowStrike(vstoxx, pN, 'put',  koers, dagen, sP2);
+    const sOH2 = getOlowStrike(vstoxx, pN, 'call', koers, dagen, sC2);
+    const kP2  = sP2  - sOL2;
+    const kC2  = sOH2 - sC2;
+    const act2 = pN===p;
+    if (cStatus === 'stop') {
+      rowsFiltered += `<tr${act2?' class="hl"':''}><td><strong>P${pN}</strong>${act2?' ★':''}</td><td style="color:var(--red);">${fmt(sP2,0)}</td><td class="lv">${fmt(sOL2,0)}</td><td class="kl">${kP2>0?'+'+fmt(kP2,0)+' pts':''}</td><td colspan="3" style="color:var(--text3);font-size:10px;text-align:center;">— CALL niet schrijven bij VSTOXX ${fmt(vstoxx,1)} —</td></tr>`;
+    } else {
+      rowsFiltered += `<tr${act2?' class="hl"':''}><td><strong>P${pN}</strong>${act2?' ★':''}</td><td style="color:var(--red);">${fmt(sP2,0)}</td><td class="lv">${fmt(sOL2,0)}</td><td class="kl">${kP2>0?'+'+fmt(kP2,0)+' pts':''}</td><td style="color:var(--blue);">${fmt(sC2,0)}</td><td class="hv">${fmt(sOH2,0)}</td><td class="kl">${kC2>0?'+'+fmt(kC2,0)+' pts':''}</td></tr>`;
+    }
+  });
+
+  const isIntradagTbl = getModel(vstoxx) === 'intradag';
+  const cSt = callStatus(vstoxx);
+  setHTML('alle-p', `<table class="strike-table all-p-tbl">
+    <thead>
+      <tr>
+        <th rowspan="2" style="text-align:left;">P</th>
+        <th colspan="3" class="ch" style="border-bottom:1px solid var(--border);">PUT strikes</th>
+        <th colspan="3" class="ch" style="border-bottom:1px solid var(--border);">${cSt==='stop'?'⛔ CALL — niet schrijven bij VSTOXX >45':'CALL strikes'}</th>
+      </tr>
+      <tr>
+        <th class="ch${!isIntradagTbl?' featured-col':''}">O→Close${!isIntradagTbl?' ✓':''}</th>
+        <th class="lh${isIntradagTbl?' featured-col':''}">O→Low${isIntradagTbl?' ✓':''}</th>
+        <th class="kl" style="font-size:9px;color:var(--text3);">kloof</th>
+        <th class="ch${!isIntradagTbl?' featured-col':''}">O→Close${!isIntradagTbl?' ✓':''}</th>
+        <th class="hh${isIntradagTbl?' featured-col':''}">O→High${isIntradagTbl?' ✓':''}</th>
+        <th class="kl" style="font-size:9px;color:var(--text3);">kloof</th>
+      </tr>
+    </thead>
+    <tbody>${rowsFiltered}</tbody>
+  </table>
+  <div class="tip" style="margin-top:8px;">O→Low / O→High = veilige strikes tijdens de week · PUT altijd schrijfbaar · CALL stop bij VSTOXX >45 · Bron: 490 weken 2007–2026</div>`);
+
+  const cc = document.getElementById('context-card');
+  if (refKoers && refVstoxx) {
+    cc.style.display = 'block';
+    let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
+    const mv = koers-refKoers, mp = mv/refKoers*100;
+    const mkl = mv>0?'var(--blue)':'var(--red)';
+    html += `<div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">Koers vs vrijdag slot</div><div style="font-size:22px;font-weight:700;font-family:'Syne',sans-serif;color:${mkl};">${mv>0?'+':''}${fmt(mv,0)} pts</div><div class="tip">${mv>0?'gestegen':'gedaald'} (${mv>0?'+':''}${fmt(mp,2)}%) t.o.v. ${fmt(refKoers,0)}</div></div>`;
+    const vv = vstoxx-refVstoxx, vp = vv/refVstoxx*100;
+    const vkl = vv>0?'var(--red)':'var(--green)';
+    html += `<div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">VSTOXX vs vrijdag slot</div><div style="font-size:22px;font-weight:700;font-family:'Syne',sans-serif;color:${vkl};">${vv>0?'+':''}${fmt(vv,2)}</div><div class="tip">${vv>0?'gestegen':'gedaald'} (${vv>0?'+':''}${fmt(vp,1)}%) t.o.v. ${fmt(refVstoxx,1)}</div></div>`;
+    html += '</div>';
+    const bPref = vstoxxBuffer(refVstoxx, p, 'put',  5);
+    const bCref = vstoxxBuffer(refVstoxx, p, 'call', 5);
+    const sPref = Math.round(refKoers*(1-bPref)/25)*25;
+    const sCref = Math.round(refKoers*(1+bCref)/25)*25;
+    html += `<div style="margin-top:12px;"><div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Strike vergelijking P${p}: vrijdag slot vs. ${info.naam.toLowerCase()} nu</div><table class="strike-table"><thead><tr><th style="text-align:left;">Moment</th><th>Koers</th><th>VSTOXX</th><th>PUT</th><th>CALL</th></tr></thead><tbody><tr><td>Vrijdag slot</td><td>${fmt(refKoers,0)}</td><td>${fmt(refVstoxx,1)}</td><td style="color:var(--red);">${fmt(sPref,0)}</td><td style="color:var(--blue);">${fmt(sCref,0)}</td></tr><tr class="hl"><td>${info.naam} nu</td><td>${fmt(koers,0)}</td><td>${fmt(vstoxx,1)}</td><td style="color:var(--red);">${fmt(putStrike,0)}</td><td style="color:var(--blue);">${fmt(callStrike,0)}</td></tr></tbody></table><div class="tip" style="margin-top:8px;">PUT verschil: <strong>${fmt(putStrike-sPref,0)} pts</strong> · CALL verschil: <strong>${fmt(callStrike-sCref,0)} pts</strong></div></div>`;
+    setHTML('context-inhoud', html);
+  } else if (activeDag > 1) {
+    cc.style.display = 'block';
+    setHTML('context-inhoud', `<div class="warn-box oranje">⚠️ Vul vrijdag slotkoers en VSTOXX in voor een volledige analyse.</div>`);
+  } else {
+    cc.style.display = 'none';
+  }
+}
+
+function toggleUitleg(id) {
+  const el = document.getElementById(id);
+  const btn = el.previousElementSibling;
+  el.classList.toggle('open');
+  btn.textContent = btn.textContent.replace(el.classList.contains('open') ? '▶' : '▼', el.classList.contains('open') ? '▼' : '▶');
+}
+
+function bouwRegimeTabel() {
+  const tbody = document.getElementById('regime-tbody');
+  [12,15,17,19,21,24,28,32,38,45].forEach(v => {
+    const r = vstoxxRegime(v);
+    const kl = rKleur(r.kleur);
+    const bP = vstoxxBuffer(v,97,'put',5);
+    const bC = vstoxxBuffer(v,97,'call',5);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><strong>${v}</strong></td>
+      <td><span class="tag" style="background:${kl}15;color:${kl};border:1px solid ${kl}40;">${r.naam}</span></td>
+      <td>${fmt(bP*100,1)}%</td><td>${fmt(bC*100,1)}%</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  bouwRegimeTabel();
+  const geladen = laadOp();
+  if (!geladen) {
+    // Niets in localStorage → standaard instellingen
+    setDag(1);
+    setP(97);
+  }
+});
+</script>
+</body>
+</html>
