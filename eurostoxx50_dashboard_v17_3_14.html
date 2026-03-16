@@ -1,0 +1,2945 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OESX Dashboard v17.3.14 — Optieschrijver</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f1ea;
+  --surface: #ffffff;
+  --surface2: #ede9e0;
+  --border: #d4cfc4;
+  --border2: #e8e4db;
+  --text: #1a1714;
+  --text2: #5c5650;
+  --text3: #9c9890;
+  --green: #1a6e45;
+  --green-bg: #e8f5ee;
+  --green-border: #a8d5bb;
+  --red: #b52a2a;
+  --red-bg: #fdeaea;
+  --red-border: #e8a8a8;
+  --orange: #b56a00;
+  --orange-bg: #fff3e0;
+  --orange-border: #f0c070;
+  --gold: #8a6a00;
+  --gold-bg: #fff8e0;
+  --blue: #1a3f7a;
+  --blue-bg: #e6edf8;
+  --accent: #c4954a;
+  --purple: #5a2d7a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.5;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:28px 24px;}
+
+/* HEADER */
+header{margin-bottom:28px;padding-bottom:20px;border-bottom:2px solid var(--text);}
+.header-row{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.eyebrow{font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+h1{font-family:'Syne',sans-serif;font-size:clamp(26px,4vw,48px);font-weight:800;letter-spacing:-.03em;line-height:1;}
+h1 em{font-style:normal;color:var(--accent);}
+.header-right{text-align:right;}
+.vstoxx-badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:8px 14px;}
+.vstoxx-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;}
+.vstoxx-label{font-size:10px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;}
+
+/* USER SELECTOR */
+.user-selector{display:flex;gap:8px;align-items:center;margin-bottom:4px;}
+.user-btn{padding:5px 14px;border-radius:20px;border:1.5px solid var(--border);background:transparent;font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;transition:all .2s;color:var(--text2);}
+.user-btn.active{background:var(--text);color:var(--bg);border-color:var(--text);}
+.user-btn:hover:not(.active){background:var(--surface2);}
+
+/* SECTION HEADERS */
+.sec{margin-bottom:28px;}
+.sec-head{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text2);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.sec-num{width:22px;height:22px;border-radius:50%;background:var(--text);color:var(--bg);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px;}
+.card-sm{padding:14px 16px;}
+
+/* GRID LAYOUTS */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.grid7{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;}
+@media(max-width:900px){.grid4{grid-template-columns:repeat(2,1fr);}.grid3{grid-template-columns:1fr 1fr;}.grid2{grid-template-columns:1fr;}.grid7{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:600px){.grid4{grid-template-columns:1fr 1fr;}.grid3{grid-template-columns:1fr;}.grid7{grid-template-columns:1fr 1fr;}}
+
+/* INPUTS */
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-weight:500;}
+input[type=number],input[type=text],input[type=date],select{
+  background:var(--surface);border:1.5px solid var(--border);border-radius:4px;
+  padding:8px 10px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text);
+  width:100%;transition:border-color .15s;
+}
+input:focus,select:focus{outline:none;border-color:var(--accent);}
+input.highlight{border-color:var(--accent);background:var(--gold-bg);}
+
+/* BUTTONS */
+.btn{background:var(--text);color:var(--bg);border:none;border-radius:4px;padding:9px 18px;
+  font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;cursor:pointer;
+  letter-spacing:.05em;transition:opacity .15s;}
+.btn:hover{opacity:.8;}
+.btn-sm{padding:6px 12px;font-size:11px;}
+.btn-outline{background:transparent;color:var(--text);border:1.5px solid var(--border);}
+.btn-outline:hover{background:var(--surface2);}
+.btn-green{background:var(--green);}
+.btn-red{background:var(--red);}
+.btn-orange{background:var(--orange);color:#fff;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px;}
+
+/* STAT BOXES */
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:14px;position:relative;overflow:hidden;}
+.stat::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.stat.g::before{background:var(--green);}
+.stat.r::before{background:var(--red);}
+.stat.b::before{background:var(--blue);}
+.stat.a::before{background:var(--accent);}
+.stat.p::before{background:var(--purple);}
+.stat.o::before{background:var(--orange);}
+.stat-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;font-weight:500;}
+.stat-val{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;line-height:1.1;}
+.stat-val.g{color:var(--green);}
+.stat-val.r{color:var(--red);}
+.stat-val.b{color:var(--blue);}
+.stat-val.a{color:var(--accent);}
+.stat-val.o{color:var(--orange);}
+.stat-sub{font-size:10px;color:var(--text3);margin-top:3px;}
+
+/* STOPLICHT */
+.stoplicht{display:flex;gap:8px;align-items:center;margin:16px 0;}
+.lamp{width:28px;height:28px;border-radius:50%;border:2px solid rgba(0,0,0,.15);transition:all .3s;opacity:.2;}
+.lamp.on-green{background:#22c55e;border-color:#16a34a;opacity:1;box-shadow:0 0 12px rgba(34,197,94,.5);}
+.lamp.on-orange{background:#f59e0b;border-color:#d97706;opacity:1;box-shadow:0 0 12px rgba(245,158,11,.5);}
+.lamp.on-red{background:#ef4444;border-color:#dc2626;opacity:1;box-shadow:0 0 12px rgba(239,68,68,.6);}
+.stoplicht-label{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-left:8px;}
+
+/* POSITIE BAR */
+.pos-bar-wrap{margin:16px 0;}
+.pos-bar-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:4px;}
+.pos-bar-track{height:12px;background:var(--surface2);border-radius:6px;position:relative;border:1px solid var(--border);}
+.pos-bar-fill{height:100%;border-radius:6px;transition:width .4s ease;position:absolute;left:0;top:0;}
+.pos-marker{position:absolute;top:-4px;width:4px;height:20px;border-radius:2px;transform:translateX(-50%);transition:left .4s ease;}
+.pos-marker.put-m{background:var(--red);}
+.pos-marker.call-m{background:var(--blue);}
+.pos-marker.now-m{background:var(--text);width:3px;}
+
+/* SCENARIO CARDS */
+.scenario-card{background:var(--surface);border:1.5px solid var(--border);border-radius:6px;padding:16px;}
+
+/* STRIKE RESULT TABLE */
+.strike-table{width:100%;border-collapse:collapse;margin-top:10px;}
+.strike-table th{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);padding:5px 8px;text-align:right;border-bottom:1px solid var(--border);}
+.strike-table th:first-child{text-align:left;}
+.strike-table td{padding:7px 8px;text-align:right;font-size:12px;border-bottom:1px solid var(--border2);}
+.strike-table td:first-child{text-align:left;color:var(--text2);}
+.strike-table tr.recommended{background:var(--gold-bg);}
+.strike-table tr.recommended td:first-child::after{content:' ★';color:var(--accent);}
+
+/* PROGRESS BAR MINI */
+.mini-bar{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;margin-top:4px;}
+.mini-bar-fill{height:100%;border-radius:2px;transition:width .3s;}
+
+/* TAGS */
+.tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:3px;font-weight:500;letter-spacing:.05em;}
+.tag-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+.tag-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
+.tag-orange{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border);}
+.tag-blue{background:var(--blue-bg);color:var(--blue);}
+.tag-gold{background:var(--gold-bg);color:var(--gold);}
+
+/* DIVIDER */
+hr{border:none;border-top:1px solid var(--border2);margin:16px 0;}
+
+/* NOTIFICATION */
+.notif{padding:10px 14px;border-radius:4px;font-size:11px;margin-top:10px;border-left:3px solid;}
+.notif-red{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+.notif-orange{background:var(--orange-bg);border-color:var(--orange);color:var(--orange);}
+.notif-green{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+.notif-blue{background:var(--blue-bg);border-color:var(--blue);color:var(--blue);}
+
+/* FOOTER */
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--border);font-size:10px;color:var(--text3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+
+/* HIDDEN */
+.hidden{display:none;}
+
+/* SPLIT LAYOUT */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:800px){.split{grid-template-columns:1fr;}}
+
+/* FORMULA BOX */
+.formula{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px 14px;font-size:11px;color:var(--text2);line-height:1.8;}
+.formula strong{color:var(--text);}
+
+/* TOOLTIP */
+.tip{font-size:10px;color:var(--text3);margin-top:4px;}
+
+/* DAGDATA TABEL */
+.dag-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:12px;}
+.dag-table th{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);padding:6px 8px;text-align:right;border-bottom:1.5px solid var(--border);background:var(--surface2);}
+.dag-table th:first-child{text-align:left;}
+.dag-table td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--border2);}
+.dag-table td:first-child{text-align:left;font-weight:600;color:var(--text2);}
+.dag-table tr.today-row{background:var(--gold-bg);}
+.dag-table tr.today-row td:first-child::after{content:' ←';color:var(--accent);font-size:9px;}
+
+/* WEEK VOORTGANG */
+.week-progress{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0;}
+.dag-pill{border-radius:6px;padding:10px 8px;text-align:center;border:1.5px solid var(--border);background:var(--surface);}
+.dag-pill.heeft-data{border-color:var(--green);background:var(--green-bg);}
+.dag-pill.vandaag{border-color:var(--accent);border-width:2px;}
+.dag-pill.leeg{opacity:.5;}
+.dag-pill-naam{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);font-weight:600;}
+.dag-pill-koers{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-top:3px;}
+.dag-pill-vstoxx{font-size:9px;color:var(--text3);margin-top:2px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<header>
+  <div class="header-row">
+    <div>
+      <div class="eyebrow">EUREX OESX — Weekopties Schrijver Dashboard</div>
+      <h1>EURO STOXX <em>50</em></h1>
+    </div>
+    <div class="header-right">
+      <div style="font-size:10px;margin-bottom:6px;" id="sync-status">⏳ Verbinden...</div>
+      <div class="user-selector" id="user-selector">
+        <span style="font-size:10px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;">Gebruiker:</span>
+        <button class="user-btn active" id="btn-user-sven" onclick="setUser('Sven')">Sven</button>
+        <button class="user-btn" id="btn-user-sem" onclick="setUser('Sem')">Sem</button>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;justify-content:flex-end;margin-top:8px;">
+        <div class="vstoxx-badge">
+          <div>
+            <div class="vstoxx-label">VSTOXX (V2TX spot)</div>
+            <div class="vstoxx-val" id="hdr-vstoxx">—</div>
+          </div>
+          <div style="font-size:10px;color:var(--text3);" id="hdr-vstoxx-regime">—</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:10px;color:var(--text3);letter-spacing:.05em;" id="hdr-datum">—</div>
+          <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;" id="hdr-stand">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- BLOK 1: ACTIEVE POSITIE -->
+<div class="sec">
+  <div class="sec-head"><span class="sec-num">1</span> Actieve positie</div>
+  <div class="card" style="margin-bottom:14px;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;">
+      <div class="field">
+        <label>Instap datum</label>
+        <input type="text" id="inp-datum" placeholder="bijv. 07-03-2026" oninput="updateAlles()">
+      </div>
+      <div class="field">
+        <label>Referentiekoers instap</label>
+        <input type="number" id="inp-ref" placeholder="bijv. 5500" step="1" oninput="updateAlles()">
+      </div>
+      <div class="field">
+        <label>PUT strike</label>
+        <input type="number" id="inp-put" placeholder="bijv. 5100" step="25" oninput="updateAlles()">
+      </div>
+      <div class="field">
+        <label>PUT premie ontvangen (€)</label>
+        <input type="number" id="inp-put-prem" placeholder="bijv. 2.50" step="0.05" oninput="updateAlles()">
+      </div>
+      <div class="field">
+        <label>CALL strike</label>
+        <input type="number" id="inp-call" placeholder="bijv. 5850" step="25" oninput="updateAlles()">
+      </div>
+      <div class="field">
+        <label>CALL premie ontvangen (€)</label>
+        <input type="number" id="inp-call-prem" placeholder="bijv. 1.80" step="0.05" oninput="updateAlles()">
+      </div>
+      <div class="field">
+        <label>Aantal contracten</label>
+        <input type="number" id="inp-cnt" placeholder="bijv. 30" step="1" value="30" oninput="updateAlles()">
+      </div>
+      <div class="field">
+        <label>Expiratie datum</label>
+        <input type="text" id="inp-exp" placeholder="bijv. 14-03-2026" oninput="updateAlles()">
+      </div>
+      <div class="field">
+        <label>Veiligheidsprofiel</label>
+        <select id="inp-profiel" onchange="updateAlles()">
+          <option value="95">P95 — offensief (25%)</option>
+          <option value="97" selected>P97 — midden (20%)</option>
+          <option value="99">P99 — defensief (15%)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>VSTOXX bij instap</label>
+        <input type="number" id="inp-vstoxx-instap" placeholder="bijv. 20.0" step="0.5" oninput="updateAlles()">
+      </div>
+      <div class="field">
+        <label>Marginverbruik bij Saxo bij instap (%)</label>
+        <input type="number" id="inp-margin-instap" placeholder="bijv. 82.5" step="0.5" min="0" max="200" oninput="updateAlles()">
+        <div class="tip">Indicatie — vul in wat Saxo toont bij instap vrijdag. Dashboard berekent bij welke koers margin ~115% bereikt. Lineaire schatting; werkelijke margin kan hoger zijn door VSTOXX-stijging of gamma.</div>
+      </div>
+    </div>
+    <div id="margin-instap-indicatie" style="margin-bottom:10px;"></div>
+    <div class="btn-row">
+      <button class="btn btn-sm" onclick="slaPositieOp()">💾 Sla op</button>
+      <button class="btn btn-sm btn-outline" onclick="exportJSON()">⬇ Export JSON</button>
+      <label class="btn btn-sm btn-outline" style="cursor:pointer;">⬆ Import JSON<input type="file" accept=".json" onchange="importJSON(event)" style="display:none;"></label>
+      <button class="btn btn-sm btn-outline" onclick="resetPositie()">✕ Reset</button>
+    </div>
+    <div id="opslaan-msg" class="tip" style="margin-top:6px;"></div>
+  </div>
+  <div class="grid4" id="positie-stats" style="display:none;">
+    <div class="stat a">
+      <div class="stat-label">PUT buffer</div>
+      <div class="stat-val a" id="stat-put-buf">—</div>
+      <div class="stat-sub" id="stat-put-pts">—</div>
+    </div>
+    <div class="stat b">
+      <div class="stat-label">CALL buffer</div>
+      <div class="stat-val b" id="stat-call-buf">—</div>
+      <div class="stat-sub" id="stat-call-pts">—</div>
+    </div>
+    <div class="stat g">
+      <div class="stat-label">Totale premie</div>
+      <div class="stat-val g" id="stat-premie-tot">—</div>
+      <div class="stat-sub" id="stat-premie-sub">—</div>
+    </div>
+    <div class="stat p">
+      <div class="stat-label">Dagen tot expiratie</div>
+      <div class="stat-val p" id="stat-dagen">—</div>
+      <div class="stat-sub" id="stat-dagen-sub">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- BLOK 2: STAND VAN ZAKEN -->
+<div class="sec">
+  <div class="sec-head"><span class="sec-num">2</span> Stand van zaken — live check</div>
+  <div id="gamma-waarsch-blok2"></div>
+  <div class="split">
+    <div>
+      <div class="card">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+          <div class="field">
+            <label>Huidige koers</label>
+            <input type="number" id="inp-nu" placeholder="bijv. 5420" step="1" oninput="updateStoplicht()" class="highlight">
+          </div>
+          <div class="field">
+            <label>Huidig VSTOXX (V2TX spot)</label>
+            <input type="number" id="inp-vstoxx-nu" placeholder="bijv. 22.5" step="0.5" oninput="updateStoplicht();updateVstoxxHeader()">
+          </div>
+          <div class="field">
+            <label>Saxo margin % nu</label>
+            <input type="number" id="inp-margin-nu" placeholder="bijv. 91.0" step="0.5" min="0" max="200" oninput="updateStoplicht()">
+            <div class="tip">Lees af van Saxo platform — reflecteert automatisch je totale positie (PUT, CALL of strangle).</div>
+          </div>
+        </div>
+        <div id="margin-nu-indicatie" style="margin-top:10px;"></div>
+        <div id="margin-120-info"></div>
+        <div class="tip">Blok 1 dient ingevuld te zijn om uw stand van zaken te checken</div>
+        <div id="model-indicator"></div>
+        <!-- SNELKOPPELING DOORROL -->
+        <div id="doorrol-snelkoppeling" class="hidden" style="margin-top:12px;">
+          <button class="btn btn-sm btn-orange" onclick="snelkoppelingDoorrol()">
+            📋 Bereken doorrol met deze koers & VSTOXX →
+          </button>
+          <div class="tip">Vult blok 3 automatisch in met huidige waarden</div>
+        </div>
+      </div>
+      <div class="card card-sm" style="margin-top:12px;">
+        <div id="profiel-context" style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:8px 12px;margin-bottom:12px;font-size:11px;line-height:1.7;"></div>
+        <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;font-weight:500;">PUT — risicostoplicht</div>
+        <div class="stoplicht">
+          <div class="lamp" id="lamp-green"></div>
+          <div class="lamp" id="lamp-orange"></div>
+          <div class="lamp" id="lamp-red"></div>
+          <div class="stoplicht-label" id="stoplicht-tekst"></div>
+        </div>
+        <div id="stoplicht-msg" style="font-size:11px;color:var(--text2);margin-top:4px;"></div>
+        <div id="stoplicht-p-context" style="font-size:11px;color:var(--text3);margin-top:4px;"></div>
+        <hr>
+        <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;font-weight:500;">CALL — risicostoplicht</div>
+        <div class="stoplicht">
+          <div class="lamp" id="lamp-call-green"></div>
+          <div class="lamp" id="lamp-call-orange"></div>
+          <div class="lamp" id="lamp-call-red"></div>
+          <div class="stoplicht-label" id="stoplicht-call-tekst"></div>
+        </div>
+        <div id="stoplicht-call-msg" style="font-size:11px;color:var(--text2);margin-top:4px;"></div>
+        <div id="stoplicht-call-p-context" style="font-size:11px;color:var(--text3);margin-top:4px;"></div>
+        <hr>
+        <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;font-weight:500;">MARGIN — risicostoplicht</div>
+        <div class="stoplicht">
+          <div class="lamp" id="lamp-margin-green"></div>
+          <div class="lamp" id="lamp-margin-orange"></div>
+          <div class="lamp" id="lamp-margin-red"></div>
+          <div class="stoplicht-label" id="stoplicht-margin-tekst"></div>
+        </div>
+        <div id="stoplicht-margin-msg" style="font-size:11px;color:var(--text2);margin-top:4px;"></div>
+        <div id="stoplicht-margin-sub" style="font-size:11px;color:var(--text3);margin-top:4px;"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:14px;font-weight:500;">Afstanden & P&L</div>
+        <div class="pos-bar-wrap">
+          <div class="pos-bar-labels">
+            <span id="bar-put-label">PUT —</span>
+            <span id="bar-mid-label">REF —</span>
+            <span id="bar-call-label">CALL —</span>
+          </div>
+          <div class="pos-bar-track" id="pos-bar-track">
+            <div class="pos-bar-fill" id="pos-bar-fill" style="background:var(--green-bg);width:100%;"></div>
+            <div class="pos-marker put-m" id="put-marker" style="left:0%;"></div>
+            <div class="pos-marker now-m" id="now-marker" style="left:50%;"></div>
+            <div class="pos-marker call-m" id="call-marker" style="left:100%;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text3);margin-top:4px;">
+            <span style="color:var(--red)">▲ PUT</span><span>● REF</span><span>● Nu</span><span style="color:var(--blue)">CALL ▲</span>
+          </div>
+        </div>
+        <div class="grid2" style="gap:10px;margin-top:12px;">
+          <div class="stat r">
+            <div class="stat-label">Afstand PUT strike</div>
+            <div class="stat-val" id="afstand-put-val">—</div>
+            <div class="stat-sub" id="afstand-put-pct">—</div>
+            <div id="afstand-put-p" style="font-size:10px;color:var(--text3);margin-top:3px;"></div>
+            <div class="mini-bar"><div class="mini-bar-fill" id="afstand-put-bar" style="background:var(--green);width:100%;"></div></div>
+          </div>
+          <div class="stat b">
+            <div class="stat-label">Afstand CALL strike</div>
+            <div class="stat-val" id="afstand-call-val">—</div>
+            <div class="stat-sub" id="afstand-call-pct">—</div>
+            <div id="afstand-call-p" style="font-size:10px;color:var(--text3);margin-top:3px;"></div>
+            <div class="mini-bar"><div class="mini-bar-fill" id="afstand-call-bar" style="background:var(--green);width:100%;"></div></div>
+          </div>
+        </div>
+        <div class="grid2" style="gap:10px;margin-top:10px;">
+          <div class="stat a">
+            <div class="stat-label">Buffer PUT resterend</div>
+            <div class="stat-val a" id="buf-rest-val">—</div>
+            <div class="stat-sub" id="buf-rest-sub">—</div>
+          </div>
+          <div class="stat b">
+            <div class="stat-label">Buffer CALL resterend</div>
+            <div class="stat-val b" id="buf-call-rest-val">—</div>
+            <div class="stat-sub" id="buf-call-rest-sub">—</div>
+          </div>
+        </div>
+        <div class="stat g" style="margin-top:10px;">
+          <div class="stat-label">P&L nu (beide kanten)</div>
+          <div class="stat-val g" id="pnl-val">—</div>
+          <div class="stat-sub" id="pnl-sub">—</div>
+        </div>
+        <div id="standvanzaken-alert"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BLOK 3: DOORROL CALCULATOR -->
+<div class="sec" id="blok-doorrol">
+  <div class="sec-head"><span class="sec-num">3</span> Doorrol calculator — 3 scenario's</div>
+  <div class="card" style="margin-bottom:16px;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;align-items:end;">
+      <div class="field">
+        <label>Doorroldag</label>
+        <select id="doorrol-dag" onchange="updateDoorrol()">
+          <option value="4">Maandag (4 dagen tot exp.)</option>
+          <option value="3" selected>Dinsdag (3 dagen tot exp.)</option>
+          <option value="2">Woensdag (2 dagen tot exp.)</option>
+          <option value="1">Donderdag (1 dag tot exp.)</option>
+        </select>
+        <div class="tip">Bepaalt resterende looptijd tot vrijdag 12:00</div>
+      </div>
+      <div class="field">
+        <label>VSTOXX bij doorrol</label>
+        <input type="number" id="doorrol-vstoxx" placeholder="bijv. 25.0" step="0.5" oninput="updateDoorrol()">
+        <div class="tip">Verwachte VSTOXX op doorrolmoment</div>
+      </div>
+      <div class="field">
+        <label>Terugkooppremie PUT (€)</label>
+        <input type="number" id="doorrol-tbk-put" placeholder="bijv. 8.00" step="0.10" oninput="updateDoorrol()">
+      </div>
+      <div class="field">
+        <label>Terugkooppremie CALL (€)</label>
+        <input type="number" id="doorrol-tbk-call" placeholder="bijv. 3.00" step="0.10" oninput="updateDoorrol()">
+      </div>
+      <div class="field">
+        <label>Wat wil je doorrollen</label>
+        <select id="doorrol-kant" onchange="updateDoorrol()">
+          <option value="put">Alleen PUT</option>
+          <option value="call">Alleen CALL</option>
+          <option value="beide">Beide kanten</option>
+        </select>
+      </div>
+    </div>
+    <div id="doorrol-prefill-msg" class="hidden" style="margin-top:10px;">
+      <div class="notif notif-blue">📋 Vooringevuld vanuit stand van zaken — controleer waarden en pas aan indien nodig</div>
+    </div>
+  </div>
+  <div class="formula" style="margin-bottom:16px;">
+    <strong>Formule:</strong> Strike = Koers × (1 − VSTOXX/100 / √(252/restDagen) × σ) &nbsp;|&nbsp;
+    σ: P95=1.93 · P97=2.28 · P99=2.80 &nbsp;|&nbsp;
+    <strong>Expiratie altijd deze vrijdag 12:00</strong>
+  </div>
+  <div class="grid3">
+    <div class="scenario-card" style="border-top:3px solid var(--text2);">
+      <div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;font-weight:600;color:var(--text2);margin-bottom:12px;">Scenario 1</div>
+      <div class="field" style="margin-bottom:4px;"><label>Koers bij doorrol</label>
+        <input type="number" id="sce-bear-koers" placeholder="bijv. 5200" step="25" oninput="updateDoorrol()">
+      </div>
+      <div class="tip" style="margin-bottom:10px;">bijv. net boven PUT strike</div>
+      <div id="bear-result"></div>
+    </div>
+    <div class="scenario-card" style="border-top:3px solid var(--text2);">
+      <div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;font-weight:600;color:var(--text2);margin-bottom:12px;">Scenario 2</div>
+      <div class="field" style="margin-bottom:4px;"><label>Koers bij doorrol</label>
+        <input type="number" id="sce-neut-koers" placeholder="bijv. 5100" step="25" oninput="updateDoorrol()">
+      </div>
+      <div class="tip" style="margin-bottom:10px;">bijv. 100–200 pts lager</div>
+      <div id="neut-result"></div>
+    </div>
+    <div class="scenario-card" style="border-top:3px solid var(--text2);">
+      <div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;font-weight:600;color:var(--text2);margin-bottom:12px;">Scenario 3</div>
+      <div class="field" style="margin-bottom:4px;"><label>Koers bij doorrol</label>
+        <input type="number" id="sce-bull-koers" placeholder="bijv. 5000" step="25" oninput="updateDoorrol()">
+      </div>
+      <div class="tip" style="margin-bottom:10px;">bijv. worst case niveau</div>
+      <div id="bull-result"></div>
+    </div>
+  </div>
+  <div id="doorrol-samenvatting" class="hidden" style="margin-top:16px;">
+    <div class="card card-sm">
+      <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;font-weight:500;">P&L samenvatting doorrol</div>
+      <div id="doorrol-pnl-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BLOK 4: INSTAP REKENTOOL KNOP -->
+<div class="sec">
+  <div class="sec-head"><span class="sec-num">4</span> Instap rekentool</div>
+  <div class="card" style="text-align:center;padding:28px 20px;">
+    <div style="font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.6;">
+      Bereken strikes voor <strong>elke dag van de week</strong> — vrijdag→vrijdag, maandag→vrijdag, dinsdag→vrijdag, etc.<br>
+      Op basis van actuele koers, V2TX en resterende looptijd.
+    </div>
+    <button class="btn" onclick="window.open('eurostoxx50_rekentool_v7_3.html','_blank')" style="font-size:14px;padding:14px 32px;letter-spacing:.08em;">
+      📐 Open instap rekentool →
+    </button>
+    <div style="font-size:10px;color:var(--text3);margin-top:14px;">Opent in nieuw venster · P95 / P97 / P99</div>
+  </div>
+</div>
+
+<!-- BLOK 5: P-NIVEAU UITLEG -->
+<div class="sec">
+  <div class="sec-head"><span class="sec-num">5</span> Wat betekent een P-niveau? — Risico & rendement</div>
+  <div class="card" style="margin-bottom:16px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:10px;">Wat is een P-niveau?</div>
+        <p style="font-size:12px;line-height:1.9;color:var(--text2);">Een P-niveau is de historische kans dat de EURO STOXX 50 in één week <em>niet</em> door jouw strike heen zakt. Berekend op basis van 1.000+ weken koersdata (2007–2026).</p>
+        <div style="margin-top:14px;padding:12px 14px;background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 4px 4px 0;font-size:12px;line-height:2.0;">
+          <strong>P99</strong> → <span style="color:var(--green);font-weight:600;">1% kans</span> breach deze week<br>
+          <strong>P97</strong> → <span style="color:var(--gold);font-weight:600;">3% kans</span> breach deze week<br>
+          <strong>P95</strong> → <span style="color:var(--orange);font-weight:600;">5% kans</span> breach deze week<br>
+          <strong>P88</strong> → <span style="color:var(--red);font-weight:600;">12% kans</span> breach deze week
+        </div>
+        <div style="margin-top:10px;padding:10px 14px;background:var(--blue-bg);border-left:3px solid var(--blue);border-radius:0 4px 4px 0;font-size:11px;color:var(--text2);line-height:1.8;">
+          💡 Net als de regenapp: <strong>1% kans op regen deze week</strong>. Elke week opnieuw.
+        </div>
+      </div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:10px;">Frequentie per jaar</div>
+        <div style="margin-top:14px;padding:12px 14px;background:var(--red-bg);border-left:3px solid var(--red);border-radius:0 4px 4px 0;font-size:12px;line-height:2.0;">
+          <strong>P88</strong> → gemiddeld <span style="color:var(--red);font-weight:600;">6–7 verliesweken per jaar</span><br>
+          <strong>P95</strong> → gemiddeld <span style="color:var(--orange);font-weight:600;">~2–3 verliesweken per jaar</span><br>
+          <strong>P97</strong> → gemiddeld <span style="color:var(--gold);font-weight:600;">~1–2 verliesweken per jaar</span><br>
+          <strong>P99</strong> → gemiddeld <span style="color:var(--green);font-weight:600;">~1 verliesweek per 2 jaar</span>
+        </div>
+        <p style="font-size:12px;line-height:1.9;color:var(--text2);margin-top:12px;">P99 is niet "100% veilig" — het zegt iets over frequentie, niet over de omvang van het verlies. <strong>Een goede exitstrategie is essentieel.</strong></p>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:16px;">
+    <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:14px;">Risico vs rendement — €100k kapitaal, 30 contracten</div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="background:var(--text);color:var(--bg);">
+          <th style="padding:10px 14px;text-align:left;font-size:10px;letter-spacing:.1em;text-transform:uppercase;">P-niveau</th>
+          <th style="padding:10px 14px;text-align:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;">Model</th>
+          <th style="padding:10px 14px;text-align:right;font-size:10px;letter-spacing:.1em;text-transform:uppercase;">Buffer (VSTOXX 20)</th>
+          <th style="padding:10px 14px;text-align:right;font-size:10px;letter-spacing:.1em;text-transform:uppercase;">Verwacht rendement</th>
+          <th style="padding:10px 14px;text-align:right;font-size:10px;letter-spacing:.1em;text-transform:uppercase;">Verlies per jaar</th>
+          <th style="padding:10px 14px;text-align:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;">Advies</th>
+        </tr></thead>
+        <tbody>
+          <tr style="background:var(--red-bg);border-bottom:1px solid var(--border2);">
+            <td style="padding:10px 14px;font-weight:700;color:var(--red);">P88</td>
+            <td style="padding:10px 14px;text-align:center;"><span class="tag tag-red">Gevaarlijk</span></td>
+            <td style="padding:10px 14px;text-align:right;">~3.5% / ~190 pts</td>
+            <td style="padding:10px 14px;text-align:right;color:var(--green);font-weight:600;">~40–50%</td>
+            <td style="padding:10px 14px;text-align:right;color:var(--red);">6–7x per jaar</td>
+            <td style="padding:10px 14px;text-align:center;color:var(--red);">⚠ Niet aan te raden</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border2);">
+            <td style="padding:10px 14px;font-weight:700;color:var(--orange);">P95</td>
+            <td style="padding:10px 14px;text-align:center;"><span class="tag tag-orange">Offensief</span></td>
+            <td style="padding:10px 14px;text-align:right;">~4.8% / ~265 pts</td>
+            <td style="padding:10px 14px;text-align:right;color:var(--green);font-weight:600;">~25–30%</td>
+            <td style="padding:10px 14px;text-align:right;color:var(--orange);">2–3x per jaar</td>
+            <td style="padding:10px 14px;text-align:center;color:var(--orange);">Ervaren schrijvers</td>
+          </tr>
+          <tr style="background:var(--gold-bg);border-bottom:1px solid var(--border2);">
+            <td style="padding:10px 14px;font-weight:700;color:var(--gold);">P97 ★</td>
+            <td style="padding:10px 14px;text-align:center;"><span class="tag tag-gold">Midden</span></td>
+            <td style="padding:10px 14px;text-align:right;">~5.7% / ~315 pts</td>
+            <td style="padding:10px 14px;text-align:right;color:var(--green);font-weight:600;">~20–25%</td>
+            <td style="padding:10px 14px;text-align:right;color:var(--gold);">~1x per jaar</td>
+            <td style="padding:10px 14px;text-align:center;color:var(--gold);">★ Sven/Bram standaard</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border2);">
+            <td style="padding:10px 14px;font-weight:700;color:var(--green);">P99</td>
+            <td style="padding:10px 14px;text-align:center;"><span class="tag tag-green">Defensief</span></td>
+            <td style="padding:10px 14px;text-align:right;">~7.0% / ~385 pts</td>
+            <td style="padding:10px 14px;text-align:right;color:var(--text2);">~15%</td>
+            <td style="padding:10px 14px;text-align:right;color:var(--green);">~1x per 2 jaar</td>
+            <td style="padding:10px 14px;text-align:center;color:var(--green);">Bram na schrik</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- BLOK 6: TOP 10 + TRUMP-O-METER -->
+<div class="sec">
+  <div class="sec-head"><span class="sec-num">6</span> Historische extremen & Trump-O-meter</div>
+  <div class="tip" style="margin-bottom:14px;">Dynamisch — inclusief door jou ingevoerde dagdata. Week van 1 mrt 2026 staat op #11 alltime PUT (−7.15%).</div>
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+    <button class="btn btn-sm" id="tab-put" onclick="showTab('put')" style="background:var(--red);color:#fff;">🔴 Top 10 PUT</button>
+    <button class="btn btn-sm btn-outline" id="tab-call" onclick="showTab('call')">🔵 Top 10 CALL</button>
+    <button class="btn btn-sm btn-outline" id="tab-trump" onclick="showTab('trump')">🇺🇸 Trump-O-meter</button>
+  </div>
+  <div id="panel-put"><div id="top10-put-table"></div></div>
+  <div id="panel-call" style="display:none;"><div id="top10-call-table"></div></div>
+  <div id="panel-trump" style="display:none;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+      <div class="card card-sm" style="border-top:3px solid var(--red);">
+        <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--red);font-weight:600;margin-bottom:8px;">PUT — Trump-era top 10</div>
+        <div id="trump-put-table"></div>
+      </div>
+      <div class="card card-sm" style="border-top:3px solid var(--blue);">
+        <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);font-weight:600;margin-bottom:8px;">CALL — Trump-era top 10</div>
+        <div id="trump-call-table"></div>
+      </div>
+    </div>
+    <div id="trump-stats" class="card card-sm"></div>
+  </div>
+</div>
+
+<!-- BLOK 7: DAGELIJKSE INVOER -->
+<div class="sec" id="blok-dagelijks">
+  <div class="sec-head"><span class="sec-num">7</span> Dagelijkse invoer — lopende week</div>
+
+  <!-- WEEK VOORTGANG -->
+  <div class="card" style="margin-bottom:16px;">
+    <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:12px;">
+      Week voortgang — <span id="week-label">—</span>
+      <span style="float:right;font-weight:400;" id="week-user-label"></span>
+    </div>
+    <div class="week-progress" id="week-pills">
+      <!-- Dynamisch ingevuld -->
+    </div>
+    <!-- Running week stats -->
+    <div class="grid4" id="running-stats" style="margin-top:14px;display:none;">
+      <div class="stat b">
+        <div class="stat-label">Week open (vrijdag close)</div>
+        <div class="stat-val b" id="rstat-open">—</div>
+      </div>
+      <div class="stat g">
+        <div class="stat-label">Hoogste this week</div>
+        <div class="stat-val g" id="rstat-high">—</div>
+      </div>
+      <div class="stat r">
+        <div class="stat-label">Laagste this week</div>
+        <div class="stat-val r" id="rstat-low">—</div>
+      </div>
+      <div class="stat a">
+        <div class="stat-label">Laatste koers</div>
+        <div class="stat-val a" id="rstat-close">—</div>
+        <div class="stat-sub" id="rstat-vstoxx">VSTOXX: —</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVOER FORMULIER -->
+  <div class="split">
+    <div class="card">
+      <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:14px;">Dag invoeren</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="field" style="grid-column:1/-1;">
+          <label>Datum</label>
+          <input type="date" id="dag-datum">
+        </div>
+        <div style="grid-column:1/-1;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-top:4px;">— KOERS —</div>
+        <div class="field">
+          <label>Open</label>
+          <input type="number" id="dag-open" placeholder="bijv. 5800" step="1">
+        </div>
+        <div class="field">
+          <label>High</label>
+          <input type="number" id="dag-high" placeholder="bijv. 5850" step="1">
+        </div>
+        <div class="field">
+          <label>Low</label>
+          <input type="number" id="dag-low" placeholder="bijv. 5750" step="1">
+        </div>
+        <div class="field">
+          <label>Close</label>
+          <input type="number" id="dag-close" placeholder="bijv. 5820" step="1">
+        </div>
+        <div style="grid-column:1/-1;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-top:4px;">— VSTOXX (V2TX SPOT) —</div>
+        <div class="field">
+          <label>VSTOXX Open</label>
+          <input type="number" id="dag-vstoxx-open" placeholder="bijv. 20.5" step="0.1">
+        </div>
+        <div class="field">
+          <label>VSTOXX Close</label>
+          <input type="number" id="dag-vstoxx-close" placeholder="bijv. 21.0" step="0.1">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-sm btn-green" onclick="slaaDagOp()">💾 Dag opslaan</button>
+        <button class="btn btn-sm btn-outline" onclick="verwijderDag()">✕ Verwijder dag</button>
+      </div>
+      <div id="dag-msg" class="tip" style="margin-top:8px;"></div>
+    </div>
+
+    <!-- WEEK OVERZICHT TABEL -->
+    <div class="card">
+      <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:12px;">Weekoverzicht ingevoerde dagen</div>
+      <div id="dagdata-tabel">
+        <div class="tip">Nog geen dagdata voor deze week ingevoerd.</div>
+      </div>
+      <hr>
+      <div style="font-size:10px;color:var(--text3);margin-top:8px;">
+        ℹ️ Data wordt opgeslagen in je browser (localStorage). Export regelmatig als backup via blok 1.
+      </div>
+      <!-- Week afsluiten -->
+      <div id="week-afsluiten-wrap" class="hidden" style="margin-top:12px;">
+        <div class="notif notif-green">
+          ✅ Vrijdag ingevoerd — week is compleet!
+          <div style="margin-top:8px;">
+            <button class="btn btn-sm btn-green" onclick="sluitWeekAf()">📊 Week toevoegen aan dataset</button>
+          </div>
+          <div class="tip" style="margin-top:4px;">Voegt de week toe aan de historische data — telt mee in top 10 en analyses</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>OESX Dashboard v17.3.14 — VSTOXX ≤22 → O→Close model · VSTOXX >22 → O→Low/High model</span>
+  <span id="footer-datum">—</span>
+</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ═══════════════════════════════════════════════════════
+// SUPABASE CONFIG
+// ═══════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://pwyanwyyrrqpjqnlmfzu.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_crrsIszmc0A-1nOqMMjPpg_4j1xXO3_';
+let sb = null;
+let supabaseOK = false;
+
+async function initSupabase() {
+  try {
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Test verbinding
+    const { error } = await sb.from('posities').select('id').limit(1);
+    if (error) throw error;
+    supabaseOK = true;
+    toonSyncStatus('☁️ Verbonden met cloud', 'green');
+    console.log('Supabase verbonden ✓');
+  } catch(e) {
+    supabaseOK = false;
+    toonSyncStatus('💾 Offline — lokale opslag', 'orange');
+    console.warn('Supabase niet beschikbaar, gebruik localStorage:', e.message);
+  }
+}
+
+function toonSyncStatus(tekst, type) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  el.textContent = tekst;
+  el.style.color = type === 'green' ? 'var(--green)' : type === 'orange' ? 'var(--orange)' : 'var(--red)';
+}
+
+// ═══════════════════════════════════════════════════════
+// CONSTANTEN
+// ═══════════════════════════════════════════════════════
+const SIGMA = { 95: 1.93, 97: 2.28, 99: 2.80 };
+const SIGMA_CALL = { 95: 1.39, 97: 1.67, 99: 2.10 };
+const CONTRACTGROOTTE = 10;
+
+// ─── AUTO-MODEL DREMPEL ─────────────────────────────────
+// VSTOXX ≤ 22 → O→Close  |  VSTOXX > 22 → O→Low/High
+// Bron: 3637 handelsdagen 2011–2026
+const VSTOXX_DREMPEL = 22;
+function getModel(v) { return v <= VSTOXX_DREMPEL ? 'close' : 'intradag'; }
+
+const OLOW_REGIME = {
+  'Rustig':   { put:{95:-3.836,97:-3.905,99:-4.287}, call:{95:1.738,97:1.854,99:2.359} },
+  'Normaal':  { put:{95:-3.959,97:-4.438,99:-6.294}, call:{95:3.061,97:3.556,99:4.329} },
+  'Verhoogd': { put:{95:-4.746,97:-5.205,99:-7.822}, call:{95:4.018,97:4.496,99:6.076} },
+  'Onrustig': { put:{95:-6.728,97:-7.103,99:-8.148}, call:{95:5.792,97:5.985,99:6.699} },
+  'Stress':   { put:{95:-6.576,97:-9.537,99:-9.537}, call:{95:6.896,97:8.926,99:9.237} },
+  'Crisis':   { put:{95:-12.957,97:-14.126,99:-21.987}, call:{95:13.70,97:14.03,99:25.12} },
+};
+
+function vstoxxRegimeNaam(v) {
+  if(v<=15) return 'Rustig'; if(v<=18) return 'Normaal'; if(v<=22) return 'Verhoogd';
+  if(v<=28) return 'Onrustig'; if(v<=35) return 'Stress';
+  return 'Crisis';
+}
+
+function getOlowStrike(vstoxx, p, kant, koers, closeStrike) {
+  const regime = OLOW_REGIME[vstoxxRegimeNaam(vstoxx)];
+  if (!regime) return closeStrike;
+  const pct = kant==='put' ? regime.put[p] : regime.call[p];
+  if (pct==null) return closeStrike;
+  const raw = Math.round(koers*(1+pct/100)/25)*25;
+  return kant==='put' ? Math.min(raw,closeStrike) : Math.max(raw,closeStrike);
+}
+const VSTOXX_REGIMES = [
+  { lo: 0,  hi: 15, naam: 'Rustig',   kleur: 'green' },
+  { lo: 15, hi: 18, naam: 'Normaal',  kleur: 'green' },
+  { lo: 18, hi: 22, naam: 'Verhoogd', kleur: 'orange'},
+  { lo: 22, hi: 28, naam: 'Onrustig', kleur: 'orange'},
+  { lo: 28, hi: 35, naam: 'Stress',   kleur: 'red'   },
+  { lo: 35, hi: 99, naam: 'Crisis',   kleur: 'red'   },
+];
+const TRUMP_START = new Date('2025-01-20');
+
+// ── HISTORISCHE GEBEURTENISSEN per weekdatum ─────────────
+const WEEK_EVENTS = {
+  // TOP 10 PUT weken
+  '10/05/2008': '🔴 Lehman crash — dieptepunt',
+  '03/08/2020': '🔴 Corona — eerste paniekweek',
+  '07/31/2011': '🔴 Eurocrisis — ECB deadline',
+  '11/16/2008': '🔴 Lehman — naschok',
+  '02/23/2020': '🔴 Corona — uitbraak Europa',
+  '05/02/2010': '🔴 Griekenlandcrisis',
+  '02/27/2022': '🔴 Oekraïne-invasie',
+  '02/15/2009': '🔴 Lehman — recessiebodem',
+  '10/19/2008': '🔴 Lehman — verdere spiraal',
+  '01/19/2025': '🇺🇸 Inauguratie',
+  '02/02/2025': '🔴 Tarieven Canada/Mexico',
+  '02/09/2025': '🔵 Staal/aluminium',
+  '03/02/2025': '🔴 China-escalatie',
+  '03/09/2025': '🔴 Recessievrees',
+  '03/30/2025': '🔴 Liberation Day',
+  '04/06/2025': '🔴 Liberation Day',
+  '04/13/2025': '🔵 Tarievenpauze',
+  '04/20/2025': '🔵 Tarievenbounce',
+  '04/27/2025': '🔵 Handelsoptimisme',
+  '05/11/2025': '🔵 VS-China akkoord',
+  '05/25/2025': '🔴 EU-tarieven',
+  '06/08/2025': '🔴 EU-onzekerheid',
+  '07/27/2025': '🔴 Tarievendreiging',
+  '08/03/2025': '🔵 Tarieven-herstel',
+  '11/16/2025': '🔴 ??',
+  '11/23/2025': '🔵 ??',
+  '03/01/2026': '🔴 Iran/olieprijs',
+  // TOP 10 CALL weken (bounces)
+  '10/26/2008': '🔵 Lehman — short squeeze bounce',
+  '11/23/2008': '🔵 Lehman — herstelrally',
+  '11/27/2011': '🔵 Eurocrisis — ECB interventie',
+  '05/31/2020': '🔵 Corona — herstelopening',
+  '09/25/2011': '🔵 Eurocrisis — bounce',
+  '07/12/2009': '🔵 Lehman — herstelrally',
+  '03/22/2020': '🔵 Corona — stimulus bounce',
+  '03/08/2009': '🔵 Lehman — bodemvorming',
+  '11/01/2020': '🔵 Corona — vaccin nieuws Pfizer',
+  '04/05/2020': '🔵 Corona — OPEC+Fed stimulus',
+};
+
+const RAW = [
+["03/01/2026","5719.90","6086.79","6086.79","5651.35","-7.37","31.23"],
+["02/22/2026","6138.41","6113.77","6199.78","6084.69","0.12","19.68"],
+["02/15/2026","6131.31","5993.30","6140.95","5954.14","2.44","18.69"],
+["02/08/2026","5985.23","6012.62","6099.07","5957.93","-0.22","19.74"],
+["02/01/2026","5998.40","5901.25","6073.34","5890.32","0.85","19.23"],
+["01/25/2026","5947.81","5948.97","6024.55","5879.16","-0.01","19.99"],
+["01/18/2026","5948.20","5974.89","5979.23","5822.92","-1.35","17.47"],
+["01/11/2026","6029.45","5995.21","6053.68","5968.49","0.53","16.19"],
+["01/04/2026","5997.47","5863.16","5999.48","5863.16","2.51","15.51"],
+["12/28/2025","5850.38","5752.16","5862.29","5734.91","1.76","15.24"],
+["12/21/2025","5749.28","5754.39","5770.99","5729.34","-0.19","14.05"],
+["12/14/2025","5760.35","5724.16","5772.35","5678.53","0.69","14.57"],
+["12/07/2025","5720.71","5717.65","5794.70","5684.93","-0.06","15.67"],
+["11/30/2025","5723.93","5659.91","5749.06","5622.95","0.98","15.78"],
+["11/23/2025","5668.17","5523.63","5676.82","5504.96","2.78","17.12"],
+["11/16/2025","5515.09","5692.13","5701.64","5473.88","-3.14","24.56"],
+["11/09/2025","5693.77","5608.67","5818.07","5608.67","2.29","19.2"],
+["11/02/2025","5566.53","5664.18","5705.77","5554.53","-1.69","21.38"],
+["10/26/2025","5662.04","5691.89","5734.28","5654.30","-0.22","17.81"],
+["10/19/2025","5674.50","5626.25","5699.13","5626.25","1.20","17.34"],
+["10/12/2025","5607.39","5540.54","5652.11","5487.67","1.38","20.24"],
+["10/05/2025","5531.32","5655.17","5665.03","5529.63","-2.13","19.6"],
+["09/28/2025","5651.71","5513.15","5674.55","5503.99","2.76","16.09"],
+["09/21/2025","5499.70","5462.65","5503.69","5415.31","0.76","16.71"],
+["09/14/2025","5458.42","5402.90","5494.13","5361.11","1.26","15.67"],
+["09/07/2025","5390.71","5324.66","5413.06","5324.66","1.36","15.39"],
+["08/31/2025","5318.15","5351.44","5377.74","5290.46","-0.63","17.68"],
+["08/24/2025","5351.73","5480.53","5480.53","5351.64","-2.49","17.56"],
+["08/17/2025","5488.23","5446.78","5510.69","5412.22","0.73","15.06"],
+["08/10/2025","5448.61","5360.25","5465.57","5312.19","1.89","15.84"],
+["08/03/2025","5347.74","5170.48","5366.96","5170.48","3.53","17.4"],
+["07/27/2025","5165.60","5381.59","5419.62","5154.83","-3.49","21.79"],
+["07/20/2025","5352.16","5358.19","5396.31","5277.85","-0.13","17.8"],
+["07/13/2025","5359.23","5357.50","5404.32","5298.07","-0.45","17.7"],
+["07/06/2025","5383.48","5292.79","5470.81","5289.19","1.79","17.11"],
+["06/29/2025","5288.81","5337.74","5343.15","5265.94","-0.69","19.05"],
+["06/22/2025","5325.64","5224.34","5325.64","5189.59","1.76","17.4"],
+["06/15/2025","5233.58","5295.92","5344.12","5196.84","-1.08","22.48"],
+["06/08/2025","5290.47","5424.96","5430.15","5269.11","-2.57","21.73"],
+["06/01/2025","5430.17","5337.40","5435.42","5308.05","1.18","17.42"],
+["05/25/2025","5366.59","5364.83","5437.67","5358.75","0.76","19.15"],
+["05/18/2025","5326.31","5409.04","5467.28","5252.94","-1.86","22.48"],
+["05/11/2025","5427.53","5319.28","5450.95","5319.28","2.22","16.36"],
+["05/04/2025","5309.74","5270.34","5323.61","5210.59","0.46","20.52"],
+["04/27/2025","5285.19","5163.23","5285.19","5105.80","2.54","20.54"],
+["04/20/2025","5154.12","4919.76","5167.18","4894.30","4.43","21.97"],
+["04/13/2025","4935.34","4828.56","4977.49","4828.56","3.09","26.18"],
+["04/06/2025","4787.23","4861.16","4987.62","4540.22","-1.87","39.56"],
+["03/30/2025","4878.31","5312.17","5328.91","4825.70","-8.50","34.22"],
+["03/23/2025","5331.40","5441.60","5496.73","5314.54","-1.70","20.6"],
+["03/16/2025","5423.83","5400.82","5515.38","5386.99","0.36","19.69"],
+["03/09/2025","5404.18","5480.17","5494.13","5294.37","-1.17","20.21"],
+["03/02/2025","5468.41","5469.10","5568.19","5370.75","0.09","22.6623"],
+["02/23/2025","5463.54","5478.39","5533.95","5411.54","-0.21","18.6266"],
+["02/16/2025","5474.85","5496.87","5544.12","5453.51","-0.34","16.4749"],
+["02/09/2025","5493.40","5328.54","5520.58","5328.54","3.15","15.8773"],
+["02/02/2025","5325.40","5228.61","5363.14","5174.01","0.73","16.6533"],
+["01/26/2025","5286.87","5212.89","5314.29","5131.76","1.29","15.3582"],
+["01/19/2025","5219.37","5150.76","5260.28","5142.60","1.38","14.8591"],
+["01/12/2025","5148.30","4964.78","5158.63","4916.87","3.44","15.7161"],
+["01/05/2025","4977.26","4893.32","5036.24","4893.19","2.17","18.2062"],
+["12/29/2024","4871.45","4890.52","4917.88","4845.89","-0.56","16.9253"],
+["12/22/2024","4898.88","4859.04","4898.88","4832.15","0.75","16.2708"],
+["12/15/2024","4862.28","4963.88","4970.35","4803.20","-2.13","16.8404"],
+["12/08/2024","4967.95","4991.84","5007.70","4940.08","-0.20","13.7514"],
+["12/01/2024","4977.78","4785.15","4985.22","4764.38","3.61","14.4806"],
+["11/24/2024","4804.40","4806.29","4831.28","4705.97","0.32","16.9607"],
+["11/17/2024","4789.08","4786.54","4801.23","4688.68","-0.12","17.9689"],
+["11/10/2024","4794.85","4825.50","4875.75","4699.78","-0.16","17.2116"],
+["11/03/2024","4802.76","4873.95","4946.48","4788.41","-1.54","16.7768"],
+["10/27/2024","4877.75","4962.16","4999.72","4805.23","-1.32","21.094"],
+["10/20/2024","4943.09","4977.90","4989.32","4906.28","-0.87","18.9165"],
+["10/13/2024","4986.27","5007.27","5053.23","4898.95","-0.35","17.2509"],
+["10/06/2024","5003.92","4959.24","5005.83","4911.83","0.99","18.4665"],
+["09/29/2024","4954.94","5060.76","5060.76","4907.60","-2.22","20.2537"],
+["09/22/2024","5067.45","4875.62","5071.41","4854.93","4.02","15.9531"],
+["09/15/2024","4871.54","4835.16","4943.38","4820.11","0.57","16.1859"],
+["09/08/2024","4843.99","4745.21","4853.89","4735.95","2.24","16.0523"],
+["09/01/2024","4738.06","4955.87","4986.74","4732.86","-4.44","22.5849"],
+["08/25/2024","4957.98","4907.04","4980.86","4892.19","0.99","15.2695"],
+["08/18/2024","4909.20","4838.02","4918.85","4835.58","1.42","15.307"],
+["08/11/2024","4840.52","4686.85","4850.74","4658.86","3.53","14.5006"],
+["08/04/2024","4675.28","4605.72","4703.22","4473.94","0.79","20.4295"],
+["07/28/2024","4638.70","4873.84","4907.39","4627.27","-4.60","24.519"],
+["07/21/2024","4862.50","4833.17","4949.27","4767.15","0.73","16.1458"],
+["07/14/2024","4827.24","5029.28","5038.30","4822.55","-4.28","16.5217"],
+["07/07/2024","5043.02","4976.53","5051.59","4894.76","1.28","13.0602"],
+["06/30/2024","4979.39","4924.08","5019.65","4869.48","1.74","14.4265"],
+["06/23/2024","4894.02","4911.17","4975.81","4880.98","-0.27","18.2969"],
+["06/16/2024","4907.30","4858.68","4948.89","4837.88","1.41","17.6045"],
+["06/09/2024","4839.14","5027.86","5042.39","4819.56","-4.20","19.8691"],
+["06/02/2024","5051.31","5008.10","5082.07","4942.14","1.36","13.2861"],
+["05/26/2024","4983.67","5038.92","5071.39","4947.21","-1.03","14.1384"],
+["05/19/2024","5035.41","5060.62","5079.04","4991.70","-0.57","12.6094"],
+["05/12/2024","5064.14","5083.54","5102.30","5040.23","-0.41","12.1346"],
+["05/05/2024","5085.08","4921.02","5096.89","4920.93","3.32","13.6018"],
+["04/28/2024","4921.48","5014.22","5026.82","4888.11","-1.71","14.4388"],
+["04/21/2024","5006.85","4921.04","5031.84","4900.27","1.80","15.2644"],
+["04/14/2024","4918.09","4969.00","5034.73","4884.12","-0.75","18.1885"],
+["04/07/2024","4955.01","5012.02","5053.00","4934.40","-1.19","18.7948"],
+["03/31/2024","5014.75","5096.86","5121.71","4985.67","-1.35","16.1199"],
+["03/24/2024","5083.42","5029.25","5103.26","5013.60","1.04","13.3781"],
+["03/17/2024","5031.15","4993.66","5058.91","4976.37","0.91","12.4209"],
+["03/10/2024","4986.02","4932.20","5031.82","4913.84","0.50","13.3135"],
+["03/03/2024","4961.11","4904.58","4986.57","4886.07","1.35","13.7211"],
+["02/25/2024","4894.86","4865.87","4904.85","4859.49","0.46","13.7842"],
+["02/18/2024","4872.57","4755.75","4881.66","4744.59","2.24","13.6956"],
+["02/11/2024","4765.65","4720.30","4782.79","4671.99","1.06","13.7871"],
+["02/04/2024","4715.87","4656.05","4723.77","4638.33","1.32","13.9901"],
+["01/28/2024","4654.55","4636.77","4676.71","4619.48","0.41","14.0448"],
+["01/21/2024","4635.47","4454.45","4639.05","4454.45","4.20","13.6074"],
+["01/14/2024","4448.83","4483.98","4489.49","4380.97","-0.70","14.172"],
+["01/07/2024","4480.02","4461.80","4510.01","4438.49","0.37","13.4234"],
+["12/31/2023","4463.51","4528.45","4568.80","4418.08","-1.29","14.1189"],
+["12/24/2023","4521.65","4521.80","4542.75","4512.64","0.00","13.5747"],
+["12/17/2023","4521.47","4540.12","4546.06","4503.36","-0.61","13.5645"],
+["12/10/2023","4549.44","4522.79","4593.11","4515.92","0.58","12.1242"],
+["12/03/2023","4523.31","4414.30","4531.54","4405.33","2.37","13.7018"],
+["11/26/2023","4418.51","4369.92","4420.57","4328.12","1.06","13.5043"],
+["11/19/2023","4372.10","4338.40","4375.83","4329.53","0.72","13.3953"],
+["11/12/2023","4340.77","4205.41","4347.53","4205.41","3.42","13.8479"],
+["11/05/2023","4197.36","4178.32","4234.00","4133.46","0.54","16.0383"],
+["10/29/2023","4174.67","4023.42","4195.96","4023.42","3.99","16.8411"],
+["10/22/2023","4014.36","4025.48","4082.49","3993.10","-0.26","20.7887"],
+["10/15/2023","4024.68","4137.07","4163.40","4024.68","-2.69","23.3334"],
+["10/08/2023","4136.12","4139.51","4234.49","4097.94","-0.20","20.1795"],
+["10/01/2023","4144.43","4181.62","4204.17","4061.94","-0.72","18.6464"],
+["09/24/2023","4174.66","4204.22","4215.28","4106.48","-0.77","17.4704"],
+["09/17/2023","4207.16","4291.08","4291.08","4178.44","-2.05","16.9607"],
+["09/10/2023","4295.05","4241.43","4326.90","4198.99","1.37","14.7262"],
+["09/03/2023","4237.19","4286.60","4323.31","4179.97","-1.06","16.1558"],
+["08/27/2023","4282.64","4245.60","4340.83","4245.60","1.10","15.9449"],
+["08/20/2023","4236.25","4212.60","4322.08","4212.60","0.55","18.4734"],
+["08/13/2023","4212.95","4318.71","4343.89","4175.37","-2.51","20.2456"],
+["08/06/2023","4321.33","4330.23","4402.09","4259.84","-0.27","18.3746"],
+["07/30/2023","4332.91","4466.41","4491.51","4279.05","-2.99","18.3516"],
+["07/23/2023","4466.50","4386.87","4476.04","4312.07","1.71","15.2189"],
+["07/16/2023","4391.41","4397.33","4404.59","4340.69","-0.20","14.9422"],
+["07/09/2023","4400.11","4235.35","4411.18","4217.75","3.86","14.7973"],
+["07/02/2023","4236.60","4401.03","4420.01","4197.97","-3.69","17.5374"],
+["06/25/2023","4399.09","4272.10","4409.50","4238.07","2.98","13.6139"],
+["06/18/2023","4271.61","4392.17","4392.17","4253.15","-2.80","15.3519"],
+["06/11/2023","4394.82","4291.04","4410.20","4291.04","2.45","13.0737"],
+["06/04/2023","4289.79","4324.10","4333.18","4273.28","-0.78","14.9894"],
+["05/28/2023","4323.52","4340.95","4359.86","4210.69","-0.32","16.0329"],
+["05/21/2023","4337.50","4384.99","4394.94","4250.26","-1.32","17.5971"],
+["05/14/2023","4395.30","4315.85","4412.88","4293.57","1.79","15.715"],
+["05/07/2023","4317.88","4335.22","4355.41","4281.69","-0.52","17.0094"],
+["04/30/2023","4340.43","4353.41","4372.66","4264.41","-0.43","18.2847"],
+["04/23/2023","4359.31","4398.51","4411.67","4305.63","-1.12","17.4304"],
+["04/16/2023","4408.59","4392.40","4408.59","4365.91","0.41","17.0847"],
+["04/09/2023","4390.75","4312.66","4397.58","4312.66","1.89","16.4374"],
+["04/02/2023","4309.45","4312.99","4346.95","4286.21","-0.13","19.123"],
+["03/26/2023","4315.05","4133.80","4325.34","4133.80","4.46","19.4246"],
+["03/19/2023","4130.62","4054.70","4215.20","3980.94","1.61","24.8849"],
+["03/12/2023","4064.99","4228.32","4229.22","4018.30","-3.89","30.0367"],
+["03/05/2023","4229.53","4306.65","4324.27","4190.98","-1.52","21.1745"],
+["02/26/2023","4294.80","4191.84","4298.78","4178.65","2.78","18.1167"],
+["02/19/2023","4178.82","4281.72","4284.56","4171.93","-2.25","21.6716"],
+["02/12/2023","4274.92","4202.03","4316.17","4202.03","1.83","19.2298"],
+["02/05/2023","4197.94","4246.45","4275.58","4172.95","-1.41","20.4681"],
+["01/29/2023","4257.98","4166.75","4257.98","4122.21","1.91","16.7598"],
+["01/22/2023","4178.01","4121.97","4188.71","4116.99","1.41","17.2871"],
+["01/15/2023","4119.90","4155.74","4197.47","4092.57","-0.74","18.6836"],
+["01/08/2023","4150.80","4027.51","4160.97","4025.16","3.31","17.3437"],
+["01/01/2023","4017.83","3802.51","4017.85","3802.51","5.91","18.4877"],
+["12/25/2022","3793.62","3826.99","3854.61","3792.09","-0.61","20.8862"],
+["12/18/2022","3817.01","3808.53","3889.70","3767.26","0.34","20.0403"],
+["12/11/2022","3804.02","3931.59","4035.15","3783.94","-3.52","21.3153"],
+["12/04/2022","3942.62","3973.45","3977.73","3903.93","-0.89","21.3964"],
+["11/27/2022","3977.90","3952.71","4004.19","3924.56","0.39","19.3283"],
+["11/20/2022","3962.41","3915.66","3976.43","3896.71","0.96","19.9294"],
+["11/13/2022","3924.84","3873.51","3940.94","3842.87","1.46","20.8843"],
+["11/06/2022","3868.50","3682.46","3890.25","3667.98","4.88","20.7775"],
+["10/30/2022","3688.33","3622.55","3711.21","3563.42","2.08","22.9051"],
+["10/23/2022","3613.02","3488.78","3618.73","3473.21","3.92","24.8904"],
+["10/16/2022","3476.63","3382.12","3511.06","3369.55","2.81","27.8325"],
+["10/09/2022","3381.73","3367.86","3452.99","3256.32","0.19","29.766"],
+["10/02/2022","3375.46","3309.02","3484.48","3259.75","1.73","29.9234"],
+["09/25/2022","3318.20","3343.20","3396.08","3249.57","-0.91","30.7092"],
+["09/18/2022","3348.60","3499.78","3537.91","3330.10","-4.34","29.9959"],
+["09/11/2022","3500.41","3579.18","3683.02","3482.40","-1.95","26.4308"],
+["09/04/2022","3570.04","3532.77","3581.57","3445.84","0.72","24.8838"],
+["08/28/2022","3544.38","3600.48","3629.50","3448.49","-1.65","25.5031"],
+["08/21/2022","3603.68","3724.14","3724.14","3593.48","-3.39","26.6601"],
+["08/14/2022","3730.32","3782.19","3819.12","3725.55","-1.23","24.5809"],
+["08/07/2022","3776.81","3737.31","3784.19","3694.88","1.38","21.2132"],
+["07/31/2022","3725.39","3705.76","3781.57","3664.28","0.47","22.8536"],
+["07/24/2022","3708.10","3592.33","3720.16","3571.84","3.10","22.3049"],
+["07/17/2022","3596.49","3480.36","3625.16","3473.64","3.43","24.0588"],
+["07/10/2022","3477.20","3485.00","3492.11","3372.12","-0.84","28.8183"],
+["07/03/2022","3506.55","3458.99","3510.86","3357.06","1.69","27.5514"],
+["06/26/2022","3448.31","3537.86","3595.67","3405.44","-2.40","28.7616"],
+["06/19/2022","3533.17","3443.25","3538.94","3411.83","2.75","27.7689"],
+["06/12/2022","3438.46","3581.87","3581.87","3420.65","-4.47","30.893"],
+["06/05/2022","3599.20","3793.07","3857.27","3596.64","-4.88","27.6629"],
+["05/29/2022","3783.66","3817.71","3852.68","3755.06","-0.66","23.3949"],
+["05/22/2022","3808.86","3669.53","3808.86","3633.78","4.15",""],
+["05/15/2022","3657.03","3695.78","3752.29","3592.01","-1.25",""],
+["05/08/2022","3703.42","3618.45","3703.42","3526.86","2.05",""],
+["05/01/2022","3629.17","3772.91","3814.11","3602.77","-4.57",""],
+["04/24/2022","3802.86","3826.96","3833.89","3675.54","-0.97",""],
+["04/17/2022","3840.01","3842.07","3954.30","3793.47","-0.23",""],
+["04/10/2022","3848.68","3845.70","3870.06","3763.32","-0.25",""],
+["04/03/2022","3858.37","3925.27","3969.04","3792.56","-1.54",""],
+["03/27/2022","3918.68","3870.33","4024.89","3870.33","1.32",""],
+["03/20/2022","3867.73","3900.84","3937.81","3845.44","-0.89",""],
+["03/13/2022","3902.44","3694.76","3929.96","3641.50","5.85",""],
+["03/06/2022","3686.78","3529.57","3801.48","3387.00","3.68","43.3509"],
+["02/27/2022","3556.01","3940.99","3940.99","3556.01","-10.44","49.6395"],
+["02/20/2022","3970.69","4090.71","4104.63","3765.42","-2.54","32.1184"],
+["02/13/2022","4074.28","4125.31","4180.32","4002.91","-1.95","31.2669"],
+["02/06/2022","4155.23","4101.89","4239.61","4074.86","1.68","24.6637"],
+["01/30/2022","4086.58","4161.77","4259.28","4067.51","-1.22","26.3008"],
+["01/23/2022","4136.91","4213.83","4224.47","4035.28","-2.19","29.4111"],
+["01/16/2022","4229.56","4281.31","4310.49","4188.93","-1.00","24.2217"],
+["01/09/2022","4272.19","4312.13","4335.49","4231.06","-0.78","21.3963"],
+["01/02/2022","4305.83","4303.94","4395.78","4279.71","-0.01","20.6232"],
+["12/26/2021","4306.07","4249.90","4319.69","4240.49","0.94","19.2677"],
+["12/19/2021","4265.86","4140.33","4270.29","4046.69","2.51","19.0369"],
+["12/12/2021","4161.35","4206.45","4250.90","4130.36","-0.90","21.9842"],
+["12/05/2021","4199.16","4095.39","4288.20","4078.64","2.92","22.4272"],
+["11/28/2021","4080.15","4117.79","4187.86","4027.43","-0.23","31.4794"],
+["11/21/2021","4089.58","4361.95","4371.60","4086.66","-6.13","32.3129"],
+["11/14/2021","4356.47","4364.52","4415.23","4333.86","-0.32","19.1166"],
+["11/07/2021","4370.33","4359.74","4372.32","4330.29","0.17","16.1449"],
+["10/31/2021","4363.04","4256.93","4375.04","4256.93","2.65","16.4029"],
+["10/24/2021","4250.56","4194.84","4250.68","4185.14","1.47","17.6164"],
+["10/17/2021","4188.81","4177.73","4203.67","4131.41","0.14","16.4007"],
+["10/10/2021","4182.91","4071.15","4186.61","4019.55","2.69","16.3486"],
+["10/03/2021","4073.29","4026.70","4101.96","3965.87","0.94","20.2799"],
+["09/26/2021","4035.30","4164.63","4196.07","3981.81","-2.96","24.0389"],
+["09/19/2021","4158.51","4102.19","4206.11","4011.49","0.67","21.8467"],
+["09/12/2021","4130.84","4174.67","4213.73","4119.27","-0.95","23.1662"],
+["09/05/2021","4170.35","4204.07","4252.78","4134.80","-0.75","20.357"],
+["08/29/2021","4201.98","4191.99","4251.39","4175.32","0.26","18.1919"],
+["08/22/2021","4190.98","4160.76","4197.67","4141.33","1.05","17.6003"],
+["08/15/2021","4147.50","4219.79","4219.79","4082.07","-1.94","20.1509"],
+["08/08/2021","4229.70","4175.57","4242.26","4170.95","1.32","15.8002"],
+["08/01/2021","4174.54","4095.50","4183.92","4095.50","2.08","17.8883"],
+["07/25/2021","4089.30","4103.50","4128.81","4056.23","-0.48","20.9392"],
+["07/18/2021","4109.10","4018.91","4111.43","3904.78","1.82","17.5527"],
+["07/11/2021","4035.77","4068.64","4104.83","4014.58","-0.79","19.4537"],
+["07/04/2021","4068.09","4081.08","4095.15","3961.98","-0.40","17.9506"],
+["06/27/2021","4084.31","4119.87","4125.73","4048.05","-0.88","16.5747"],
+["06/20/2021","4120.66","4079.42","4133.98","4049.60","0.91","16.6823"],
+["06/13/2021","4083.37","4134.79","4165.59","4078.76","-1.05","20.7634"],
+["06/06/2021","4126.70","4089.27","4128.99","4069.52","0.91","15.1511"],
+["05/30/2021","4089.38","4068.11","4101.26","4037.25","0.46","17.376"],
+["05/23/2021","4070.56","4042.49","4075.87","4019.85","1.11","17.1662"],
+["05/16/2021","4025.78","4018.16","4043.21","3892.72","0.21","20.3521"],
+["05/09/2021","4017.44","4031.99","4035.66","3857.76","-0.42","19.5457"],
+["05/02/2021","4034.25","3979.50","4034.25","3919.46","1.50","18.3838"],
+["04/25/2021","3974.74","4013.07","4033.87","3974.72","-0.96","20.6309"],
+["04/18/2021","4013.34","4033.59","4040.88","3935.83","-0.49","18.1883"],
+["04/11/2021","4032.99","3978.54","4037.61","3953.26","1.36","16.1131"],
+["04/04/2021","3978.84","3950.18","3988.10","3950.18","0.83","16.1768"],
+["03/28/2021","3945.96","3871.82","3948.99","3867.25","2.05","16.8956"],
+["03/21/2021","3866.68","3828.66","3871.88","3784.09","0.77","17.112"],
+["03/14/2021","3837.02","3840.85","3874.91","3818.20","0.10","18.395"],
+["03/07/2021","3833.36","3679.35","3846.51","3679.35","4.46","18.7087"],
+["02/28/2021","3669.54","3658.12","3742.50","3656.21","0.91","25.0782"],
+["02/21/2021","3636.44","3706.07","3728.65","3622.24","-2.07","26.8632"],
+["02/14/2021","3713.46","3711.35","3742.53","3672.80","0.48","20.4844"],
+["02/07/2021","3695.61","3665.77","3696.19","3628.47","1.09","20.0616"],
+["01/31/2021","3655.77","3492.86","3668.40","3492.86","5.01","20.6436"],
+["01/24/2021","3481.44","3614.72","3621.49","3473.76","-3.36","29.0082"],
+["01/17/2021","3602.41","3591.23","3649.73","3570.68","0.08","21.317"],
+["01/10/2021","3599.55","3636.67","3647.32","3573.60","-1.25","22.4344"],
+["01/03/2021","3645.05","3565.68","3657.83","3524.63","2.06","20.5276"],
+["12/27/2020","3571.59","3554.13","3603.17","3554.13","0.91","23.369"],
+["12/20/2020","3539.26","3516.66","3544.55","3401.14","-0.18","23.1531"],
+["12/13/2020","3545.74","3497.84","3586.44","3497.47","1.72","21.6252"],
+["12/06/2020","3485.84","3536.05","3557.39","3461.47","-1.51","23.6144"],
+["11/29/2020","3539.27","3518.91","3540.69","3492.54","0.33","20.8186"],
+["11/22/2020","3527.79","3480.59","3536.46","3463.04","1.74","20.0788"],
+["11/15/2020","3467.60","3447.86","3497.10","3440.05","1.04","21.4393"],
+["11/08/2020","3432.07","3217.40","3473.82","3217.40","7.12","23.1431"],
+["11/01/2020","3204.05","2969.37","3224.49","2953.92","8.31","25.6153"],
+["10/25/2020","2958.21","3181.95","3181.95","2920.87","-7.52","35.3472"],
+["10/18/2020","3198.86","3250.13","3282.55","3135.48","-1.44","28.157"],
+["10/11/2020","3245.47","3276.50","3305.77","3174.64","-0.84","25.3165"],
+["10/04/2020","3273.12","3200.49","3276.36","3199.63","2.58","22.2369"],
+["09/27/2020","3190.93","3144.52","3227.43","3144.52","1.72","26.8168"],
+["09/20/2020","3137.06","3277.42","3277.42","3097.67","-4.47","27.8075"],
+["09/13/2020","3283.69","3319.94","3348.77","3283.69","-0.97","22.6496"],
+["09/06/2020","3315.81","3264.43","3337.72","3241.61","1.69","23.7249"],
+["08/30/2020","3260.59","3320.68","3396.02","3234.81","-1.66","31.7117"],
+["08/23/2020","3315.54","3269.51","3373.47","3269.51","1.71","25.1579"],
+["08/16/2020","3259.75","3305.65","3333.64","3221.42","-1.37","24.3375"],
+["08/09/2020","3305.05","3259.27","3377.44","3239.25","1.61","23.8671"],
+["08/02/2020","3252.65","3177.76","3293.17","3173.98","2.47","24.1977"],
+["07/26/2020","3174.32","3308.17","3317.18","3174.32","-4.12","26.6625"],
+["07/19/2020","3310.89","3361.25","3451.16","3294.89","-1.63","25.5773"],
+["07/12/2020","3365.60","3311.82","3399.71","3277.40","2.10","25.5762"],
+["07/05/2020","3296.22","3314.40","3375.70","3241.29","0.06","28.4276"],
+["06/28/2020","3294.38","3196.21","3335.40","3181.12","2.82","28.2699"],
+["06/21/2020","3204.17","3259.43","3317.87","3149.67","-1.99","35.1735"],
+["06/14/2020","3269.10","3131.43","3300.66","3054.11","3.66","32.2142"],
+["06/07/2020","3153.74","3378.94","3394.90","3110.30","-6.81","41.4116"],
+["05/31/2020","3384.29","3096.15","3386.96","3096.15","10.95","27.8909"],
+["05/24/2020","3050.20","2919.10","3102.96","2912.96","4.98","31.1263"],
+["05/17/2020","2905.47","2800.07","2946.47","2800.07","4.86","31.4161"],
+["05/10/2020","2770.70","2915.72","2927.26","2708.07","-4.73","34.4706"],
+["05/03/2020","2908.11","2898.89","2912.02","2801.07","-0.68","29.6643"],
+["04/26/2020","2927.93","2838.96","3023.83","2838.96","4.23","33.9105"],
+["04/19/2020","2809.07","2894.91","2909.50","2791.34","-2.74","40.1744"],
+["04/12/2020","2888.30","2911.20","2956.22","2792.17","-0.16","41.201"],
+["04/05/2020","2892.79","2701.86","2922.07","2701.86","8.63","44.7106"],
+["03/29/2020","2662.99","2734.92","2827.32","2626.10","-2.41","45.8806"],
+["03/22/2020","2728.65","2520.48","2847.78","2427.87","7.07","60.9948"],
+["03/15/2020","2548.50","2557.71","2613.53","2302.84","-1.45","68.2146"],
+["03/08/2020","2586.02","3214.20","3214.20","2535.89","-19.99","74.3321"],
+["03/01/2020","3232.07","3355.33","3448.24","3216.44","-2.93","43.0212"],
+["02/23/2020","3329.49","3762.35","3762.35","3283.18","-12.39","42.2369"],
+["02/16/2020","3800.38","3843.10","3867.28","3776.82","-1.06","15.7536"],
+["02/09/2020","3840.97","3794.18","3854.43","3779.10","1.12","13.0625"],
+["02/02/2020","3798.49","3646.86","3808.74","3641.84","4.33","13.3241"],
+["01/26/2020","3640.91","3754.63","3754.63","3639.44","-3.66","17.1542"],
+["01/19/2020","3779.16","3804.74","3805.61","3734.06","-0.76","12.6665"],
+["01/12/2020","3808.26","3789.87","3813.80","3745.47","0.49","10.6899"],
+["01/05/2020","3789.52","3764.34","3807.09","3710.94","0.43","12.3886"],
+["12/29/2019","3773.37","3780.44","3801.13","3745.54","-0.24","13.9588"],
+["12/22/2019","3782.27","3775.07","3794.93","3767.80","0.15","12.0913"],
+["12/15/2019","3776.56","3738.91","3778.47","3722.57","1.22","11.0774"],
+["12/08/2019","3731.07","3691.86","3765.70","3625.00","1.05","13.1174"],
+["12/01/2019","3692.34","3703.76","3729.74","3594.80","-0.30","14.1327"],
+["11/24/2019","3703.58","3697.49","3721.76","3686.94","0.44","13.174"],
+["11/17/2019","3687.32","3711.18","3733.45","3651.51","-0.65","13.0888"],
+["11/10/2019","3711.61","3696.97","3719.40","3679.63","0.32","11.537"],
+["11/03/2019","3699.65","3631.45","3708.65","3631.45","2.09","12.8514"],
+["10/27/2019","3623.74","3623.84","3637.94","3593.60","-0.03","12.8444"],
+["10/20/2019","3624.68","3583.37","3631.04","3578.81","1.26","12.8208"],
+["10/13/2019","3579.41","3565.38","3630.43","3531.23","0.27","15.3746"],
+["10/06/2019","3569.92","3442.14","3569.92","3426.82","3.57","15.8911"],
+["09/29/2019","3446.71","3545.07","3588.68","3406.44","-2.80","18.5245"],
+["09/22/2019","3545.88","3565.96","3565.96","3480.28","-0.71","15.8826"],
+["09/15/2019","3571.39","3540.47","3578.04","3506.36","0.60","13.9744"],
+["09/08/2019","3550.11","3495.85","3555.85","3479.58","1.57","13.7364"],
+["09/01/2019","3495.19","3426.24","3495.87","3406.55","2.00","14.6313"],
+["08/25/2019","3426.76","3329.73","3443.08","3318.33","2.77","17.6681"],
+["08/18/2019","3334.25","3332.93","3405.35","3332.93","0.16","20.1473"],
+["08/11/2019","3329.08","3340.82","3380.81","3239.20","-0.14","20.3841"],
+["08/04/2019","3333.74","3365.49","3375.38","3283.13","-1.26","18.9533"],
+["07/28/2019","3376.12","3522.36","3539.94","3368.66","-4.21","18.3481"],
+["07/21/2019","3524.47","3478.77","3573.57","3476.43","1.27","12.669"],
+["07/14/2019","3480.18","3497.99","3530.11","3467.25","-0.50","13.6973"],
+["07/07/2019","3497.63","3525.21","3531.47","3492.18","-0.86","12.3888"],
+["06/30/2019","3527.98","3476.08","3549.26","3476.08","1.56","12.4185"],
+["06/23/2019","3473.69","3466.38","3476.93","3424.68","0.20","13.7342"],
+["06/16/2019","3466.92","3382.45","3496.79","3366.87","2.60","13.3894"],
+["06/09/2019","3379.19","3386.73","3418.18","3363.07","0.02","14.3629"],
+["06/02/2019","3378.38","3274.97","3391.05","3248.54","2.99","14.9085"],
+["05/26/2019","3280.43","3350.60","3380.85","3258.04","-2.10","17.4218"],
+["05/19/2019","3350.70","3417.12","3426.87","3323.70","-2.19","16.7146"],
+["05/12/2019","3425.64","3362.52","3438.56","3311.17","1.92","14.9769"],
+["05/05/2019","3361.05","3487.54","3487.54","3346.45","-4.04","18.5073"],
+["04/28/2019","3502.48","3494.47","3514.62","3481.08","0.06","13.3808"],
+["04/21/2019","3500.41","3494.40","3515.15","3476.28","0.03","12.6034"],
+["04/14/2019","3499.23","3448.91","3506.82","3443.56","1.49","11.0066"],
+["04/07/2019","3447.83","3446.15","3454.77","3412.15","0.01","11.877"],
+["03/31/2019","3447.47","3353.67","3453.02","3353.67","2.86","13.552"],
+["03/24/2019","3351.71","3297.41","3354.30","3281.97","1.39","15.2748"],
+["03/17/2019","3305.73","3385.46","3422.34","3301.60","-2.37","17.6785"],
+["03/10/2019","3386.08","3290.76","3394.32","3284.68","3.12","12.9242"],
+["03/03/2019","3283.60","3318.10","3340.67","3273.68","-0.86","14.411"],
+["02/24/2019","3312.10","3275.02","3330.48","3261.03","1.27","13.3709"],
+["02/17/2019","3270.55","3239.10","3281.78","3223.40","0.90","13.9767"],
+["02/10/2019","3241.25","3142.84","3247.34","3142.84","3.37","14.2944"],
+["02/03/2019","3135.62","3170.30","3216.13","3124.62","-1.12","16.3132"],
+["01/27/2019","3171.12","3157.00","3177.10","3129.58","0.25","13.9879"],
+["01/20/2019","3163.24","3131.85","3168.03","3094.48","0.90","14.7823"],
+["01/13/2019","3134.92","3060.62","3137.42","3037.13","2.11","14.28"],
+["01/06/2019","3070.04","3050.00","3089.17","3016.32","0.93","17.4182"],
+["12/30/2018","3041.85","2982.80","3050.66","2936.76","1.85","20.4827"],
+["12/23/2018","2986.53","2987.67","2997.24","2908.70","-0.47","23.8643"],
+["12/16/2018","3000.61","3088.97","3092.82","2957.56","-2.97","20.3984"],
+["12/09/2018","3092.60","3054.67","3128.10","3007.53","1.11","19.1643"],
+["12/02/2018","3058.53","3187.33","3244.98","3033.78","-3.61","21.6688"],
+["11/25/2018","3173.13","3151.22","3197.90","3151.22","1.14","18.4935"],
+["11/18/2018","3137.21","3184.51","3206.58","3100.77","-1.37","18.9738"],
+["11/11/2018","3180.74","3237.95","3248.33","3158.87","-1.51","18.0762"],
+["11/04/2018","3229.49","3215.73","3263.72","3197.14","0.47","16.3773"],
+["10/28/2018","3214.41","3139.03","3251.67","3123.92","2.54","18.848"],
+["10/21/2018","3134.89","3217.55","3245.87","3090.85","-2.36","23.7391"],
+["10/14/2018","3210.82","3193.79","3282.23","3180.61","0.51","18.7838"],
+["10/07/2018","3194.41","3338.02","3338.02","3193.40","-4.52","20.2103"],
+["09/30/2018","3345.51","3399.96","3425.45","3343.67","-1.58","16.6807"],
+["09/23/2018","3399.20","3426.85","3452.41","3380.27","-0.92","14.7637"],
+["09/16/2018","3430.81","3340.04","3436.48","3333.47","2.58","12.8151"],
+["09/09/2018","3344.63","3291.65","3354.07","3286.97","1.56","13.8963"],
+["09/02/2018","3293.36","3391.82","3408.25","3274.40","-2.93","16.4546"],
+["08/26/2018","3392.90","3435.12","3463.03","3389.92","-1.01","15.6343"],
+["08/19/2018","3427.44","3376.38","3436.55","3376.38","1.62","13.1882"],
+["08/12/2018","3372.94","3423.37","3435.12","3349.14","-1.56","16.0982"],
+["08/05/2018","3426.28","3483.19","3514.97","3413.68","-1.61","15.1113"],
+["07/29/2018","3482.40","3517.56","3536.87","3460.14","-1.27","13.3973"],
+["07/22/2018","3527.18","3453.91","3529.39","3439.68","1.94","11.6594"],
+["07/15/2018","3460.03","3455.17","3487.00","3429.96","0.16","13.7747"],
+["07/08/2018","3454.54","3458.45","3480.44","3418.06","0.18","12.8035"],
+["07/01/2018","3448.49","3375.56","3459.91","3345.09","1.56","14.7428"],
+["06/24/2018","3395.60","3422.60","3425.40","3340.85","-1.34","16.6333"],
+["06/17/2018","3441.60","3500.25","3500.90","3395.27","-1.81","14.2065"],
+["06/10/2018","3505.02","3451.50","3540.64","3451.50","1.67","12.1297"],
+["06/03/2018","3447.30","3465.25","3497.32","3422.03","-0.18","14.9616"],
+["05/27/2018","3453.54","3511.29","3540.03","3391.01","-1.76","15.6231"],
+["05/20/2018","3515.36","3575.22","3595.10","3493.61","-1.63","16.0228"],
+["05/13/2018","3573.76","3564.90","3596.20","3550.90","0.23","13.9673"],
+["05/06/2018","3565.52","3545.47","3574.09","3540.14","0.42","12.4351"],
+["04/29/2018","3550.59","3516.71","3557.87","3512.70","0.90","13.4198"],
+["04/22/2018","3518.78","3494.07","3523.81","3464.35","0.70","13.1315"],
+["04/15/2018","3494.20","3450.39","3505.44","3435.58","1.34","13.756"],
+["04/08/2018","3448.00","3413.89","3466.99","3403.20","1.17","15.2974"],
+["04/01/2018","3408.10","3349.02","3433.81","3300.50","1.39","17.4368"],
+["03/25/2018","3361.50","3301.50","3379.38","3261.86","1.92","17.4364"],
+["03/18/2018","3298.07","3430.60","3430.60","3279.46","-4.05","21.0758"],
+["03/11/2018","3437.40","3434.51","3448.63","3384.20","0.49","13.389"],
+["03/04/2018","3420.54","3314.74","3435.04","3309.25","2.88","15.4054"],
+["02/25/2018","3324.75","3449.16","3476.21","3316.75","-3.39","23.386"],
+["02/18/2018","3441.46","3432.53","3444.23","3393.28","0.43","18.1752"],
+["02/11/2018","3426.80","3334.17","3432.07","3314.50","3.03","17.7606"],
+["02/04/2018","3325.99","3517.24","3517.24","3306.66","-5.60","34.737"],
+["01/28/2018","3523.28","3648.41","3651.21","3523.28","-3.40","17.5594"],
+["01/21/2018","3647.41","3650.78","3687.22","3614.06","-0.05","12.4779"],
+["01/14/2018","3649.07","3612.73","3653.03","3603.30","1.01","11.8533"],
+["01/07/2018","3612.61","3610.97","3629.73","3588.07","0.14","10.9024"],
+["12/31/2017","3607.63","3506.50","3608.70","3469.23","2.96","11.1245"],
+["12/24/2017","3503.96","3553.16","3568.91","3503.20","-1.39","13.5114"],
+["12/17/2017","3553.39","3568.00","3613.57","3534.22","-0.20","12.0057"],
+["12/10/2017","3560.53","3594.70","3601.89","3542.85","-0.86","11.792"],
+["12/03/2017","3591.45","3536.38","3612.39","3531.57","1.81","12.8484"],
+["11/26/2017","3527.55","3576.18","3619.43","3524.36","-1.50","16.0124"],
+["11/19/2017","3581.23","3545.52","3601.16","3536.21","0.95","12.8582"],
+["11/12/2017","3547.46","3596.70","3601.45","3519.35","-1.29","14.7428"],
+["11/05/2017","3593.76","3684.26","3695.32","3591.15","-2.61","14.453"],
+["10/29/2017","3689.96","3653.02","3708.82","3653.02","1.03","11.5635"],
+["10/22/2017","3652.23","3606.71","3670.00","3580.21","1.31","12.4951"],
+["10/15/2017","3605.09","3607.18","3625.87","3586.35","0.01","12.2167"],
+["10/08/2017","3604.55","3604.61","3618.35","3589.98","0.03","11.8458"],
+["10/01/2017","3603.32","3590.71","3614.17","3584.82","0.24","12.5055"],
+["09/24/2017","3594.85","3537.21","3594.85","3529.19","1.51","12.1208"],
+["09/17/2017","3541.42","3523.60","3553.08","3520.72","0.74","11.708"],
+["09/10/2017","3515.55","3456.77","3532.78","3456.77","1.97","12.1972"],
+["09/03/2017","3447.69","3436.36","3467.94","3396.69","0.11","15.199"],
+["08/27/2017","3443.88","3432.38","3454.55","3363.68","0.16","14.7167"],
+["08/20/2017","3438.55","3436.84","3467.78","3411.06","-0.22","15.3262"],
+["08/13/2017","3446.03","3420.90","3497.29","3420.50","1.17","17.5746"],
+["08/06/2017","3406.34","3509.59","3524.94","3392.87","-2.88","19.3101"],
+["07/30/2017","3507.41","3464.85","3515.54","3438.15","1.14","13.0654"],
+["07/23/2017","3467.73","3456.94","3506.85","3431.19","0.46","13.7331"],
+["07/16/2017","3451.71","3528.12","3531.53","3436.90","-2.11","15.3262"],
+["07/09/2017","3525.94","3470.49","3539.48","3460.64","1.79","12.6504"],
+["07/02/2017","3463.84","3449.75","3494.63","3435.29","0.64","15.1824"],
+["06/25/2017","3441.88","3554.28","3581.43","3439.79","-2.87","17.2533"],
+["06/18/2017","3543.68","3565.05","3598.06","3521.91","-0.01","14.2214"],
+["06/11/2017","3543.88","3581.22","3589.23","3500.41","-1.18","13.7442"],
+["06/04/2017","3586.07","3591.69","3597.85","3540.23","-0.16","13.3926"],
+["05/28/2017","3591.82","3577.34","3615.06","3547.10","0.36","13.3345"],
+["05/21/2017","3579.02","3589.17","3605.91","3546.88","-0.22","13.8547"],
+["05/14/2017","3587.01","3640.38","3648.69","3529.35","-1.39","15.4679"],
+["05/07/2017","3637.52","3660.39","3666.80","3607.87","-0.58","13.8689"],
+["04/30/2017","3658.79","3559.59","3658.79","3559.34","2.79","17.0143"],
+["04/23/2017","3559.59","3480.62","3593.13","3480.62","3.47","17.0495"],
+["04/16/2017","3440.27","3454.74","3460.94","3407.33","-0.23","25.0928"],
+["04/09/2017","3448.26","3494.24","3497.72","3442.19","-1.36","23.3883"],
+["04/02/2017","3495.80","3504.26","3508.11","3446.15","-0.15","19.5373"],
+["03/26/2017","3500.93","3432.63","3500.93","3411.48","1.65","16.5221"],
+["03/19/2017","3444.15","3441.56","3471.50","3397.67","-0.12","15.1975"],
+["03/12/2017","3448.41","3417.02","3457.17","3390.04","0.94","11.1647"],
+["03/05/2017","3416.27","3397.72","3441.50","3374.48","0.38","15.3441"],
+["02/26/2017","3403.39","3311.82","3407.61","3303.12","3.01","15.2708"],
+["02/19/2017","3304.09","3321.66","3355.40","3280.36","-0.14","15.8552"],
+["02/12/2017","3308.81","3275.22","3334.12","3275.22","1.16","14.8315"],
+["02/05/2017","3270.83","3274.87","3289.93","3214.31","-0.07","15.1125"],
+["01/29/2017","3273.11","3294.99","3296.27","3230.68","-0.91","15.1332"],
+["01/22/2017","3303.33","3284.87","3342.47","3262.61","0.12","15.847"],
+["01/15/2017","3299.44","3313.56","3313.56","3266.10","-0.75","14.5963"],
+["01/08/2017","3324.34","3324.45","3326.97","3281.37","0.10","14.8618"],
+["01/01/2017","3321.17","3278.84","3334.44","3272.76","0.93","15.3421"],
+["12/25/2016","3290.52","3275.30","3290.52","3259.62","0.51","18.123"],
+["12/18/2016","3273.97","3259.23","3279.59","3249.59","0.45","15.0936"],
+["12/11/2016","3259.24","3196.40","3276.56","3189.67","1.93","15.098"],
+["12/04/2016","3197.54","3013.89","3205.37","2996.30","6.05","16.6203"],
+["11/27/2016","3015.13","3041.31","3064.28","2984.48","-1.09","22.6159"],
+["11/20/2016","3048.38","3027.07","3061.23","3003.82","0.91","20.4086"],
+["11/13/2016","3020.83","3038.62","3070.79","3009.78","-0.30","20.3697"],
+["11/06/2016","3030.02","2962.22","3105.16","2937.98","2.56","21.9585"],
+["10/30/2016","2954.53","3074.57","3075.45","2939.62","-4.05","25.2078"],
+["10/23/2016","3079.24","3085.36","3109.61","3050.24","0.05","19.2694"],
+["10/16/2016","3077.65","3021.19","3086.46","3002.65","1.73","16.599"],
+["10/09/2016","3025.19","3003.26","3051.12","2954.45","0.82","19.4618"],
+["10/02/2016","3000.57","2999.19","3043.67","2990.26","-0.06","20.0387"],
+["09/25/2016","3002.24","3020.00","3032.59","2922.82","-0.99","19.7693"],
+["09/18/2016","3032.31","2946.86","3063.12","2946.86","3.31","16.8292"],
+["09/11/2016","2935.25","3041.73","3041.73","2929.44","-3.86","21.3052"],
+["09/04/2016","3053.20","3084.82","3101.75","3043.13","-0.86","19.2991"],
+["08/28/2016","3079.74","3004.57","3083.09","2974.73","2.30","18.2963"],
+["08/21/2016","3010.36","2967.45","3018.09","2949.60","1.42","19.4893"],
+["08/14/2016","2968.20","3046.14","3063.40","2950.48","-2.52","21.1313"],
+["08/07/2016","3044.94","2977.75","3050.21","2976.45","2.40","17.8981"],
+["07/31/2016","2973.71","3001.36","3018.54","2892.52","-0.57","19.3019"],
+["07/24/2016","2990.76","2971.74","3016.82","2951.11","0.62","20.2451"],
+["07/17/2016","2972.23","2959.74","2982.42","2909.12","0.46","19.1159"],
+["07/10/2016","2958.65","2853.12","2977.61","2843.11","4.25","20.92"],
+["07/03/2016","2838.01","2884.97","2892.52","2742.66","-1.56","24.6151"],
+["06/26/2016","2883.06","2768.12","2895.20","2678.27","3.85","25.0196"],
+["06/19/2016","2776.09","2858.94","3057.71","2736.43","-2.56","35.4279"],
+["06/12/2016","2849.17","2904.68","2904.68","2784.90","-2.13","38.0273"],
+["06/05/2016","2911.11","2991.69","3052.45","2908.61","-2.88","30.2251"],
+["05/29/2016","2997.55","3077.55","3097.96","2980.54","-2.63","23.5541"],
+["05/22/2016","3078.48","2962.52","3079.85","2918.23","3.93","20.4629"],
+["05/15/2016","2962.16","2947.97","2991.32","2916.77","0.19","22.6043"],
+["05/08/2016","2956.63","2947.01","3003.40","2904.09","0.67","23.5957"],
+["05/01/2016","2936.84","3037.62","3045.63","2893.63","-3.02","25.1235"],
+["04/24/2016","3028.21","3141.57","3148.44","3028.21","-3.59","24.033"],
+["04/17/2016","3141.12","3050.00","3156.86","3006.03","2.84","20.6022"],
+["04/10/2016","3054.34","2910.75","3061.99","2883.46","4.89","20.5487"],
+["04/03/2016","2911.98","2948.62","2993.71","2860.32","-1.40","24.8054"],
+["03/27/2016","2953.28","2993.90","3062.71","2916.96","-1.12","25.1088"],
+["03/20/2016","2986.73","3049.12","3088.08","2985.06","-2.39","24.6287"],
+["03/13/2016","3059.77","3082.09","3116.32","2990.37","-0.46","20.6567"],
+["03/06/2016","3073.80","3029.89","3128.71","2968.51","1.20","24.1107"],
+["02/28/2016","3037.35","2911.24","3056.22","2879.60","3.69","24.5116"],
+["02/21/2016","2929.16","2877.64","2951.13","2801.43","2.02","29.2756"],
+["02/14/2016","2871.05","2786.21","2936.32","2786.21","4.17","31.2656"],
+["02/07/2016","2756.16","2885.56","2894.47","2672.73","-4.28","35.6846"],
+["01/31/2016","2879.39","3048.75","3051.84","2862.40","-5.44","30.0529"],
+["01/24/2016","3045.09","3029.45","3055.38","2945.31","0.72","27.389"],
+["01/17/2016","3023.21","2951.17","3046.29","2855.44","2.40","28.3356"],
+["01/10/2016","2952.48","3030.31","3124.98","2931.24","-2.67","34.5856"],
+["01/03/2016","3033.47","3266.01","3266.01","3027.57","-7.74","30.4005"],
+["12/27/2015","3287.98","3287.54","3314.28","3251.85","0.11","22.7102"],
+["12/20/2015","3284.47","3244.75","3292.95","3187.38","0.73","20.2504"],
+["12/13/2015","3260.72","3210.83","3345.20","3137.28","1.80","23.8989"],
+["12/06/2015","3203.21","3334.57","3394.93","3189.93","-3.83","26.5766"],
+["11/29/2015","3330.75","3486.17","3524.04","3295.98","-4.54","22.6816"],
+["11/22/2015","3488.99","3449.64","3512.46","3375.84","1.06","23.0669"],
+["11/15/2015","3452.45","3347.98","3475.79","3326.20","2.73","22.6528"],
+["11/08/2015","3360.65","3467.79","3474.33","3326.82","-3.10","24.9526"],
+["11/01/2015","3468.21","3404.38","3485.55","3382.82","1.46","20.4363"],
+["10/25/2015","3418.23","3422.41","3435.12","3381.01","-0.22","20.3569"],
+["10/18/2015","3425.81","3263.68","3450.61","3237.56","4.93","19.8009"],
+["10/11/2015","3264.93","3251.47","3272.62","3178.43","0.45","22.7408"],
+["10/04/2015","3250.31","3111.35","3270.64","3111.35","5.25","23.4173"],
+["09/27/2015","3088.18","3103.43","3142.73","2987.47","-0.80","30.9395"],
+["09/20/2015","3113.16","3158.92","3199.04","2996.64","-1.40","30.5182"],
+["09/13/2015","3157.30","3192.51","3266.93","3139.99","-0.96","28.4011"],
+["09/06/2015","3187.94","3202.25","3326.86","3182.36","0.24","31.6478"],
+["08/30/2015","3180.25","3265.92","3296.32","3159.89","-3.24","34.8152"],
+["08/23/2015","3286.59","3174.93","3301.14","2973.16","1.21","31.0337"],
+["08/16/2015","3247.26","3509.37","3537.10","3247.26","-6.98","30.2101"],
+["08/09/2015","3491.03","3650.49","3678.20","3473.20","-4.03","22.8364"],
+["08/02/2015","3637.80","3599.21","3686.57","3587.98","1.03","18.7066"],
+["07/26/2015","3600.69","3587.95","3600.69","3513.10","0.02","19.2878"],
+["07/19/2015","3600.00","3673.00","3714.26","3597.57","-1.92","19.0408"],
+["07/12/2015","3670.34","3562.39","3696.43","3561.80","4.01","18.9656"],
+["07/05/2015","3528.81","3405.71","3536.90","3291.39","2.53","27.8763"],
+["06/28/2015","3441.76","3544.29","3544.29","3416.51","-4.96","32.285"],
+["06/21/2015","3621.37","3497.09","3651.31","3497.09","4.79","26.7172"],
+["06/14/2015","3455.80","3479.78","3498.38","3374.18","-1.34","28.6184"],
+["06/07/2015","3502.77","3498.97","3589.33","3410.23","-0.21","25.2594"],
+["05/31/2015","3510.01","3582.08","3622.52","3494.68","-1.70","25.2745"],
+["05/24/2015","3570.78","3677.21","3690.57","3569.76","-2.95","23.5386"],
+["05/17/2015","3679.14","3571.49","3691.42","3531.23","2.97","19.6309"],
+["05/10/2015","3573.07","3635.81","3635.81","3512.75","-2.09","21.5088"],
+["05/03/2015","3649.48","3615.30","3666.47","3484.07","0.94","21.1296"],
+["04/26/2015","3615.59","3715.98","3782.29","3577.69","-2.65","24.2128"],
+["04/19/2015","3713.96","3682.32","3757.12","3669.22","1.09","21.92"],
+["04/12/2015","3674.05","3813.96","3836.28","3668.88","-3.74","25.0553"],
+["04/05/2015","3816.76","3729.27","3816.76","3729.27","2.73","17.5116"],
+["03/29/2015","3715.27","3689.39","3748.63","3675.29","0.99","20.7203"],
+["03/22/2015","3679.03","3718.45","3742.42","3616.75","-1.26","20.4715"],
+["03/15/2015","3726.07","3664.53","3738.20","3643.13","1.91","17.4772"],
+["03/08/2015","3656.21","3604.13","3656.21","3552.43","1.07","18.8262"],
+["03/01/2015","3617.62","3594.25","3635.93","3533.40","0.52","18.4149"],
+["02/22/2015","3599.00","3510.81","3599.00","3498.27","3.11","17.7528"],
+["02/15/2015","3490.53","3445.44","3495.30","3381.29","1.25","24.2039"],
+["02/08/2015","3447.59","3371.51","3462.27","3321.59","1.45","24.1849"],
+["02/01/2015","3398.16","3356.13","3426.67","3327.08","1.39","21.8332"],
+["01/25/2015","3351.44","3372.03","3417.46","3326.38","-0.92","24.731"],
+["01/18/2015","3382.55","3208.62","3412.76","3198.36","5.63","23.1125"],
+["01/11/2015","3202.24","3055.66","3208.30","3020.54","5.24","29.3287"],
+["01/04/2015","3042.90","3126.81","3150.09","2998.53","-3.08","28.7787"],
+["12/28/2014","3139.44","3188.50","3188.50","3114.76","-1.42","26.2531"],
+["12/21/2014","3184.66","3150.31","3192.47","3141.17","1.38","22.0804"],
+["12/14/2014","3141.28","3063.76","3182.36","2921.73","2.41","23.6176"],
+["12/07/2014","3067.32","3266.90","3272.79","3065.41","-6.41","26.4981"],
+["11/30/2014","3277.38","3228.68","3278.63","3186.06","0.81","16.3307"],
+["11/23/2014","3250.93","3197.53","3250.93","3193.38","1.78","18.0253"],
+["11/16/2014","3194.22","3044.81","3195.40","3031.26","4.39","18.9133"],
+["11/09/2014","3059.99","3060.98","3118.49","3026.41","-0.16","19.5586"],
+["11/02/2014","3064.92","3107.80","3142.60","3028.33","-1.55","21.1162"],
+["10/26/2014","3113.32","3052.23","3120.19","2965.57","2.74","20.3172"],
+["10/19/2014","3030.37","2957.24","3051.49","2906.04","2.30","21.3229"],
+["10/12/2014","2962.24","2970.21","3017.25","2789.63","-0.98","25.3527"],
+["10/05/2014","2991.50","3149.62","3169.86","2987.00","-4.53","23.1168"],
+["09/28/2014","3133.37","3218.39","3236.59","3106.42","-2.68","19.695"],
+["09/21/2014","3219.58","3262.52","3274.36","3188.39","-1.64","17.6012"],
+["09/14/2014","3273.25","3228.67","3301.15","3206.71","1.18","15.0596"],
+["09/07/2014","3235.07","3276.20","3278.56","3216.27","-1.23","15.9108"],
+["08/31/2014","3275.25","3175.56","3286.59","3158.27","3.23","15.4702"],
+["08/24/2014","3172.63","3123.56","3202.85","3123.56","2.39","17.1888"],
+["08/17/2014","3098.50","3056.65","3127.80","3056.65","2.14","17.2349"],
+["08/10/2014","3033.52","3019.44","3093.74","3017.64","0.89","20.3569"],
+["08/03/2014","3006.83","3082.59","3095.13","2977.52","-2.14","21.2386"],
+["07/27/2014","3072.57","3183.03","3210.67","3064.60","-3.23","19.8142"],
+["07/20/2014","3174.99","3165.02","3223.88","3130.84","0.34","16.7309"],
+["07/13/2014","3164.21","3161.40","3203.48","3132.12","0.23","16.5305"],
+["07/06/2014","3157.05","3264.21","3269.32","3132.87","-3.47","16.3382"],
+["06/29/2014","3270.47","3230.28","3289.82","3211.50","1.32","13.0962"],
+["06/22/2014","3227.85","3301.18","3302.90","3215.72","-2.26","15.2961"],
+["06/15/2014","3302.36","3276.33","3325.50","3256.20","0.59","12.7797"],
+["06/08/2014","3282.84","3296.78","3314.67","3254.53","-0.35","14.1513"],
+["06/01/2014","3294.28","3247.54","3297.51","3217.87","1.53","13.4607"],
+["05/25/2014","3244.60","3211.26","3250.34","3211.26","1.29","15.7845"],
+["05/18/2014","3203.28","3169.26","3205.01","3134.76","0.96","15.5997"],
+["05/11/2014","3172.72","3184.44","3224.29","3142.85","-0.36","15.7941"],
+["05/04/2014","3184.09","3171.18","3204.30","3129.08","0.20","16.6668"],
+["04/27/2014","3177.89","3155.32","3212.51","3151.72","0.97","17.9023"],
+["04/20/2014","3147.40","3161.69","3206.80","3137.21","-0.27","18.7678"],
+["04/13/2014","3155.81","3108.65","3156.64","3083.43","1.26","16.9939"],
+["04/06/2014","3116.54","3217.83","3218.95","3096.47","-3.52","18.2955"],
+["03/30/2014","3230.33","3181.35","3239.14","3159.75","1.83","15.875"],
+["03/23/2014","3172.43","3092.56","3172.43","3046.83","2.45","17.0324"],
+["03/16/2014","3096.49","3003.67","3110.39","3001.70","3.06","17.1916"],
+["03/09/2014","3004.64","3093.62","3126.62","2971.47","-2.93","23.2095"],
+["03/02/2014","3095.31","3124.81","3158.15","3053.85","-1.71","20.473"],
+["02/23/2014","3149.23","3130.87","3162.95","3105.58","0.56","16.7667"],
+["02/16/2014","3131.67","3121.04","3134.64","3079.46","0.40","17.3772"],
+["02/09/2014","3119.06","3049.35","3123.66","3026.67","2.65","16.3821"],
+["02/02/2014","3038.49","3012.25","3039.98","2944.13","0.81","19.2347"],
+["01/26/2014","3013.96","3032.15","3076.96","2963.23","-0.47","21.8188"],
+["01/19/2014","3028.20","3152.24","3176.99","3023.71","-3.99","20.9333"],
+["01/12/2014","3154.10","3112.86","3170.03","3072.86","1.61","15.7352"],
+["01/05/2014","3104.15","3070.14","3131.18","3064.83","0.97","16.5627"],
+["12/29/2013","3074.43","3112.98","3127.12","3055.13","-1.19","18.0018"],
+["12/22/2013","3111.37","3054.85","3111.37","3047.68","2.03","16.4643"],
+["12/15/2013","3049.35","2919.95","3053.30","2919.14","4.36","16.0088"],
+["12/08/2013","2921.92","2987.30","2999.28","2916.70","-1.95","18.2036"],
+["12/01/2013","2979.94","3089.39","3094.54","2940.90","-3.46","16.4994"],
+["11/24/2013","3086.64","3065.70","3098.63","3061.95","1.00","14.6502"],
+["11/17/2013","3055.98","3051.17","3091.04","3016.67","0.05","14.2629"],
+["11/10/2013","3054.53","3038.65","3060.74","3000.35","0.65","15.1624"],
+["11/03/2013","3034.91","3058.29","3106.64","2999.25","-0.56","17.2896"],
+["10/27/2013","3052.14","3041.16","3074.44","3009.80","0.58","16.205"],
+["10/20/2013","3034.50","3030.06","3056.87","3010.55","0.04","15.0179"],
+["10/13/2013","3033.31","2963.48","3033.31","2957.70","1.98","15.4232"],
+["10/06/2013","2974.28","2917.07","2977.31","2891.39","1.57","18.2601"],
+["09/29/2013","2928.31","2899.41","2934.90","2877.87","0.31","19.5446"],
+["09/22/2013","2919.34","2928.80","2936.09","2897.43","-0.27","16.9196"],
+["09/15/2013","2927.19","2882.12","2955.47","2878.10","2.10","16.7626"],
+["09/08/2013","2867.11","2801.63","2870.18","2787.74","2.27","18.3842"],
+["09/01/2013","2803.42","2741.08","2803.83","2725.56","3.02","20.2292"],
+["08/25/2013","2721.37","2825.46","2827.32","2720.57","-3.70","23.4785"],
+["08/18/2013","2826.05","2853.81","2854.35","2770.18","-0.99","17.8238"],
+["08/11/2013","2854.27","2826.12","2855.89","2802.41","1.01","16.4082"],
+["08/04/2013","2825.62","2815.26","2834.57","2775.19","0.52","17.1706"],
+["07/28/2013","2811.00","2754.04","2819.14","2736.83","2.52","16.8183"],
+["07/21/2013","2741.96","2718.78","2766.65","2712.31","0.95","18.1141"],
+["07/14/2013","2716.17","2678.83","2719.03","2645.61","1.54","17.2343"],
+["07/07/2013","2674.87","2612.05","2697.45","2612.05","3.04","19.072"],
+["06/30/2013","2596.01","2619.36","2660.19","2539.15","-0.25","22.5944"],
+["06/23/2013","2602.59","2549.48","2635.90","2494.54","2.08","21.8175"],
+["06/16/2013","2549.48","2673.63","2718.03","2549.48","-4.42","24.0473"],
+["06/09/2013","2667.32","2719.18","2734.29","2617.48","-2.08","21.2645"],
+["06/02/2013","2724.08","2757.65","2788.22","2664.07","-1.64","19.9529"],
+["05/26/2013","2769.64","2774.77","2851.48","2760.19","0.19","19.6048"],
+["05/19/2013","2764.29","2822.55","2840.57","2752.09","-1.91","18.4925"],
+["05/12/2013","2817.99","2783.70","2825.44","2760.93","1.18","16.313"],
+["05/05/2013","2785.24","2762.00","2805.30","2746.47","0.78","17.4277"],
+["04/28/2013","2763.68","2690.07","2764.17","2688.59","2.99","17.6329"],
+["04/21/2013","2683.43","2584.65","2709.57","2569.90","4.20","19.7111"],
+["04/14/2013","2575.16","2633.38","2647.53","2542.10","-2.21","20.4999"],
+["04/07/2013","2633.47","2591.84","2681.95","2584.50","1.86","20.2145"],
+["03/31/2013","2585.28","2622.24","2680.34","2566.74","-1.48","22.2855"],
+["03/24/2013","2624.02","2700.96","2726.01","2590.03","-2.15","20.8944"],
+["03/17/2013","2681.67","2695.62","2712.80","2660.43","-1.62","21.2876"],
+["03/10/2013","2725.72","2723.74","2746.02","2693.60","-0.11","15.7276"],
+["03/03/2013","2728.78","2607.97","2733.86","2595.35","4.28","17.3844"],
+["02/24/2013","2616.75","2642.81","2699.95","2563.64","-0.51","21.7728"],
+["02/17/2013","2630.05","2610.81","2670.69","2579.68","0.57","20.8556"],
+["02/10/2013","2615.26","2631.38","2666.65","2613.26","-0.57","18.8463"],
+["02/03/2013","2630.30","2712.67","2712.67","2597.49","-2.94","18.5593"],
+["01/27/2013","2710.08","2745.96","2754.80","2696.64","-1.24","15.9874"],
+["01/20/2013","2744.18","2715.00","2748.13","2692.15","1.28","14.9093"],
+["01/13/2013","2709.59","2725.41","2735.36","2685.27","-0.30","15.8831"],
+["01/06/2013","2717.79","2712.25","2725.38","2684.90","0.31","15.5715"],
+["12/30/2012","2709.35","2619.59","2711.25","2619.56","3.14","16.0708"],
+["12/23/2012","2626.85","2649.51","2668.23","2626.41","-0.91","21.3534"],
+["12/16/2012","2651.09","2627.72","2661.92","2611.89","0.78","17.8926"],
+["12/09/2012","2630.54","2591.88","2638.64","2567.15","1.12","16.4818"],
+["12/02/2012","2601.37","2580.90","2617.83","2577.69","1.01","17.2026"],
+["11/25/2012","2575.25","2550.86","2592.43","2522.07","0.71","16.5548"],
+["11/18/2012","2557.03","2443.54","2557.03","2443.54","5.34","17.7473"],
+["11/11/2012","2427.32","2480.50","2500.29","2427.32","-2.12","22.1719"],
+["11/04/2012","2479.82","2534.41","2560.11","2441.88","-2.64","22.57"],
+["10/28/2012","2547.15","2488.42","2557.03","2467.81","2.05","20.5608"],
+["10/21/2012","2496.10","2542.80","2555.40","2460.48","-1.81","22.137"],
+["10/14/2012","2542.24","2468.83","2579.81","2468.83","2.96","20.5996"],
+["10/07/2012","2469.09","2517.52","2517.52","2440.58","-2.45","21.8817"],
+["09/30/2012","2531.21","2451.29","2534.26","2450.32","3.14","20.3484"],
+["09/23/2012","2454.26","2565.66","2573.50","2454.26","-4.77","23.3836"],
+["09/16/2012","2577.08","2585.36","2589.37","2535.77","-0.67","19.2445"],
+["09/09/2012","2594.56","2536.18","2604.77","2509.39","2.20","21.1062"],
+["09/02/2012","2538.60","2435.35","2565.81","2420.46","4.01","21.8266"],
+["08/26/2012","2440.71","2431.34","2461.82","2397.60","0.27","25.7034"],
+["08/19/2012","2434.23","2471.22","2494.06","2405.68","-1.51","24.6392"],
+["08/12/2012","2471.53","2419.52","2479.66","2404.28","1.99","21.4456"],
+["08/05/2012","2423.22","2369.36","2450.07","2362.69","2.13","22.7486"],
+["07/29/2012","2372.58","2307.63","2376.85","2261.77","3.10","23.803"],
+["07/22/2012","2301.23","2220.12","2301.23","2142.46","2.86","25.3165"],
+["07/15/2012","2237.33","2256.63","2309.82","2234.80","-0.96","24.2212"],
+["07/08/2012","2259.09","2233.66","2263.31","2214.24","1.05","22.6093"],
+["07/01/2012","2235.51","2266.41","2332.08","2235.51","-1.29","25.5759"],
+["06/24/2012","2264.72","2178.33","2264.72","2121.09","3.56","24.9463"],
+["06/17/2012","2186.81","2198.37","2231.55","2143.81","0.26","25.1664"],
+["06/10/2012","2181.23","2163.27","2202.63","2119.19","1.74","33.7295"],
+["06/03/2012","2143.90","2059.28","2171.50","2051.26","3.64","30.3723"],
+["05/27/2012","2068.66","2173.92","2190.22","2050.16","-4.31","36.3842"],
+["05/20/2012","2161.87","2141.17","2198.99","2118.02","0.80","30.225"],
+["05/13/2012","2144.69","2234.35","2234.35","2112.77","-4.87","33.1087"],
+["05/06/2012","2254.54","2227.20","2287.25","2194.50","0.28","28.3851"],
+["04/29/2012","2248.34","2345.90","2350.95","2241.66","-4.08","29.3836"],
+["04/22/2012","2344.02","2299.16","2354.82","2238.45","1.42","25.4795"],
+["04/15/2012","2311.27","2287.25","2367.05","2271.39","0.86","26.2312"],
+["04/08/2012","2291.51","2378.09","2378.09","2282.23","-4.22","29.4063"],
+["04/01/2012","2392.54","2481.02","2509.93","2362.95","-3.42","25.5879"],
+["03/25/2012","2477.28","2530.99","2563.46","2445.46","-1.91","22.5463"],
+["03/18/2012","2525.43","2604.61","2608.44","2494.15","-3.18","21.6583"],
+["03/11/2012","2608.30","2511.42","2611.42","2502.75","3.67","18.5202"],
+["03/04/2012","2515.95","2539.21","2540.03","2437.60","-1.19","22.895"],
+["02/26/2012","2546.16","2516.75","2556.96","2484.07","0.89","22.5637"],
+["02/19/2012","2523.69","2529.76","2557.86","2489.27","0.13","22.5277"],
+["02/12/2012","2520.31","2491.98","2530.83","2454.98","1.59","24.8255"],
+["02/05/2012","2480.76","2508.38","2542.98","2471.19","-1.37","27.3816"],
+["01/29/2012","2515.15","2426.56","2515.15","2397.48","3.22","23.5349"],
+["01/22/2012","2436.62","2426.45","2467.62","2398.42","0.40","24.3981"],
+["01/15/2012","2426.96","2329.07","2440.29","2315.23","3.80","25.0315"],
+["01/08/2012","2338.01","2301.15","2384.25","2279.73","1.71","28.916"],
+["01/01/2012","2298.65","2315.75","2392.15","2287.69","-0.77","30.5586"],
+["12/25/2011","2316.55","2294.15","2316.55","2249.89","1.14","32.1544"],
+["12/18/2011","2290.37","2193.54","2313.15","2182.76","3.98","28.5177"],
+["12/11/2011","2202.72","2332.48","2332.48","2199.00","-5.97","31.1426"],
+["12/04/2011","2342.59","2357.91","2402.39","2265.80","0.00","34.9028"],
+["11/27/2011","2342.50","2128.58","2371.22","2128.58","10.95","35.6881"],
+["11/20/2011","2111.26","2226.25","2226.25","2065.75","-5.61","40.8202"],
+["11/13/2011","2236.68","2333.27","2344.81","2220.27","-3.79","38.2997"],
+["11/06/2011","2324.81","2275.16","2347.25","2211.37","1.45","39.5323"],
+["10/30/2011","2291.47","2443.68","2443.68","2238.16","-6.94","41.4944"],
+["10/23/2011","2462.36","2346.83","2506.22","2316.62","5.34","31.2429"],
+["10/16/2011","2337.51","2368.79","2393.40","2268.01","-0.76","40.7402"],
+["10/09/2011","2355.48","2288.16","2384.41","2267.94","3.80","34.9396"],
+["10/02/2011","2269.19","2146.70","2290.73","2054.98","4.11","40.5639"],
+["09/25/2011","2179.66","2004.97","2232.02","1993.71","7.58","46.6796"],
+["09/18/2011","2026.03","2123.89","2143.25","1935.89","-6.17","48.5408"],
+["09/11/2011","2159.28","2042.71","2192.41","1948.65","4.13","42.963"],
+["09/04/2011","2073.67","2191.17","2191.17","2063.58","-6.62","49.7943"],
+["08/28/2011","2220.72","2208.62","2326.78","2207.21","1.38","40.0959"],
+["08/21/2011","2190.44","2148.00","2273.42","2140.32","1.45","43.5524"],
+["08/14/2011","2159.07","2320.62","2355.67","2117.68","-2.54","47.306"],
+["08/07/2011","2215.45","2362.62","2428.55","2077.06","-6.72","44.8485"],
+["07/31/2011","2375.15","2691.93","2709.04","2346.29","-11.06","39.2459"],
+["07/24/2011","2670.37","2759.24","2763.99","2631.26","-3.69","27.6238"],
+["07/17/2011","2772.60","2663.40","2796.57","2617.37","3.63","22.4011"],
+["07/10/2011","2675.38","2771.66","2771.66","2608.04","-4.11","28.1168"],
+["07/03/2011","2790.09","2878.26","2878.71","2787.37","-2.98","22.4146"],
+["06/26/2011","2875.67","2711.42","2887.30","2702.10","5.88","19.7294"],
+["06/19/2011","2715.88","2764.52","2806.13","2707.45","-1.96","27.1728"],
+["06/12/2011","2770.12","2734.70","2790.22","2692.95","1.38","24.25"],
+["06/05/2011","2732.54","2787.46","2787.46","2725.65","-2.03","22.6181"],
+["05/29/2011","2789.11","2818.12","2873.88","2751.04","-1.07","22.6548"],
+["05/22/2011","2819.40","2827.62","2838.38","2777.73","-1.21","21.4688"],
+["05/15/2011","2853.98","2876.04","2910.58","2844.44","-1.40","22.3836"],
+["05/08/2011","2894.60","2942.16","2962.89","2889.83","-1.97","22.0822"],
+["05/01/2011","2952.90","3025.00","3029.68","2906.39","-1.94","19.9772"],
+["04/24/2011","3011.25","2930.25","3012.76","2927.93","2.55","18.4785"],
+["04/17/2011","2936.30","2915.88","2948.29","2833.07","0.59","18.9266"],
+["04/10/2011","2919.05","2983.40","2984.75","2900.16","-2.20","18.8037"],
+["04/03/2011","2984.66","2958.08","2992.21","2932.75","0.73","19.9611"],
+["03/27/2011","2962.92","2908.53","2964.36","2884.92","1.77","20.4234"],
+["03/20/2011","2911.33","2819.70","2926.02","2819.49","4.25","22.0837"],
+["03/13/2011","2792.61","2883.84","2895.70","2717.74","-3.16","28.5337"],
+["03/06/2011","2883.84","2942.41","2976.07","2873.06","-2.22","24.7086"],
+["02/27/2011","2949.18","2983.22","3041.39","2940.87","-1.20","23.6358"],
+["02/20/2011","2985.02","3065.06","3065.73","2930.06","-2.70","23.1032"],
+["02/13/2011","3068.00","3034.75","3077.24","3009.79","1.44","19.6952"],
+["02/06/2011","3024.37","3008.02","3050.60","2986.00","0.71","19.946"],
+["01/30/2011","3003.19","2951.63","3022.61","2917.98","1.66","20.8982"],
+["01/23/2011","2954.13","2974.95","3004.27","2952.42","-0.55","22.1322"],
+["01/16/2011","2970.56","2920.70","2999.77","2902.57","1.72","19.8027"],
+["01/09/2011","2920.40","2800.30","2925.18","2756.49","3.99","20.4446"],
+["01/02/2011","2808.25","2807.76","2868.31","2788.10","0.55","23.9501"],
+["12/26/2010","2792.82","2859.28","2862.32","2792.82","-2.42","23.9165"],
+["12/19/2010","2861.94","2825.15","2882.88","2821.47","1.42","19.5693"],
+["12/12/2010","2821.77","2847.83","2867.23","2818.90","-0.63","19.2522"],
+["12/05/2010","2839.53","2784.13","2850.17","2756.22","2.05","21.1483"],
+["11/28/2010","2782.39","2748.94","2796.03","2635.08","1.66","23.8826"],
+["11/21/2010","2736.96","2845.92","2871.17","2707.91","-3.82","28.4384"],
+["11/14/2010","2845.75","2814.45","2859.45","2775.84","0.83","22.0588"],
+["11/07/2010","2822.43","2871.74","2902.80","2765.65","-1.86","24.6155"],
+["10/31/2010","2875.94","2861.56","2896.52","2824.28","1.09","21.8485"],
+["10/24/2010","2844.99","2886.29","2891.52","2825.66","-1.00","23.3884"],
+["10/17/2010","2873.74","2830.03","2890.54","2820.58","1.13","21.7654"],
+["10/10/2010","2841.65","2790.64","2859.96","2745.63","2.02","21.5816"],
+["10/03/2010","2785.43","2732.12","2809.00","2690.88","1.92","22.8174"],
+["09/26/2010","2732.91","2796.94","2805.30","2719.71","-2.14","26.3651"],
+["09/19/2010","2792.75","2765.05","2827.44","2709.78","1.28","23.6604"],
+["09/12/2010","2757.37","2800.88","2821.55","2747.97","-0.83","24.5388"],
+["09/05/2010","2780.40","2757.48","2792.03","2703.96","1.24","24.6199"],
+["08/29/2010","2746.23","2636.83","2771.17","2576.35","4.41","24.5597"],
+["08/22/2010","2630.35","2648.88","2683.70","2560.00","-0.52","28.3184"],
+["08/15/2010","2643.98","2713.06","2752.47","2637.72","-2.39","29.0491"],
+["08/08/2010","2708.73","2805.28","2828.52","2687.42","-2.54","29.1965"],
+["08/01/2010","2779.34","2756.00","2849.45","2756.00","1.36","27.1054"],
+["07/25/2010","2742.14","2774.45","2801.46","2709.91","0.85","27.1611"],
+["07/18/2010","2719.13","2639.36","2732.74","2623.25","2.78","28.0725"],
+["07/11/2010","2645.61","2686.80","2752.14","2634.29","-1.33","27.0579"],
+["07/04/2010","2681.20","2527.79","2690.52","2506.63","6.30","27.9513"],
+["06/27/2010","2522.36","2636.45","2671.48","2502.50","-4.07","33.5925"],
+["06/20/2010","2629.25","2762.38","2788.73","2617.46","-3.94","32.1028"],
+["06/13/2010","2737.02","2653.30","2748.33","2653.30","3.74","26.9603"],
+["06/06/2010","2638.31","2528.63","2651.39","2475.71","3.32","31.3614"],
+["05/30/2010","2553.59","2608.03","2668.56","2539.39","-2.31","37.6914"],
+["05/23/2010","2614.06","2586.84","2637.59","2448.10","1.55","33.8757"],
+["05/16/2010","2574.18","2621.64","2713.47","2497.32","-2.27","46.1742"],
+["05/09/2010","2633.92","2534.81","2787.70","2531.43","5.35","42.5944"],
+["05/02/2010","2500.18","2806.71","2828.79","2472.10","-11.24","49.5956"],
+["04/25/2010","2816.86","2936.95","2962.94","2762.15","-3.47","28.89"],
+["04/18/2010","2918.11","2941.87","2990.05","2882.09","-1.07","24.004"],
+["04/11/2010","2949.65","3008.80","3027.14","2940.38","-1.47","22.4362"],
+["04/04/2010","2993.54","2988.99","2998.29","2923.28","0.50","20.5366"],
+["03/28/2010","2978.50","2947.18","2980.83","2910.09","1.28","19.9987"],
+["03/21/2010","2940.94","2889.13","2952.49","2849.14","1.48","19.7951"],
+["03/14/2010","2897.95","2894.79","2936.37","2868.45","-0.01","20.4963"],
+["03/07/2010","2898.36","2888.02","2921.80","2857.23","0.73","21.9337"],
+["02/28/2010","2877.44","2743.17","2877.44","2737.07","5.46","20.8733"],
+["02/21/2010","2728.47","2798.29","2804.30","2677.21","-2.32","24.3654"],
+["02/14/2010","2793.37","2683.49","2795.83","2676.49","4.45","23.8134"],
+["02/07/2010","2674.46","2635.84","2727.69","2617.77","1.63","28.4507"],
+["01/31/2010","2631.64","2763.88","2842.61","2631.64","-5.23","30.5511"],
+["01/24/2010","2776.83","2825.15","2845.15","2737.33","-2.11","26.7238"],
+["01/17/2010","2836.80","2949.94","2990.50","2806.51","-3.52","27.0923"],
+["01/10/2010","2940.25","3030.42","3044.37","2939.04","-2.57","22.2754"],
+["01/03/2010","3017.85","2974.86","3025.60","2974.86","1.74","21.9757"],
+["12/27/2009","2966.24","2970.01","3001.56","2964.87","0.30","24.0577"],
+["12/20/2009","2957.48","2879.12","2969.13","2875.79","3.00","22.8498"],
+["12/13/2009","2871.22","2878.61","2926.52","2855.63","0.31","25.1044"],
+["12/06/2009","2862.32","2900.35","2907.82","2802.39","-1.65","25.2094"],
+["11/29/2009","2910.33","2834.46","2930.01","2791.78","2.80","24.8832"],
+["11/22/2009","2831.14","2848.09","2910.22","2757.02","-0.07","28.3598"],
+["11/15/2009","2833.06","2895.49","2933.96","2824.88","-1.73","26.5338"],
+["11/08/2009","2883.04","2810.60","2904.88","2810.60","3.18","25.7949"],
+["11/01/2009","2794.25","2738.26","2808.69","2693.80","1.85","27.4821"],
+["10/25/2009","2743.50","2892.79","2907.02","2737.24","-4.94","31.3257"],
+["10/18/2009","2886.08","2900.37","2962.06","2878.83","-0.26","24.4296"],
+["10/11/2009","2893.53","2888.41","2960.61","2869.65","0.39","25.199"],
+["10/04/2009","2882.18","2764.48","2903.04","2746.85","4.40",""],
+["09/27/2009","2760.60","2828.16","2915.71","2743.79","-2.52",""],
+["09/20/2009","2831.95","2885.10","2907.06","2819.29","-1.91",""],
+["09/13/2009","2887.24","2815.07","2913.69","2785.73","1.97",""],
+["09/06/2009","2831.37","2753.55","2846.52","2753.55","3.21",""],
+["08/30/2009","2743.34","2789.40","2796.01","2674.66","-2.15",""],
+["08/23/2009","2803.65","2751.58","2831.44","2750.73","2.11",""],
+["08/16/2009","2745.62","2659.73","2749.89","2587.25","2.85",""],
+["08/09/2009","2669.41","2700.92","2733.95","2631.24","-1.36",""],
+["08/02/2009","2706.22","2637.51","2717.59","2631.67","2.58",""],
+["07/26/2009","2638.13","2598.15","2668.50","2568.41","2.14",""],
+["07/19/2009","2582.76","2482.80","2613.38","2482.80","4.60",""],
+["07/12/2009","2469.20","2276.30","2485.59","2258.60","8.23",""],
+["07/05/2009","2281.47","2359.51","2370.12","2277.50","-4.00",""],
+["06/28/2009","2376.48","2384.86","2459.89","2354.58","-0.56",""],
+["06/21/2009","2389.91","2433.54","2435.00","2343.02","-1.84",""],
+["06/14/2009","2434.77","2498.73","2498.73","2365.18","-2.97",""],
+["06/07/2009","2509.22","2497.26","2536.23","2452.80","0.24",""],
+["05/31/2009","2503.17","2475.53","2549.32","2471.77","2.12",""],
+["05/24/2009","2451.24","2438.52","2489.78","2389.26","0.73","33.8191"],
+["05/17/2009","2433.52","2343.45","2499.64","2318.26","2.94","32.5318"],
+["05/10/2009","2364.10","2462.41","2465.76","2319.05","-3.99","33.1914"],
+["05/03/2009","2462.39","2376.04","2488.93","2372.60","3.66","36.0588"],
+["04/26/2009","2375.34","2302.94","2400.69","2250.52","2.39","36.8821"],
+["04/19/2009","2319.89","2337.43","2342.33","2186.03","-0.91","37.381"],
+["04/12/2009","2341.15","2253.22","2341.15","2242.59","4.15","36.7027"],
+["04/05/2009","2247.89","2211.37","2256.93","2122.50","2.23","37.6085"],
+["03/29/2009","2198.75","2103.96","2239.61","2010.61","3.78","40.5362"],
+["03/22/2009","2118.76","2061.50","2167.29","2061.50","3.31","40.3235"],
+["03/15/2009","2050.96","1987.83","2087.77","1984.03","4.14","43.4136"],
+["03/08/2009","1969.52","1823.25","2016.78","1765.49","8.38","43.8933"],
+["03/01/2009","1817.24","1963.79","1963.79","1807.56","-8.05","49.5518"],
+["02/22/2009","1976.23","2033.27","2063.04","1937.15","-1.76","42.8901"],
+["02/15/2009","2011.68","2217.97","2222.12","2011.68","-9.72","48.5138"],
+["02/08/2009","2228.29","2336.02","2358.44","2192.53","-4.92","41.8443"],
+["02/01/2009","2343.66","2214.75","2355.79","2157.29","4.77","41.8338"],
+["01/25/2009","2236.98","2143.41","2330.95","2133.09","4.15","44.7879"],
+["01/18/2009","2147.87","2302.22","2326.45","2086.09","-5.86","50.2258"],
+["01/11/2009","2281.45","2482.79","2491.09","2235.30","-8.25","48.8924"],
+["01/04/2009","2486.59","2551.70","2608.15","2466.14","-1.97","41.2944"],
+["12/28/2008","2536.47","2387.33","2536.47","2371.29","6.48","42.0759"],
+["12/21/2008","2382.14","2435.27","2435.27","2382.14","-2.54","40.2933"],
+["12/14/2008","2444.14","2439.72","2482.25","2390.65","1.04","41.3543"],
+["12/07/2008","2418.91","2278.06","2513.43","2278.06","7.41","52.8018"],
+["11/30/2008","2252.09","2429.98","2435.22","2227.09","-7.33","58.7765"],
+["11/23/2008","2430.31","2188.39","2441.38","2188.39","12.21","51.4443"],
+["11/16/2008","2165.91","2452.82","2460.10","2128.29","-11.89","74.135"],
+["11/09/2008","2458.31","2633.17","2697.32","2364.74","-5.54","62.4765"],
+["11/02/2008","2602.54","2601.71","2755.12","2502.81","0.42","56.5929"],
+["10/26/2008","2591.76","2306.08","2599.31","2178.73","11.08","60.6773"],
+["10/19/2008","2333.28","2549.29","2656.78","2182.75","-7.85","74.7359"],
+["10/12/2008","2532.17","2442.25","2855.57","2378.73","4.55","77.1459"],
+["10/05/2008","2421.87","3082.24","3082.24","2326.99","-22.22","81.0342"],
+["09/28/2008","3113.82","3153.16","3153.16","2924.13","-1.35","41.163"],
+["09/21/2008","3156.46","3251.56","3277.45","3110.58","-2.98","38.3677"],
+["09/14/2008","3253.52","3241.75","3253.52","2978.45","-0.75","35.189"],
+["09/07/2008","3278.02","3215.44","3329.68","3175.16","2.89","27.0376"],
+["08/31/2008","3185.83","3353.33","3431.08","3173.10","-5.34","26.8459"],
+["08/24/2008","3365.63","3302.22","3383.83","3245.26","1.61","21.0605"],
+["08/17/2008","3312.41","3360.38","3397.30","3243.75","-1.64","21.6044"],
+["08/10/2008","3367.62","3412.50","3456.81","3325.65","-1.20","22.1116"],
+["08/03/2008","3408.48","3315.92","3442.41","3279.56","2.77","22.1286"],
+["07/27/2008","3316.61","3345.84","3402.12","3265.91","-1.03","24.1877"],
+["07/20/2008","3351.13","3322.72","3410.71","3265.71","0.89","23.8577"],
+["07/13/2008","3321.53","3219.74","3321.66","3089.50","3.87","24.8921"],
+["07/06/2008","3197.78","3293.97","3344.36","3197.78","-2.36","29.2661"],
+["06/29/2008","3275.20","3339.54","3358.80","3238.44","-1.95","26.7919"],
+["06/22/2008","3340.27","3425.83","3461.78","3304.06","-2.52","24.9617"],
+["06/15/2008","3426.58","3540.81","3583.56","3401.80","-3.82","24.0341"],
+["06/08/2008","3562.67","3592.72","3612.31","3503.80","-0.95","22.4832"],
+["06/01/2008","3596.70","3775.39","3777.97","3596.63","-4.80","23.4071"],
+["05/25/2008","3777.85","3717.41","3790.52","3695.40","1.40","19.6841"],
+["05/18/2008","3725.82","3864.41","3882.28","3725.82","-3.55","21.4552"],
+["05/11/2008","3862.91","3807.30","3893.68","3784.95","1.61","18.5667"],
+["05/04/2008","3801.59","3875.53","3888.84","3778.45","-1.96","20.6725"],
+["04/27/2008","3877.50","3798.87","3900.30","3773.09","2.19","19.7693"],
+["04/20/2008","3794.39","3809.00","3818.54","3697.94","-0.37","20.9661"],
+["04/13/2008","3808.59","3692.03","3820.36","3654.60","2.94","21.6331"],
+["04/06/2008","3699.99","3799.64","3841.91","3683.88","-2.51","24.7553"],
+["03/30/2008","3795.20","3628.08","3810.17","3576.76","4.23","23.8251"],
+["03/23/2008","3641.05","3532.56","3672.69","3532.56","3.85","26.2793"],
+["03/16/2008","3505.90","3545.99","3600.88","3417.25","-1.70","30.3668"],
+["03/09/2008","3566.59","3569.61","3688.67","3522.43","-0.28","31.5852"],
+["03/02/2008","3576.68","3715.59","3715.59","3541.47","-3.97","31.556"],
+["02/24/2008","3724.50","3755.48","3872.20","3700.93","-0.34","28.6914"],
+["02/17/2008","3737.11","3733.33","3850.42","3713.71","0.48","28.7621"],
+["02/10/2008","3719.28","3691.71","3850.45","3649.34","0.49","29.3659"],
+["02/03/2008","3701.17","3876.18","3905.50","3660.27","-4.30","31.692"],
+["01/27/2008","3867.47","3766.18","3894.89","3696.16","2.39","27.4687"],
+["01/20/2008","3777.06","3988.42","3988.42","3528.88","-5.46","33.6983"],
+["01/13/2008","3995.17","4218.05","4257.00","3986.67","-5.45","25.4405"],
+["01/06/2008","4225.31","4268.43","4330.56","4207.71","-1.06","21.6025"],
+["12/30/2007","4270.53","4404.15","4411.59","4253.69","-3.04","21.8046"],
+["12/23/2007","4404.64","4388.76","4426.05","4385.32","0.46","18.0605"],
+["12/16/2007","4384.55","4369.07","4404.25","4279.54","0.00","17.2417"],
+["12/09/2007","4384.65","4438.12","4502.80","4348.85","-1.39","19.8926"],
+["12/02/2007","4446.34","4389.01","4461.34","4329.27","1.17","17.777"],
+["11/25/2007","4394.95","4225.39","4406.77","4183.62","4.42","20.4255"],
+["11/18/2007","4208.92","4282.08","4299.64","4176.30","-1.72","24.2141"],
+["11/11/2007","4282.40","4290.58","4364.33","4254.91","-0.36","23.9477"],
+["11/04/2007","4297.83","4398.31","4429.68","4279.16","-2.55","26.2585"],
+["10/28/2007","4410.08","4453.42","4497.32","4378.85","-0.68","22.5777"],
+["10/21/2007","4440.23","4408.78","4449.36","4332.45","0.66","19.6521"],
+["10/14/2007","4411.26","4474.78","4477.95","4399.31","-1.45","19.7216"],
+["10/07/2007","4476.02","4458.14","4485.50","4422.58","0.46","18.3524"],
+["09/30/2007","4455.31","4361.59","4465.45","4344.11","1.68","17.8749"],
+["09/23/2007","4381.71","4363.52","4404.10","4303.62","0.26","19.7088"],
+["09/16/2007","4370.35","4215.32","4401.46","4165.37","3.53","20.4261"],
+["09/09/2007","4221.34","4161.50","4254.21","4159.93","1.42","26.5545"],
+["09/02/2007","4162.42","4297.96","4326.96","4154.09","-3.08","27.8225"],
+["08/26/2007","4294.56","4247.29","4313.02","4135.74","1.32","24.4721"],
+["08/19/2007","4238.63","4180.96","4268.54","4127.17","1.96","24.4903"],
+["08/12/2007","4157.20","4189.03","4257.94","4028.72","-0.10","32.4534"],
+["08/05/2007","4161.29","4201.66","4374.67","4139.26","-1.61","30.7365"],
+["07/29/2007","4229.19","4246.86","4324.43","4188.02","-0.36","25.5517"],
+["07/22/2007","4244.58","4444.93","4482.75","4208.16","-4.51","25.2216"],
+["07/15/2007","4445.23","4547.68","4564.03","4442.58","-2.14","19.3499"],
+["07/08/2007","4542.57","4530.45","4560.69","4403.56","0.40","17.3416"],
+["07/01/2007","4524.45","4471.80","4537.93","4450.29","0.77","16.7459"],
+["06/24/2007","4489.77","4456.78","4489.77","4383.37","0.23","16.8985"],
+["06/17/2007","4479.36","4551.30","4572.82","4462.59","-1.57","17.3112"],
+["06/10/2007","4551.00","4394.49","4556.04","4349.72","3.99","15.9641"],
+["06/03/2007","4376.42","4550.02","4556.12","4330.27","-3.96","18.8901"],
+["05/27/2007","4556.97","4480.04","4562.39","4426.64","2.09","15.2943"],
+["05/20/2007","4463.52","4482.33","4500.61","4421.42","-0.39","15.9927"],
+["05/13/2007","4480.81","4435.10","4484.13","4390.51","1.31","16.0852"],
+["05/06/2007","4423.07","4448.06","4452.82","4331.36","-0.51","17.4643"],
+["04/29/2007","4445.59","4378.25","4449.33","4370.27","1.43","17.0574"],
+["04/22/2007","4383.13","4416.07","4434.06","4348.69","-0.76","18.0183"],
+["04/15/2007","4416.79","4333.95","4431.33","4288.11","2.30","18.1661"],
+["04/08/2007","4317.35","4275.68","4326.70","4249.30","1.07","16.4958"],
+["04/01/2007","4271.54","4177.31","4274.17","4163.77","2.16","15.4383"],
+["03/25/2007","4181.03","4190.74","4207.76","4107.98","-0.25","17.5427"],
+["03/18/2007","4191.58","3992.25","4196.15","3992.25","5.20","17.065"],
+["03/11/2007","3984.54","4095.77","4114.60","3906.15","-2.62","21.0814"],
+["03/04/2007","4091.67","4006.91","4105.22","3923.64","2.00","18.0655"],
+["02/25/2007","4011.63","4248.34","4278.22","3967.30","-5.52","20.2958"],
+["02/18/2007","4245.99","4248.74","4274.65","4220.94","-0.03","13.7426"],
+["02/11/2007","4247.40","4244.73","4268.86","4204.01","-0.02","13.451"],
+["02/04/2007","4248.24","4227.72","4258.01","4213.81","0.47","13.9194"],
+["01/28/2007","4228.39","4151.83","4237.82","4143.31","1.91","14.142"],
+["01/21/2007","4149.01","4173.47","4210.63","4114.30","-0.58","15.8256"],
+["01/14/2007","4173.07","4179.06","4200.32","4115.37","-0.04","14.9526"],
+["01/07/2007","4174.80","4130.33","4176.92","4077.88","1.10","14.5839"],
+];
+// We use: open=r[2], close=r[1], high=r[3], low=r[4]
+
+// ═══ END RAW DATA ═══
+
+// ═══════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════
+let activeUser = localStorage.getItem('oesx_user') || 'Sven';
+
+async function setUser(naam) {
+  activeUser = naam;
+  localStorage.setItem('oesx_user', naam);
+  document.getElementById('btn-user-sven').className = 'user-btn' + (naam==='Sven'?' active':'');
+  document.getElementById('btn-user-sem').className = 'user-btn' + (naam==='Sem'?' active':'');
+  document.getElementById('week-user-label').textContent = naam;
+  if(supabaseOK) {
+    toonSyncStatus('🔄 Data laden...','orange');
+    await syncDagDataVanCloud();
+    await syncUserWeeksVanCloud();
+    toonSyncStatus('☁️ Verbonden met cloud','green');
+  }
+  // Blok 7 alleen zichtbaar voor Sven
+  const blokDag = document.getElementById('blok-dagelijks');
+  if(blokDag) blokDag.style.display = naam==='Sven' ? 'block' : 'none';
+  await autoLaad();
+  refreshDagData();
+  buildTop10();
+}
+
+function vstoxxBuffer(v, p, kant='put') {
+  const s = kant==='call' ? SIGMA_CALL[p] : SIGMA[p];
+  return (v/100)/Math.sqrt(52)*s;
+}
+function vstoxxRegime(v) {
+  return VSTOXX_REGIMES.find((r,i)=>i===0?v<=r.hi:v>r.lo&&v<=r.hi)||VSTOXX_REGIMES[5];
+}
+function fmt(n,dec=0) {
+  if(n==null||isNaN(n)) return '—';
+  return n.toFixed(dec).replace('.',',');
+}
+function fmtEur(n) {
+  if(n==null||isNaN(n)) return '—';
+  const s=n<0?'−':'+';
+  return s+'€'+Math.abs(n).toLocaleString('nl-NL',{minimumFractionDigits:0,maximumFractionDigits:0});
+}
+function getVal(id) { const v=parseFloat(document.getElementById(id).value); return isNaN(v)?null:v; }
+function getText(id) { return document.getElementById(id).value.trim(); }
+function set(id,val) { const el=document.getElementById(id); if(el) el.textContent=val; }
+function setHTML(id,html) { const el=document.getElementById(id); if(el) el.innerHTML=html; }
+
+function normalCDF(x) {
+  const t=1/(1+0.2316419*Math.abs(x));
+  const d=0.3989423*Math.exp(-x*x/2);
+  const p=d*t*(0.3193815+t*(-0.3565638+t*(1.7814779+t*(-1.8212560+t*1.3302744))));
+  return x>=0?1-p:p;
+}
+function bufferNaarP(bufPct, vstoxx) {
+  if(!vstoxx||vstoxx<=0) return null;
+  const volWeek=(vstoxx/100)/Math.sqrt(52);
+  if(volWeek<=0) return null;
+  const sigma=(bufPct/100)/volWeek;
+  return Math.min(99.9,Math.max(50,normalCDF(sigma)*100));
+}
+function dagsTot(datumStr) {
+  if(!datumStr) return null;
+  const p=datumStr.split('-');
+  if(p.length!==3) return null;
+  const d=new Date(p[2],p[1]-1,p[0]);
+  const nu=new Date(); nu.setHours(0,0,0,0);
+  return Math.round((d-nu)/86400000);
+}
+
+// Combineer RAW + USER_WEEKS voor analyses
+function getAllData() {
+  const base = RAW.map(r => ({
+    date: r[0],
+    open: parseFloat(r[2]),
+    close: parseFloat(r[1]),
+    high: parseFloat(r[3]),
+    low: parseFloat(r[4]),
+    vstoxx: parseFloat(r[6])
+  })).filter(r=>r.open&&r.close&&r.high&&r.low);
+
+  const userWeeks = JSON.parse(localStorage.getItem('oesx_user_weeks_v2')||'[]');
+  // Dedupliceer: per datum alleen één rij (Sven heeft prioriteit, daarna Sem, daarna RAW)
+  const svensWeeks = userWeeks.filter(w=>w.user==='Sven');
+  const semsWeeks  = userWeeks.filter(w=>w.user==='Sem');
+  const combined   = [...svensWeeks, ...semsWeeks];
+  const userDates  = new Set(combined.map(w=>w.date));
+  const extra = combined
+    .filter((w,i,arr)=>arr.findIndex(x=>x.date===w.date)===i) // eerste (Sven) wint bij duplicaat
+    .map(w=>({ date: w.date, open: w.open, close: w.close, high: w.high, low: w.low, vstoxx: w.vstoxx }));
+  const baseFiltered = base.filter(r=>!userDates.has(r.date));
+  return [...extra, ...baseFiltered];
+}
+
+// ═══════════════════════════════════════════════════════
+// HEADER — fix: reset naar — als veld leeg is
+// ═══════════════════════════════════════════════════════
+function updateVstoxxHeader() {
+  const vst=getVal('inp-vstoxx-nu');
+  const stand=getVal('inp-nu');
+  const vstoxxEl=document.getElementById('hdr-vstoxx');
+  const regimeEl=document.getElementById('hdr-vstoxx-regime');
+  const standEl=document.getElementById('hdr-stand');
+  if(vst) {
+    vstoxxEl.textContent=fmt(vst,1);
+    const r=vstoxxRegime(vst);
+    regimeEl.textContent=r.naam;
+    regimeEl.style.color=r.kleur==='green'?'var(--green)':r.kleur==='orange'?'var(--orange)':'var(--red)';
+  } else {
+    vstoxxEl.textContent='—';
+    regimeEl.textContent='—';
+    regimeEl.style.color='';
+  }
+  standEl.textContent=stand?fmt(stand,0):'—';
+  const nu=new Date();
+  document.getElementById('hdr-datum').textContent=nu.toLocaleDateString('nl-NL',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('footer-datum').textContent='v17.3.14 · '+nu.toLocaleDateString('nl-NL')+' · '+activeUser;
+}
+
+// ═══════════════════════════════════════════════════════
+// BLOK 1: POSITIE
+// ═══════════════════════════════════════════════════════
+function updateAlles() {
+  const ref=getVal('inp-ref'), put=getVal('inp-put'), call=getVal('inp-call');
+  const putPrem=getVal('inp-put-prem'), callPrem=getVal('inp-call-prem');
+  const cnt=getVal('inp-cnt')||30, exp=getText('inp-exp');
+
+  // ─── MARGIN INSTAP INDICATIE ─────────────────────────────
+  const marginInstap = getVal('inp-margin-instap');
+  const marginIndEl = document.getElementById('margin-instap-indicatie');
+  if(marginIndEl && marginInstap && marginInstap > 0) {
+    if(marginInstap >= 125) {
+      marginIndEl.innerHTML = `<div class="tip" style="color:var(--red);">🚨 Startmargin al boven 125% — controleer invoer.</div>`;
+    } else if(!ref || !put) {
+      marginIndEl.innerHTML = `<div class="tip">ℹ️ Instapkoers, PUT en/of CALL moeten ingevoerd zijn voor de margin indicatie.</div>`;
+    } else {
+      const MAX_MARGIN = 200;
+      const factor115 = (MAX_MARGIN - 115) / (MAX_MARGIN - marginInstap);
+      const factor125 = (MAX_MARGIN - 125) / (MAX_MARGIN - marginInstap);
+      const putAfstandInstap = ref - put;
+      const kritiekPut115 = put + putAfstandInstap * factor115;
+      const kritiekPut125 = put + putAfstandInstap * factor125;
+      const putPts115 = Math.round(ref - kritiekPut115);
+      const putPts125 = Math.round(ref - kritiekPut125);
+      let html = `<div style="background:#fffbeb;border:1.5px solid #f59e0b;border-radius:7px;padding:10px 14px;font-size:11px;line-height:1.9;">
+        <div style="font-weight:700;font-size:12px;margin-bottom:4px;">📊 Margin indicatie bij instap</div>
+        <div>Startmargin: <strong>${fmt(marginInstap,1)}%</strong> · Referentiekoers: <strong>${fmt(ref,0)}</strong></div>
+        <div>PUT bij ~115%: koers ≈ <strong style="color:var(--orange)">${fmt(kritiekPut115,0)}</strong> · nog <strong>${putPts115} pts daling</strong> ⚠️ nadert gevaarlijk niveau</div>
+        <div>PUT bij ~125%: koers ≈ <strong style="color:var(--red)">${fmt(kritiekPut125,0)}</strong> · nog <strong>${putPts125} pts daling</strong> 🚨 actie vereist</div>`;
+      if(call) {
+        const callAfstandInstap = call - ref;
+        const kritiekCall115 = call - callAfstandInstap * factor115;
+        const kritiekCall125 = call - callAfstandInstap * factor125;
+        const callPts115 = Math.round(kritiekCall115 - ref);
+        const callPts125 = Math.round(kritiekCall125 - ref);
+        html += `<div>CALL bij ~115%: koers ≈ <strong style="color:var(--orange)">${fmt(kritiekCall115,0)}</strong> · nog <strong>${callPts115} pts stijging</strong></div>`;
+        html += `<div>CALL bij ~125%: koers ≈ <strong style="color:var(--red)">${fmt(kritiekCall125,0)}</strong> · nog <strong>${callPts125} pts stijging</strong></div>`;
+      } else {
+        html += `<div style="color:var(--text3);">💡 Vul ook CALL strike in voor indicatie aan de bovenkant.</div>`;
+      }
+      html += `<div style="color:var(--text3);font-size:10px;margin-top:4px;">⚠️ Lineaire schatting — werkelijke margin kan hoger zijn door stijgende VSTOXX of gamma. Controleer altijd op Saxo platform.</div>
+      </div>`;
+      marginIndEl.innerHTML = html;
+    }
+  } else if(marginIndEl) {
+    marginIndEl.innerHTML = '';
+  }
+
+  const statsEl=document.getElementById('positie-stats');
+  if(ref&&put) {
+    statsEl.style.display='grid';
+    set('stat-put-buf',fmt(ref-put,0)+' pts ('+fmt((ref-put)/ref*100,1)+'%)');
+    set('stat-put-pts','afstand tot PUT strike');
+    if(call){set('stat-call-buf',fmt(call-ref,0)+' pts ('+fmt((call-ref)/ref*100,1)+'%)');set('stat-call-pts','afstand tot CALL strike');}
+    const tot=((putPrem||0)+(callPrem||0))*CONTRACTGROOTTE*cnt;
+    set('stat-premie-tot','€'+fmt(tot,0));
+    set('stat-premie-sub','PUT €'+fmt((putPrem||0)*CONTRACTGROOTTE*cnt,0)+' + CALL €'+fmt((callPrem||0)*CONTRACTGROOTTE*cnt,0));
+    if(exp){const d=dagsTot(exp);if(d!==null){set('stat-dagen',d+(d===1?' dag':' dagen'));set('stat-dagen-sub','exp. '+exp);}}
+  } else { statsEl.style.display='none'; }
+  updateStoplicht();
+  updateDoorrol();
+}
+
+// ═══════════════════════════════════════════════════════
+// BLOK 2: STOPLICHT
+// ═══════════════════════════════════════════════════════
+function updateStoplicht() {
+  const nu=getVal('inp-nu'), put=getVal('inp-put'), call=getVal('inp-call');
+  const ref=getVal('inp-ref'), putPrem=getVal('inp-put-prem'), callPrem=getVal('inp-call-prem');
+  const cnt=getVal('inp-cnt')||30, vstoxx=getVal('inp-vstoxx-nu');
+  const vstoxxInstap=getVal('inp-vstoxx-instap');
+  const profiel=parseInt(document.getElementById('inp-profiel').value)||97;
+  updateVstoxxHeader();
+
+  // ─── MODEL INDICATOR ────────────────────────────────
+  const vst2=getVal('inp-vstoxx-nu')||getVal('inp-vstoxx-instap');
+  if(vst2) {
+    const mdl = getModel(vst2);
+    const mdlEl = document.getElementById('model-indicator');
+    if(mdlEl) {
+      if(mdl==='intradag') {
+        mdlEl.innerHTML = `<div style="background:#fff0e8;border:1.5px solid #e0a878;border-radius:7px;padding:9px 13px;font-size:11px;color:#8b4500;margin-bottom:12px;">
+          📊 <strong>O→Low/High model actief (VSTOXX ${fmt(vst2,1)} &gt; 22)</strong> — stoplicht toetst aan intradag extremen · marginrisico reëel</div>`;
+      } else {
+        mdlEl.innerHTML = `<div style="background:var(--blue-bg);border:1.5px solid #a8c0e0;border-radius:7px;padding:9px 13px;font-size:11px;color:var(--blue);margin-bottom:12px;">
+          📈 <strong>O→Close model actief (VSTOXX ${fmt(vst2,1)} ≤ 22)</strong> — stoplicht toetst aan weekslot · intradag noise beheersbaar</div>`;
+      }
+    }
+  }
+
+  // Snelkoppeling doorrol
+  const snelBtn=document.getElementById('doorrol-snelkoppeling');
+  if(nu&&(vstoxx||vstoxxInstap)) snelBtn.classList.remove('hidden');
+  else snelBtn.classList.add('hidden');
+
+  // Profiel context
+  const profielEl=document.getElementById('profiel-context');
+  const vst=vstoxx||vstoxxInstap;
+  if(ref&&put&&vst) {
+    const bufPct=(ref-put)/ref*100;
+    const verwachtBuf=vstoxxBuffer(vst,profiel,'put')*100;
+    const pEquiv=bufferNaarP(bufPct,vst);
+    const kl=pEquiv>=profiel?'var(--green)':pEquiv>=profiel-2?'var(--orange)':'var(--red)';
+    profielEl.innerHTML=`P${profiel} model · V2TX ${fmt(vst,1)} → formulebuffer: <strong>${fmt(verwachtBuf,1)}%</strong> / ${fmt(ref*verwachtBuf/100,0)} pts`
+      +(pEquiv?` · PUT instap ≈ <strong style="color:${kl}">P${fmt(pEquiv,1)}%</strong>`:'');
+  } else {
+    profielEl.innerHTML='<span style="color:var(--text3)">Vul positie in (blok 1) voor profielanalyse</span>';
+  }
+
+  if(!nu||!put) { resetLampen(); return; }
+
+  const putBufTot=ref?ref-put:null, putAfstand=nu-put;
+  const putRestPct=putBufTot?putAfstand/putBufTot*100:null;
+  const callBufTot=call&&ref?call-ref:null;
+  const callAfstand=call?call-nu:null;
+  const callRestPct=(callAfstand&&callBufTot)?callAfstand/callBufTot*100:null;
+
+  // ─── VSTOXX-AANGEPASTE STRIKE DREMPELS ───────────────
+  function strikeDrempels(vstoxxWaarde) {
+    if(!vstoxxWaarde || vstoxxWaarde < 20) return {oranje:150, rood:50};
+    if(vstoxxWaarde < 30)                  return {oranje:200, rood:75};
+    return                                        {oranje:250, rood:100};
+  }
+
+  const isvrijdag = new Date().getDay() === 5;
+  const marginNuStoplicht = getVal('inp-margin-nu');
+  const marginInstapStoplicht = getVal('inp-margin-instap');
+  const marginElBlok2 = document.getElementById('margin-120-info');
+  const drempels = strikeDrempels(vst);
+
+  // ─── MARGIN STOPLICHT (altijd onafhankelijk) ──────────
+  setLampMargin(marginNuStoplicht, marginInstapStoplicht);
+
+  // ─── PUT/CALL STOPLICHTEN altijd op strike-afstand ───
+  setLampStrike('put', putAfstand, drempels, isvrijdag);
+  if(call && callAfstand !== null) setLampStrike('call', callAfstand, drempels, isvrijdag);
+
+  // ─── RISICO-OVERZICHT TEKSTVAK (margin-120-info) ─────
+  if(marginElBlok2) {
+    if(marginNuStoplicht && marginNuStoplicht > 0) {
+      // Kritieke koers bij 115% én 125%
+      const MAX_MARGIN = 200;
+      const factor115 = (MAX_MARGIN - 115) / (MAX_MARGIN - marginNuStoplicht);
+      const factor125 = (MAX_MARGIN - 125) / (MAX_MARGIN - marginNuStoplicht);
+      const kritiekPut115 = put + putAfstand * factor115;
+      const kritiekPut125 = put + putAfstand * factor125;
+      const afstand115Put = nu - kritiekPut115;
+      const afstand125Put = nu - kritiekPut125;
+      const kl115Put = afstand115Put > 0 ? (afstand115Put/nu*100 > 3 ? 'var(--orange)' : 'var(--red)') : 'var(--red)';
+      const kl125Put = afstand125Put > 0 ? (afstand125Put/nu*100 > 3 ? 'var(--orange)' : 'var(--red)') : 'var(--red)';
+      const putStrikeKleur = putAfstand > drempels.oranje ? 'var(--green)' : putAfstand > drempels.rood ? 'var(--orange)' : 'var(--red)';
+      const putStrikeLabel = putAfstand > drempels.oranje ? '🟢 Veilig' : putAfstand > drempels.rood ? '🟠 Let op' : (isvrijdag ? '🟡 Vrijdag — volg koers' : '🔴 Overweeg doorrol');
+      let html = `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 13px;font-size:11px;line-height:1.9;margin-top:10px;">
+        <div style="font-weight:700;font-size:12px;margin-bottom:6px;">📊 Risico-overzicht</div>
+        <div style="margin-bottom:4px;"><strong>Kritieke koersen (indicatie — controleer op Saxo):</strong></div>
+        <div>PUT bij ~115%: koers ≈ <strong style="color:${kl115Put}">${fmt(kritiekPut115,0)}</strong> · nog <strong style="color:${kl115Put}">${fmt(afstand115Put,0)} pts</strong> ⚠️ nadert gevaarlijk niveau</div>
+        <div>PUT bij ~125%: koers ≈ <strong style="color:${kl125Put}">${fmt(kritiekPut125,0)}</strong> · nog <strong style="color:${kl125Put}">${fmt(afstand125Put,0)} pts</strong> 🚨 actie vereist</div>`;
+      if(call && callAfstand !== null) {
+        const kritiekCall115 = call - callAfstand * factor115;
+        const kritiekCall125 = call - callAfstand * factor125;
+        const afstand115Call = kritiekCall115 - nu;
+        const afstand125Call = kritiekCall125 - nu;
+        const kl115Call = afstand115Call > 0 ? (afstand115Call/nu*100 > 3 ? 'var(--orange)' : 'var(--red)') : 'var(--red)';
+        const kl125Call = afstand125Call > 0 ? (afstand125Call/nu*100 > 3 ? 'var(--orange)' : 'var(--red)') : 'var(--red)';
+        html += `<div>CALL bij ~115%: koers ≈ <strong style="color:${kl115Call}">${fmt(kritiekCall115,0)}</strong> · nog <strong style="color:${kl115Call}">${fmt(afstand115Call,0)} pts</strong></div>`;
+        html += `<div>CALL bij ~125%: koers ≈ <strong style="color:${kl125Call}">${fmt(kritiekCall125,0)}</strong> · nog <strong style="color:${kl125Call}">${fmt(afstand125Call,0)} pts</strong></div>`;
+      }
+      html += `<hr style="margin:8px 0;border-color:var(--border);">
+        <div style="margin-bottom:4px;"><strong>Strike afstand</strong> <span style="color:var(--text3);font-size:10px;">(VSTOXX ${vst?fmt(vst,1):'?'} → drempel ${drempels.oranje}/${drempels.rood} pts)</span></div>
+        <div>PUT: <strong style="color:${putStrikeKleur}">${fmt(putAfstand,0)} pts van strike ${fmt(put,0)}</strong> · ${putStrikeLabel}</div>`;
+      if(call && callAfstand !== null) {
+        const callStrikeKleur = callAfstand > drempels.oranje ? 'var(--green)' : callAfstand > drempels.rood ? 'var(--orange)' : 'var(--red)';
+        const callStrikeLabel = callAfstand > drempels.oranje ? '🟢 Veilig' : callAfstand > drempels.rood ? '🟠 Let op' : (isvrijdag ? '🟡 Vrijdag — volg koers' : '🔴 Overweeg doorrol');
+        html += `<div>CALL: <strong style="color:${callStrikeKleur}">${fmt(callAfstand,0)} pts van strike ${fmt(call,0)}</strong> · ${callStrikeLabel}</div>`;
+      }
+      if(isvrijdag) html += `<div style="color:#b45309;font-size:10px;margin-top:4px;">⏰ Expiratie vandaag om 12:00 — koers volgen tot sluiting</div>`;
+      html += `<div style="color:var(--text3);font-size:10px;margin-top:4px;">⚠️ Lineaire schatting — werkelijke margin kan afwijken door VSTOXX-stijging of gamma</div></div>`;
+      marginElBlok2.innerHTML = html;
+    } else {
+      marginElBlok2.innerHTML = `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 13px;font-size:11px;line-height:1.8;margin-top:10px;">
+        <div style="font-weight:700;font-size:12px;margin-bottom:4px;">🚦 Strike stoplicht <span style="font-size:10px;font-weight:400;color:var(--text3)">(geen margin ingevuld — stoplicht op koersafstand)</span></div>
+        <div style="color:var(--text3);font-size:10px;margin-bottom:6px;">VSTOXX ${vst?fmt(vst,1):'?'} → drempels: oranje &lt;${drempels.oranje} pts · rood &lt;${drempels.rood} pts</div>
+        ${put ? `<div>PUT: <strong style="color:${putAfstand>drempels.oranje?'var(--green)':putAfstand>drempels.rood?'var(--orange)':'var(--red)'}">${fmt(putAfstand,0)} pts van strike ${fmt(put,0)}</strong> · ${putAfstand>drempels.oranje?'🟢 Veilig':putAfstand>drempels.rood?'🟠 Let op':(isvrijdag?'🟡 Vrijdag — volg koers':'🔴 Overweeg doorrol')}</div>` : ''}
+        ${call&&callAfstand!==null ? `<div>CALL: <strong style="color:${callAfstand>drempels.oranje?'var(--green)':callAfstand>drempels.rood?'var(--orange)':'var(--red)'}">${fmt(callAfstand,0)} pts van strike ${fmt(call,0)}</strong> · ${callAfstand>drempels.oranje?'🟢 Veilig':callAfstand>drempels.rood?'🟠 Let op':(isvrijdag?'🟡 Vrijdag — volg koers':'🔴 Overweeg doorrol')}</div>` : ''}
+        ${isvrijdag ? '<div style="color:#b45309;font-size:10px;margin-top:4px;">⏰ Expiratie vandaag om 12:00 — koers volgen tot sluiting</div>' : ''}
+        <div style="color:var(--text3);font-size:10px;margin-top:4px;">💡 Vul margin % in voor een volledig derde stoplicht</div>
+      </div>`;
+    }
+  }
+
+  if(vst) {
+    const pNu=bufferNaarP(putAfstand/(nu||ref)*100,vst);
+    if(pNu) {
+      const kl=pNu>=profiel?'var(--green)':pNu>=90?'var(--orange)':'var(--red)';
+      document.getElementById('stoplicht-p-context').innerHTML=`Huidige afstand ≈ <strong style="color:${kl}">P${fmt(pNu,1)}%</strong>`;
+    }
+    if(call&&callAfstand) {
+      const pNuC=bufferNaarP(callAfstand/(nu||ref)*100,vst);
+      if(pNuC) {
+        const kl=pNuC>=profiel?'var(--green)':'var(--orange)';
+        document.getElementById('stoplicht-call-p-context').innerHTML=`CALL ≈ <strong style="color:${kl}">P${fmt(pNuC,1)}%</strong>`;
+      }
+    }
+  }
+
+  // Afstanden stats
+  const putAfstandPct = nu ? putAfstand/nu*100 : 0;
+  const callAfstandPct = (nu&&callAfstand) ? callAfstand/nu*100 : 0;
+  set('afstand-put-val', fmt(putAfstand,0)+' pts ('+fmt(putAfstandPct,1)+'%)');
+  set('afstand-put-pct', 'afstand tot PUT strike '+fmt(put,0));
+  if(call){set('afstand-call-val',fmt(callAfstand,0)+' pts ('+fmt(callAfstandPct,1)+'%)');set('afstand-call-pct','afstand tot CALL strike '+fmt(call,0));}
+
+  const putBarPct=putBufTot?Math.max(0,Math.min(100,putAfstand/putBufTot*100)):50;
+  const putBarEl=document.getElementById('afstand-put-bar');
+  putBarEl.style.width=putBarPct+'%';
+  putBarEl.style.background=putBarPct>50?'var(--green)':putBarPct>25?'var(--orange)':'var(--red)';
+
+  if(call&&callBufTot) {
+    const cBarPct=Math.max(0,Math.min(100,callAfstand/callBufTot*100));
+    const cBarEl=document.getElementById('afstand-call-bar');
+    cBarEl.style.width=cBarPct+'%';
+    cBarEl.style.background=cBarPct>50?'var(--green)':cBarPct>25?'var(--orange)':'var(--red)';
+  }
+
+  if(putRestPct!==null) {
+    const kl=putRestPct>50?'a':putRestPct>25?'o':'r';
+    document.getElementById('buf-rest-val').className='stat-val '+kl;
+    set('buf-rest-val',fmt(putRestPct,1)+'%');
+    set('buf-rest-sub',fmt(putAfstand,0)+' pts ('+fmt(putAfstand/(putBufTot||1)*100,0)+'% van totale buffer)');
+  }
+  if(callRestPct!==null){
+    set('buf-call-rest-val',fmt(callRestPct,1)+'%');
+    set('buf-call-rest-sub',fmt(callAfstand,0)+' pts ('+fmt(callAfstand/(callBufTot||1)*100,0)+'% van totale buffer)');
+  }
+
+  const totOntvangen=((putPrem||0)+(callPrem||0))*CONTRACTGROOTTE*cnt;
+  const intrPut=putAfstand<0?Math.abs(putAfstand)*CONTRACTGROOTTE*cnt:0;
+  const intrCall=(callAfstand!==null&&callAfstand<0)?Math.abs(callAfstand)*CONTRACTGROOTTE*cnt:0;
+  const intrinsiek=intrPut+intrCall;
+  set('pnl-val',intrinsiek>0?fmtEur(totOntvangen-intrinsiek):fmtEur(totOntvangen));
+  set('pnl-sub',intrinsiek>0?'Intrinsiek verlies: '+fmtEur(-intrinsiek):'Premie intact');
+
+  updatePosBalk(nu,put,call,ref);
+
+  const alertEl=document.getElementById('standvanzaken-alert');
+  if(nu<put) alertEl.innerHTML='<div class="notif notif-red">⚠️ KOERS DOOR PUT STRIKE — verlies '+fmtEur(-intrPut)+'</div>';
+  else if(call&&nu>call) alertEl.innerHTML='<div class="notif notif-red">⚠️ KOERS DOOR CALL STRIKE — verlies '+fmtEur(-intrCall)+'</div>';
+  else if(putRestPct!==null&&putRestPct<25) alertEl.innerHTML='<div class="notif notif-orange">⚡ PUT: minder dan 25% buffer — overweeg doorrol</div>';
+  else if(callRestPct!==null&&callRestPct<25) alertEl.innerHTML='<div class="notif notif-orange">⚡ CALL: minder dan 25% buffer — overweeg doorrol</div>';
+  else alertEl.innerHTML='';
+
+  // ─── MARGIN NU INDICATIE ──────────────────────────────────
+  const marginNu = getVal('inp-margin-nu');
+  const marginNuEl = document.getElementById('margin-nu-indicatie');
+  if(marginNuEl && marginNu && marginNu > 0) {
+    let kleur, lampIcon, tekst;
+    if(marginNu >= 116) {
+      kleur='var(--red)'; lampIcon='🔴'; tekst='Margin ≥116% — overweeg direct doorrol';
+    } else if(marginNu >= 101) {
+      kleur='var(--orange)'; lampIcon='🟠'; tekst=`Margin ${fmt(marginNu,1)}% — bewaken (101–115% zone)`;
+    } else {
+      kleur='var(--green)'; lampIcon='🟢'; tekst=`Margin ${fmt(marginNu,1)}% — ruim binnen normen`;
+    }
+    // Als blok 1 startmargin ingevuld: toon ook verbruik t.o.v. instap
+    const marginInstap = getVal('inp-margin-instap');
+    let extraTekst = '';
+    if(marginInstap && marginInstap > 0) {
+      const opgelopen = marginNu - marginInstap;
+      const kleurOpl = opgelopen>15?'var(--red)':opgelopen>5?'var(--orange)':'var(--text2)';
+      extraTekst = ` · t.o.v. instap (${fmt(marginInstap,1)}%): <strong style="color:${kleurOpl}">${opgelopen>=0?'+':''}${fmt(opgelopen,1)}%</strong>`;
+    }
+    marginNuEl.innerHTML = `<div style="background:${resterend<=5?'#fff0f0':resterend<=15?'#fff8ee':'#f0fff4'};border:1.5px solid ${kleur};border-radius:7px;padding:9px 14px;font-size:11px;line-height:1.9;">
+      <div>${lampIcon} <strong>Saxo margin nu: ${fmt(marginNu,1)}%</strong>${extraTekst}</div>
+      <div style="color:${kleur}">${tekst}</div>
+    </div>`;
+  } else if(marginNuEl) {
+    marginNuEl.innerHTML = '';
+  }
+}
+
+function resetLampen() {
+  ['lamp-green','lamp-orange','lamp-red','lamp-call-green','lamp-call-orange','lamp-call-red',
+   'lamp-margin-green','lamp-margin-orange','lamp-margin-red'].forEach(id=>document.getElementById(id).className='lamp');
+  ['stoplicht-tekst','stoplicht-call-tekst'].forEach(id=>set(id,''));
+  set('stoplicht-margin-tekst','');
+  set('stoplicht-margin-msg','');
+  set('stoplicht-margin-sub','');
+}
+
+function setLamp(kant,restPct) {
+  const pre=kant==='put'?'lamp':'lamp-call';
+  const tekst=kant==='put'?'stoplicht-tekst':'stoplicht-call-tekst';
+  const msg=kant==='put'?'stoplicht-msg':'stoplicht-call-msg';
+  ['green','orange','red'].forEach(c=>document.getElementById(pre+'-'+c).className='lamp');
+  if(restPct===null) return;
+  if(restPct>50){document.getElementById(pre+'-green').className='lamp on-green';set(tekst,'VEILIG');set(msg,'Buffer: '+fmt(restPct,1)+'%');}
+  else if(restPct>25){document.getElementById(pre+'-orange').className='lamp on-orange';set(tekst,'ALERT');set(msg,'Buffer: '+fmt(restPct,1)+'% — let op');}
+  else if(restPct>0){document.getElementById(pre+'-red').className='lamp on-red';set(tekst,'GEVAAR');set(msg,'Buffer: '+fmt(restPct,1)+'% — overweeg doorrol');}
+  else{document.getElementById(pre+'-red').className='lamp on-red';set(tekst,'IN THE MONEY');set(msg,'Strike doorbroken!');}
+}
+
+function setLampStrike(kant, punten, drempels, isvrijdag) {
+  const pre = kant==='put' ? 'lamp' : 'lamp-call';
+  const tekst = kant==='put' ? 'stoplicht-tekst' : 'stoplicht-call-tekst';
+  const msg = kant==='put' ? 'stoplicht-msg' : 'stoplicht-call-msg';
+  ['green','orange','red'].forEach(c=>document.getElementById(pre+'-'+c).className='lamp');
+  if(punten > drempels.oranje) {
+    document.getElementById(pre+'-green').className='lamp on-green';
+    set(tekst,'VEILIG'); set(msg, punten+' pts van strike — ruim');
+  } else if(punten > drempels.rood) {
+    document.getElementById(pre+'-orange').className='lamp on-orange';
+    set(tekst,'ALERT'); set(msg, punten+' pts van strike — let op');
+  } else if(punten > 0) {
+    document.getElementById(pre+'-red').className='lamp on-red';
+    set(tekst, isvrijdag ? 'VRIJDAG' : 'GEVAAR');
+    set(msg, isvrijdag ? punten+' pts ('+fmt(punten/(nu||ref||1)*100,1)+'%) — expiratie vandaag 12:00' : punten+' pts ('+fmt(punten/(nu||ref||1)*100,1)+'%) — overweeg doorrol');
+  } else {
+    document.getElementById(pre+'-red').className='lamp on-red';
+    set(tekst,'IN THE MONEY'); set(msg,'Strike doorbroken!');
+  }
+}
+
+function setLampMargin(marginNu, marginInstap) {
+  ['lamp-margin-green','lamp-margin-orange','lamp-margin-red'].forEach(id=>document.getElementById(id).className='lamp');
+  if(!marginNu || marginNu <= 0) {
+    set('stoplicht-margin-tekst','');
+    set('stoplicht-margin-msg','');
+    set('stoplicht-margin-sub','');
+    return;
+  }
+  let lampId, tekst, msg;
+  if(marginNu >= 116) {
+    lampId='lamp-margin-red'; tekst='ACTIE'; msg='Margin ≥116% — overweeg direct doorrol';
+  } else if(marginNu >= 101) {
+    lampId='lamp-margin-orange'; tekst='ALERT'; msg='Margin '+fmt(marginNu,1)+'% — bewaken (101–115% zone)';
+  } else {
+    lampId='lamp-margin-green'; tekst='NORMAAL'; msg='Margin '+fmt(marginNu,1)+'% — ruim binnen normen';
+  }
+  document.getElementById(lampId).className='lamp on-'+lampId.replace('lamp-margin-','');
+  set('stoplicht-margin-tekst', tekst);
+  set('stoplicht-margin-msg', msg);
+  // Delta t.o.v. instapmargin
+  if(marginInstap && marginInstap > 0) {
+    const opgelopen = marginNu - marginInstap;
+    const klOpl = opgelopen > 15 ? 'var(--red)' : opgelopen > 5 ? 'var(--orange)' : 'var(--green)';
+    document.getElementById('stoplicht-margin-sub').innerHTML =
+      'Instap: '+fmt(marginInstap,1)+'% → nu: '+fmt(marginNu,1)+'% · delta: <strong style="color:'+klOpl+'">'+(opgelopen>=0?'+':'')+fmt(opgelopen,1)+'%</strong>';
+  } else {
+    set('stoplicht-margin-sub','');
+  }
+}
+
+function updatePosBalk(nu,put,call,ref) {
+  if(!nu||!put||!call) return;
+  const lo=put*0.97,hi=call*1.03,range=hi-lo;
+  const putPos=(put-lo)/range*100,callPos=(call-lo)/range*100;
+  const nuPos=Math.max(0,Math.min(100,(nu-lo)/range*100));
+  document.getElementById('put-marker').style.left=putPos+'%';
+  document.getElementById('call-marker').style.left=callPos+'%';
+  document.getElementById('now-marker').style.left=nuPos+'%';
+  set('bar-put-label','PUT '+fmt(put,0));
+  set('bar-call-label','CALL '+fmt(call,0));
+  set('bar-mid-label',ref?'REF '+fmt(ref,0):'Nu '+fmt(nu,0));
+  const fill=document.getElementById('pos-bar-fill');
+  fill.style.background=(nu>put&&nu<call)?'var(--green-bg)':'var(--red-bg)';
+  fill.style.left=putPos+'%';fill.style.width=(callPos-putPos)+'%';
+}
+
+// ═══════════════════════════════════════════════════════
+// SNELKOPPELING DOORROL
+// ═══════════════════════════════════════════════════════
+function snelkoppelingDoorrol() {
+  const nu=getVal('inp-nu'), vstoxx=getVal('inp-vstoxx-nu')||getVal('inp-vstoxx-instap');
+  if(!nu||!vstoxx) return;
+  document.getElementById('doorrol-vstoxx').value=vstoxx;
+  document.getElementById('sce-bear-koers').value=nu;
+  document.getElementById('doorrol-prefill-msg').classList.remove('hidden');
+  updateDoorrol();
+  document.getElementById('blok-doorrol').scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(()=>document.getElementById('doorrol-prefill-msg').classList.add('hidden'),5000);
+}
+
+// ═══════════════════════════════════════════════════════
+// BLOK 3: DOORROL CALCULATOR
+// ═══════════════════════════════════════════════════════
+function berekenDoorrolScenario(koers,vstoxx,kant,tbkPut,tbkCall,cnt,restDagen) {
+  restDagen = restDagen || 3;
+  const looptijdFactor = Math.sqrt(252 / restDagen);
+  const dagLabel = ['','Do','Wo','Di','Ma'][restDagen] || restDagen+'d';
+  if(!koers||!vstoxx) return '<div class="tip">Vul koers en VSTOXX in</div>';
+  const mdl = getModel(vstoxx);
+  const isIntradag = mdl === 'intradag';
+  const mdlBadge = isIntradag
+    ? '<span style="background:#fff0e8;color:#8b4500;border:1px solid #e0a878;border-radius:4px;font-size:9px;padding:2px 6px;font-weight:600;letter-spacing:.06em;margin-left:6px;">O→LOW/HIGH MODEL</span>'
+    : '<span style="background:var(--blue-bg);color:var(--blue);border:1px solid #a8c0e0;border-radius:4px;font-size:9px;padding:2px 6px;font-weight:600;letter-spacing:.06em;margin-left:6px;">O→CLOSE MODEL</span>';
+
+  let html=`<div style="font-size:10px;color:var(--text3);margin-bottom:8px;">
+    VSTOXX ${fmt(vstoxx,1)} · <strong>${restDagen} dag${restDagen>1?'en':''} tot exp. (${dagLabel})</strong> → ${isIntradag?'intradag veilige strikes aanbevolen':'slotbasis strikes aanbevolen'} ${mdlBadge}</div>`;
+  html+='<table class="strike-table"><thead><tr><th style="text-align:left;">P-niveau</th>';
+  if(kant!=='call') html+=`<th>PUT${isIntradag?' (intradag)':''}</th><th>Buffer</th>`;
+  if(kant!=='put')  html+=`<th>CALL${isIntradag?' (intradag)':''}</th><th>Buffer</th>`;
+  html+='<th>Netto P&L</th></tr></thead><tbody>';
+
+  [95,97,99].forEach((p,i)=>{
+    const lbl=['P95 offensief','P97 midden ★','P99 defensief'][i];
+    const isRec=p===97;
+    html+=`<tr${isRec?' class="recommended"':''}>`;
+    html+=`<td>${lbl}</td>`;
+    let pnl=0;
+    if(tbkPut&&kant!=='call') pnl-=tbkPut*CONTRACTGROOTTE*cnt;
+    if(tbkCall&&kant!=='put') pnl-=tbkCall*CONTRACTGROOTTE*cnt;
+
+    if(kant!=='call'){
+      const buf=vstoxxBuffer(vstoxx,p,'put');
+      const closeStrike=Math.round(koers*(1-buf)/25)*25;
+      const strike = isIntradag ? getOlowStrike(vstoxx,p,'put',koers,closeStrike) : closeStrike;
+      const est=koers*(vstoxx/100/looptijdFactor)*0.35;
+      pnl+=est*CONTRACTGROOTTE*cnt;
+      const kloof = closeStrike - strike;
+      html+=`<td><strong>${fmt(strike,0)}</strong>${isIntradag&&kloof>0?` <span style="font-size:9px;color:var(--text3);">(+${fmt(kloof,0)}pts)</span>`:''}</td>`;
+      html+=`<td>${fmt(koers-strike,0)} pts (${fmt(buf*100,1)}%)</td>`;
+    }
+    if(kant!=='put'){
+      const buf=vstoxxBuffer(vstoxx,p,'call');
+      const closeStrike=Math.round(koers*(1+buf)/25)*25;
+      const strike = isIntradag ? getOlowStrike(vstoxx,p,'call',koers,closeStrike) : closeStrike;
+      const est=koers*(vstoxx/100/looptijdFactor)*0.25;
+      pnl+=est*CONTRACTGROOTTE*cnt;
+      const kloof = strike - closeStrike;
+      html+=`<td><strong>${fmt(strike,0)}</strong>${isIntradag&&kloof>0?` <span style="font-size:9px;color:var(--text3);">(+${fmt(kloof,0)}pts)</span>`:''}</td>`;
+      html+=`<td>${fmt(strike-koers,0)} pts (${fmt(buf*100,1)}%)</td>`;
+    }
+    html+=`<td style="color:${pnl>=0?'var(--green)':'var(--red)'};">${fmtEur(pnl)}</td></tr>`;
+  });
+  html+='</tbody></table>';
+  return html;
+}
+
+function updateDoorrol() {
+  const vstoxx=getVal('doorrol-vstoxx')||getVal('inp-vstoxx-nu');
+  const tbkPut=getVal('doorrol-tbk-put'), tbkCall=getVal('doorrol-tbk-call');
+  const kant=document.getElementById('doorrol-kant').value;
+  const cnt=getVal('inp-cnt')||30;
+  const dagEl=document.getElementById('doorrol-dag');
+  const restDagen=dagEl?parseInt(dagEl.value)||3:3;
+  [['sce-bear-koers','bear-result'],['sce-neut-koers','neut-result'],['sce-bull-koers','bull-result']].forEach(([inp,res])=>{
+    const k=getVal(inp);
+    setHTML(res,k&&vstoxx?berekenDoorrolScenario(k,vstoxx,kant,tbkPut,tbkCall,cnt,restDagen):'<div class="tip">Voer koers in</div>');
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// BLOK 4: verplaatst naar rekentool_v1.html
+
+function bouwRegimeTabel() {
+  const tbody=document.getElementById('regime-tbody');
+  [12,15,17,19,21,24,28,32,38].forEach(v=>{
+    const r=vstoxxRegime(v);
+    const kl=r.kleur==='green'?'var(--green)':r.kleur==='orange'?'var(--orange)':'var(--red)';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><strong>${v}</strong></td><td><span class="tag" style="background:${kl}15;color:${kl};border:1px solid ${kl}40;">${r.naam}</span></td><td>${fmt(vstoxxBuffer(v,95,'put')*100,1)}%</td><td><strong>${fmt(vstoxxBuffer(v,97,'put')*100,1)}%</strong></td><td>${fmt(vstoxxBuffer(v,99,'put')*100,1)}%</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// BLOK 6: TOP 10 + TRUMP
+// ═══════════════════════════════════════════════════════
+let activeTab='put';
+function showTab(tab) {
+  activeTab=tab;
+  ['put','call','trump'].forEach(t=>{
+    document.getElementById('panel-'+t).style.display=t===tab?'block':'none';
+    const btn=document.getElementById('tab-'+t);
+    btn.style.background=t===tab?(t==='put'?'var(--red)':t==='call'?'var(--blue)':'var(--text)'):'transparent';
+    btn.style.color=t===tab?'#fff':'var(--text)';
+    btn.style.border=t===tab?'none':'1.5px solid var(--border)';
+  });
+  // Vul tabellen bij elke klik (ook als init mislukte)
+  try { buildTop10(); } catch(e) { console.warn('buildTop10:', e.message); }
+}
+
+function buildTop10() {
+  // Sorteer data op datum (oudste eerst) voor vrijdag→vrijdag berekening
+  const data=getAllData().sort((a,b)=>{
+    const da=new Date(a.date.replace(/(\d+)\/(\d+)\/(\d+)/,'$3-$1-$2'));
+    const db=new Date(b.date.replace(/(\d+)\/(\d+)\/(\d+)/,'$3-$1-$2'));
+    return da-db;
+  });
+
+  // Bereken vrijdag→vrijdag beweging (close deze week vs close vorige week)
+  function vrVrPct(r, idx) {
+    if(idx===0) return ((r.close-r.open)/r.open)*100; // eerste week: fallback O→C
+    const prev=data[idx-1];
+    return ((r.close-prev.close)/prev.close)*100;
+  }
+
+  const dataMetPct = data.map((r,i)=>({...r, pct: vrVrPct(r,i)}));
+
+  // Top 10 PUT (grootste dalingen vrijdag→vrijdag)
+  const putSorted=[...dataMetPct].sort((a,b)=>a.pct-b.pct).slice(0,10);
+  setHTML('top10-put-table', buildExtremeTabel(putSorted,false));
+
+  // Top 10 CALL (grootste stijgingen vrijdag→vrijdag)
+  const callSorted=[...dataMetPct].sort((a,b)=>b.pct-a.pct).slice(0,10);
+  setHTML('top10-call-table', buildExtremeTabel(callSorted,true));
+
+  // Trump-era (vanaf 20-01-2025)
+  const trumpData=dataMetPct.filter(r=>{
+    const d=new Date(r.date.replace(/(\d+)\/(\d+)\/(\d+)/,'$3-$1-$2'));
+    return d>=TRUMP_START;
+  });
+  const tPutSorted=[...trumpData].sort((a,b)=>a.pct-b.pct).slice(0,3);
+  const tCallSorted=[...trumpData].sort((a,b)=>b.pct-a.pct).slice(0,3);
+  setHTML('trump-put-table',buildExtremeTabel(tPutSorted,false));
+  setHTML('trump-call-table',buildExtremeTabel(tCallSorted,true));
+
+  const tBreaches=trumpData.filter(r=>Math.abs(r.pct)>3).length;
+  const tAvgMove=trumpData.length>0?(trumpData.reduce((s,r)=>s+Math.abs(r.pct),0)/trumpData.length):0;
+  setHTML('trump-stats',`<div class="grid4" style="gap:10px;">
+    <div class="stat r"><div class="stat-label">Weken 2025–heden</div><div class="stat-val r">${trumpData.length}</div></div>
+    <div class="stat o"><div class="stat-label">&gt;3% bewegingen</div><div class="stat-val o">${tBreaches}</div><div class="stat-sub">${fmt(tBreaches/trumpData.length*100,0)}% van de weken</div></div>
+    <div class="stat a"><div class="stat-label">Gem. abs. beweging</div><div class="stat-val a">${fmt(tAvgMove,2)}%</div></div>
+    <div class="stat b"><div class="stat-label">Periode start</div><div class="stat-val b" style="font-size:13px;">20-01-2025</div></div>
+  </div>`);
+}
+
+function buildExtremeTabel(rijen, isCall) {
+  let html='<table class="strike-table"><thead><tr><th style="text-align:left;">#</th><th style="text-align:left;">Week (vr)</th><th>Vr→Vr %</th><th>Prev close</th><th>Close</th><th style="text-align:left;font-size:9px;">Gebeurtenis</th></tr></thead><tbody>';
+  rijen.forEach((r,i)=>{
+    const pct=r.pct;
+    const kl=isCall?'var(--blue)':'var(--red)';
+    const ev=WEEK_EVENTS[r.date]||'';
+    const [dm,dd,dy]=r.date.split('/'); const datumNL=`${dd}/${dm}/${dy}`;
+    html+=`<tr><td>${i+1}</td><td style="white-space:nowrap;">${datumNL}</td><td style="color:${kl};font-weight:600;">${pct>=0?'+':''}${fmt(pct,2)}%</td><td>${fmt(r.pct!==null&&i>0?r.close/(1+r.pct/100):r.open,0)}</td><td>${fmt(r.close,0)}</td><td style="font-size:10px;color:var(--text2);">${ev}</td></tr>`;
+  });
+  html+='</tbody></table>';
+  return html;
+}
+
+
+// ═══════════════════════════════════════════════════════
+// BLOK 7: DAGELIJKSE INVOER
+// ═══════════════════════════════════════════════════════
+const STORAGE_DAG='oesx_dagdata_v2';
+const DAG_NAMEN=['Ma','Di','Wo','Do','Vr'];
+
+async function syncDagDataVanCloud() {
+  if(!supabaseOK) return;
+  try {
+    const { data, error } = await sb.from('dagdata').select('*').eq('gebruiker', activeUser).order('datum', {ascending: true});
+    if(error) throw error;
+    if(!data || data.length===0) return;
+    // Merge cloud data into localStorage
+    let all = getAllDagData().filter(d=>d.user!==activeUser);
+    const cloudEntries = data.map(d=>({
+      datum: d.datum, open: d.koers_open, high: d.koers_high, low: d.koers_low, close: d.koers_close,
+      vstoxxOpen: d.vstoxx_open, vstoxxClose: d.vstoxx_close,
+      weekKey: d.week_key, user: activeUser, opgeslagenOp: d.opgeslagen_op
+    }));
+    localStorage.setItem(STORAGE_DAG, JSON.stringify([...all, ...cloudEntries]));
+  } catch(e) { console.warn('Sync dagdata mislukt:', e.message); }
+}
+
+async function syncUserWeeksVanCloud() {
+  if(!supabaseOK) return;
+  try {
+    // Haal ALLE users' weken op — Sem ziet ook Sven's ingevoerde weken in Top 10/Trump-O-meter
+    const { data, error } = await sb.from('user_weeks').select('*');
+    if(error) throw error;
+    if(!data || data.length===0) return;
+    // Vervang alle cloud-weken in localStorage (behoud eigen user-tag per rij)
+    let local = JSON.parse(localStorage.getItem('oesx_user_weeks_v2')||'[]');
+    const cloudDates = data.map(d=>d.week_datum+'_'+d.gebruiker);
+    // Verwijder lokale entries die nu vanuit cloud komen
+    local = local.filter(w=>!cloudDates.includes(w.date+'_'+w.user));
+    const cloudWeeks = data.map(d=>({
+      date: d.week_datum, open: d.week_open, close: d.week_close,
+      high: d.week_high, low: d.week_low, vstoxx: d.vstoxx, user: d.gebruiker
+    }));
+    localStorage.setItem('oesx_user_weeks_v2', JSON.stringify([...local, ...cloudWeeks]));
+  } catch(e) { console.warn('Sync user_weeks mislukt:', e.message); }
+}
+function getAllDagData() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_DAG)||'[]'); } catch(e){return[];}
+}
+function getDagData() {
+  return getAllDagData().filter(d=>d.user===activeUser);
+}
+function getHuidigWeekKey() {
+  const ref=getText('inp-datum');
+  if(ref) return ref;
+  const nu=new Date();
+  const dag=nu.getDay();
+  const vrijdag=new Date(nu);
+  const terugNaarVr=dag===5?0:dag===6?1:(dag+2)%7;
+  vrijdag.setDate(nu.getDate()-terugNaarVr);
+  return vrijdag.toLocaleDateString('nl-NL',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+
+async function slaaDagOp() {
+  const datum=document.getElementById('dag-datum').value;
+  if(!datum){toonDagMsg('⚠ Vul datum in','orange');return;}
+  const open=getVal('dag-open'),high=getVal('dag-high'),low=getVal('dag-low'),close=getVal('dag-close');
+  if(!open||!high||!low||!close){toonDagMsg('⚠ Vul OHLC in','orange');return;}
+  if(high<Math.max(open,close)||low>Math.min(open,close)){toonDagMsg('⚠ Controleer: high >= open/close, low <= open/close','orange');return;}
+  const vstoxxOpen=getVal('dag-vstoxx-open'), vstoxxClose=getVal('dag-vstoxx-close');
+  const weekKey=getHuidigWeekKey();
+  const entry={datum,open,high,low,close,vstoxxOpen,vstoxxClose,weekKey,user:activeUser,opgeslagenOp:new Date().toISOString()};
+
+  // Lokaal opslaan
+  let all=getAllDagData();
+  const idx=all.findIndex(d=>d.datum===datum&&d.user===activeUser);
+  if(idx>=0) all[idx]=entry; else all.push(entry);
+  localStorage.setItem(STORAGE_DAG,JSON.stringify(all));
+
+  // Cloud opslaan
+  if(supabaseOK) {
+    try {
+      const { error } = await sb.from('dagdata').upsert({
+        gebruiker: activeUser, datum: datum, week_key: weekKey,
+        koers_open: open, koers_high: high, koers_low: low, koers_close: close,
+        vstoxx_open: vstoxxOpen, vstoxx_close: vstoxxClose,
+        opgeslagen_op: new Date().toISOString()
+      }, { onConflict: 'gebruiker,datum' });
+      if(error) throw error;
+      toonDagMsg('☁️ Opgeslagen in cloud: '+datum,'green');
+    } catch(e) { toonDagMsg('💾 Lokaal opgeslagen (cloud fout)','orange'); }
+  } else {
+    toonDagMsg('💾 Lokaal opgeslagen: '+datum,'green');
+  }
+  ['dag-open','dag-high','dag-low','dag-close','dag-vstoxx-open','dag-vstoxx-close'].forEach(id=>document.getElementById(id).value='');
+  refreshDagData();
+}
+
+async function verwijderDag() {
+  const datum=document.getElementById('dag-datum').value;
+  if(!datum){toonDagMsg('⚠ Vul datum in','orange');return;}
+  if(!confirm('Dag '+datum+' verwijderen?')) return;
+  localStorage.setItem(STORAGE_DAG,JSON.stringify(getAllDagData().filter(d=>!(d.datum===datum&&d.user===activeUser))));
+  if(supabaseOK) {
+    try {
+      await sb.from('dagdata').delete().eq('gebruiker',activeUser).eq('datum',datum);
+    } catch(e) { console.warn('Cloud verwijder fout:', e.message); }
+  }
+  toonDagMsg('✓ Verwijderd: '+datum,'green');
+  refreshDagData();
+}
+
+function toonDagMsg(tekst,type) {
+  const el=document.getElementById('dag-msg');
+  el.style.color=type==='green'?'var(--green)':type==='orange'?'var(--orange)':'var(--red)';
+  el.textContent=tekst;
+  setTimeout(()=>el.textContent='',4000);
+}
+
+function refreshDagData() {
+  const data=getDagData();
+  const weekKey=getHuidigWeekKey();
+  const weekData=data.filter(d=>d.weekKey===weekKey).sort((a,b)=>a.datum.localeCompare(b.datum));
+  document.getElementById('week-label').textContent=weekKey?'Week van '+weekKey:'—';
+  document.getElementById('week-user-label').textContent=activeUser;
+
+  const nu=new Date();
+  const vandaagDag=nu.getDay();
+  const maandag=new Date(nu);
+  maandag.setDate(nu.getDate()-(vandaagDag===0?-1:vandaagDag===1?0:vandaagDag-1));
+
+  const pills=document.getElementById('week-pills');
+  pills.innerHTML='';
+  for(let i=0;i<5;i++){
+    const dagDatum=new Date(maandag);
+    dagDatum.setDate(maandag.getDate()+i);
+    const dagStr=dagDatum.toISOString().slice(0,10);
+    const ingevoerd=weekData.find(d=>d.datum===dagStr);
+    const isVandaag=dagDatum.toDateString()===nu.toDateString();
+    const isGeweest=dagDatum<=nu;
+    const pill=document.createElement('div');
+    pill.className='dag-pill'+(ingevoerd?' heeft-data':isGeweest?'':' leeg')+(isVandaag?' vandaag':'');
+    pill.innerHTML=`<div class="dag-pill-naam">${DAG_NAMEN[i]}</div><div class="dag-pill-koers">${ingevoerd?fmt(ingevoerd.close,0):isGeweest?'—':'·'}</div><div class="dag-pill-vstoxx">${ingevoerd&&ingevoerd.vstoxxClose?'V2TX '+fmt(ingevoerd.vstoxxClose,1):''}</div>`;
+    if(ingevoerd){pill.style.cursor='pointer';pill.onclick=()=>laadDagInFormulier(ingevoerd);}
+    else if(isVandaag||isGeweest){pill.style.cursor='pointer';pill.onclick=()=>{document.getElementById('dag-datum').value=dagStr;document.getElementById('dag-open').focus();};}
+    pills.appendChild(pill);
+  }
+
+  // Running stats
+  if(weekData.length>0){
+    document.getElementById('running-stats').style.display='grid';
+    const weekOpen=getVal('inp-ref');
+    const weekHigh=Math.max(...weekData.map(d=>d.high));
+    const weekLow=Math.min(...weekData.map(d=>d.low));
+    const last=weekData[weekData.length-1];
+    set('rstat-open',weekOpen?fmt(weekOpen,0):'— (vul ref. in blok 1)');
+    set('rstat-high',fmt(weekHigh,0));
+    set('rstat-low',fmt(weekLow,0));
+    set('rstat-close',fmt(last.close,0));
+    set('rstat-vstoxx',last.vstoxxClose?'V2TX close: '+fmt(last.vstoxxClose,1)+(last.vstoxxOpen?' / open: '+fmt(last.vstoxxOpen,1):''):'VSTOXX: —');
+  } else {
+    document.getElementById('running-stats').style.display='none';
+  }
+
+  // Tabel
+  if(weekData.length===0){
+    setHTML('dagdata-tabel','<div class="tip">Nog geen dagdata voor deze week ingevoerd.</div>');
+  } else {
+    let html=`<table class="dag-table"><thead><tr><th style="text-align:left;">Dag</th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>V2TX O</th><th>V2TX C</th></tr></thead><tbody>`;
+    weekData.forEach(d=>{
+      const dagNaam=new Date(d.datum).toLocaleDateString('nl-NL',{weekday:'short',day:'numeric',month:'short'});
+      const oc=((d.close-d.open)/d.open*100);
+      const kl=oc>=0?'var(--green)':'var(--red)';
+      const isVandaag=d.datum===nu.toISOString().slice(0,10);
+      html+=`<tr${isVandaag?' class="today-row"':''}><td>${dagNaam}</td><td>${fmt(d.open,0)}</td><td style="color:var(--green);">${fmt(d.high,0)}</td><td style="color:var(--red);">${fmt(d.low,0)}</td><td style="color:${kl};font-weight:600;">${fmt(d.close,0)} <span style="font-size:9px;">(${oc>=0?'+':''}${oc.toFixed(1)}%)</span></td><td style="color:var(--text3);">${d.vstoxxOpen?fmt(d.vstoxxOpen,1):'—'}</td><td style="color:var(--text3);">${d.vstoxxClose?fmt(d.vstoxxClose,1):'—'}</td></tr>`;
+    });
+    html+='</tbody></table>';
+    setHTML('dagdata-tabel',html);
+  }
+
+  // Week afsluiten
+  const vrijdag=new Date(maandag);
+  vrijdag.setDate(maandag.getDate()+4);
+  const vrijdagStr=vrijdag.toISOString().slice(0,10);
+  const heeftVrijdag=weekData.some(d=>d.datum===vrijdagStr);
+  const wrap=document.getElementById('week-afsluiten-wrap');
+  if(heeftVrijdag&&weekData.length>=2) wrap.classList.remove('hidden');
+  else wrap.classList.add('hidden');
+}
+
+function laadDagInFormulier(dag) {
+  document.getElementById('dag-datum').value=dag.datum;
+  document.getElementById('dag-open').value=dag.open;
+  document.getElementById('dag-high').value=dag.high;
+  document.getElementById('dag-low').value=dag.low;
+  document.getElementById('dag-close').value=dag.close;
+  if(dag.vstoxxOpen) document.getElementById('dag-vstoxx-open').value=dag.vstoxxOpen;
+  if(dag.vstoxxClose) document.getElementById('dag-vstoxx-close').value=dag.vstoxxClose;
+  document.getElementById('dag-open').focus();
+  toonDagMsg('Dag geladen — pas aan en sla opnieuw op','orange');
+}
+
+async function sluitWeekAf() {
+  const weekData=getDagData().filter(d=>d.weekKey===getHuidigWeekKey()).sort((a,b)=>a.datum.localeCompare(b.datum));
+  const weekOpen=getVal('inp-ref');
+  if(!weekOpen){alert('Vul referentiekoers (blok 1) in als week open.');return;}
+  const weekClose=weekData[weekData.length-1].close;
+  const weekHigh=Math.max(...weekData.map(d=>d.high));
+  const weekLow=Math.min(...weekData.map(d=>d.low));
+  const vstoxxClose=weekData[weekData.length-1].vstoxxClose;
+  if(!confirm(`Week afsluiten?\nOpen: ${weekOpen} · High: ${weekHigh} · Low: ${weekLow} · Close: ${weekClose}\nVSTOXX: ${vstoxxClose||'—'}`)) return;
+  const weekKey=getHuidigWeekKey();
+  const p=weekKey.split('-');
+  const dateFormatted=p[1]+'/'+p[0]+'/'+p[2];
+  const entry={date:dateFormatted,open:weekOpen,close:weekClose,high:weekHigh,low:weekLow,vstoxx:vstoxxClose,user:activeUser,addedAt:new Date().toISOString()};
+  const userWeeks=JSON.parse(localStorage.getItem('oesx_user_weeks_v2')||'[]');
+  const idx=userWeeks.findIndex(w=>w.date===dateFormatted&&w.user===activeUser);
+  if(idx>=0) userWeeks[idx]=entry; else userWeeks.push(entry);
+  localStorage.setItem('oesx_user_weeks_v2',JSON.stringify(userWeeks));
+
+  if(supabaseOK) {
+    try {
+      const { error } = await sb.from('user_weeks').upsert({
+        gebruiker: activeUser, week_datum: dateFormatted,
+        week_open: weekOpen, week_close: weekClose, week_high: weekHigh, week_low: weekLow,
+        vstoxx: vstoxxClose, toegevoegd_op: new Date().toISOString()
+      }, { onConflict: 'gebruiker,week_datum' });
+      if(error) throw error;
+      alert('☁️ Week opgeslagen in cloud! Top 10 bijgewerkt.');
+    } catch(e) { alert('💾 Week lokaal opgeslagen (cloud fout: '+e.message+')'); }
+  } else {
+    alert('💾 Week lokaal opgeslagen! Top 10 bijgewerkt.');
+  }
+  buildTop10();
+}
+
+// ═══════════════════════════════════════════════════════
+// LOKALE OPSLAG
+// ═══════════════════════════════════════════════════════
+function positieNaarObject() {
+  return {datum:getText('inp-datum'),ref:getVal('inp-ref'),put:getVal('inp-put'),putPrem:getVal('inp-put-prem'),
+    call:getVal('inp-call'),callPrem:getVal('inp-call-prem'),cnt:getVal('inp-cnt'),exp:getText('inp-exp'),
+    vstoxx:getVal('inp-vstoxx-nu'),vstoxxInstap:getVal('inp-vstoxx-instap'),
+    marginInstap:getVal('inp-margin-instap'),
+    profiel:document.getElementById('inp-profiel').value,user:activeUser,savedAt:new Date().toISOString()};
+}
+function objectNaarFormulier(pos) {
+  [['inp-datum','datum'],['inp-ref','ref'],['inp-put','put'],['inp-put-prem','putPrem'],
+   ['inp-call','call'],['inp-call-prem','callPrem'],['inp-cnt','cnt'],['inp-exp','exp'],
+   ['inp-vstoxx-nu','vstoxx'],['inp-vstoxx-instap','vstoxxInstap'],
+   ['inp-margin-instap','marginInstap']].forEach(([id,key])=>{
+    if(pos[key]!=null) document.getElementById(id).value=pos[key];
+  });
+  if(pos.profiel) document.getElementById('inp-profiel').value=pos.profiel;
+  updateAlles();
+}
+async function slaPositieOp() {
+  const pos = positieNaarObject();
+  // Altijd lokaal opslaan als backup
+  const all = JSON.parse(localStorage.getItem('oesx_posities_v2')||'{}');
+  all[activeUser] = pos;
+  localStorage.setItem('oesx_posities_v2', JSON.stringify(all));
+
+  const msg = document.getElementById('opslaan-msg');
+  if (supabaseOK) {
+    try {
+      const { error } = await sb.from('posities').upsert({
+        gebruiker: activeUser,
+        datum: pos.datum, ref_koers: pos.ref, put_strike: pos.put, put_premie: pos.putPrem,
+        call_strike: pos.call, call_premie: pos.callPrem, contracten: pos.cnt,
+        expiratie: pos.exp, vstoxx_nu: pos.vstoxx, vstoxx_instap: pos.vstoxxInstap,
+        margin_instap: pos.marginInstap,
+        profiel: pos.profiel, opgeslagen_op: new Date().toISOString()
+      }, { onConflict: 'gebruiker' });
+      if (error) throw error;
+      msg.textContent = '☁️ Opgeslagen in cloud ('+activeUser+') · '+new Date().toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'});
+    } catch(e) {
+      msg.textContent = '💾 Lokaal opgeslagen (cloud fout) · '+e.message;
+    }
+  } else {
+    msg.textContent = '💾 Lokaal opgeslagen ('+activeUser+') · '+new Date().toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'});
+  }
+  setTimeout(()=>msg.textContent='',4000);
+}
+function exportJSON() {
+  const obj={versie:'v17.3.14',gebruiker:activeUser,positie:positieNaarObject(),
+    dagdata:getAllDagData().filter(d=>d.user===activeUser),
+    userWeeks:JSON.parse(localStorage.getItem('oesx_user_weeks_v2')||'[]').filter(w=>w.user===activeUser),
+    exportAt:new Date().toISOString()};
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}));
+  a.download='oesx_'+activeUser+'_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+}
+function importJSON(event) {
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try {
+      const data=JSON.parse(e.target.result);
+      if(data.positie) objectNaarFormulier(data.positie);
+      if(data.dagdata){let all=getAllDagData().filter(d=>d.user!==activeUser);localStorage.setItem(STORAGE_DAG,JSON.stringify([...all,...data.dagdata]));}
+      if(data.userWeeks){let all=JSON.parse(localStorage.getItem('oesx_user_weeks_v2')||'[]').filter(w=>w.user!==activeUser);localStorage.setItem('oesx_user_weeks_v2',JSON.stringify([...all,...data.userWeeks]));}
+      refreshDagData();buildTop10();
+      document.getElementById('opslaan-msg').textContent='✓ Geïmporteerd voor '+activeUser;
+    } catch(err){alert('Ongeldig JSON bestand');}
+  };
+  reader.readAsText(file);event.target.value='';
+}
+async function autoLaad() {
+  // Probeer eerst Supabase
+  if (supabaseOK) {
+    try {
+      const { data, error } = await sb.from('posities').select('*').eq('gebruiker', activeUser).single();
+      if (!error && data) {
+        const pos = {
+          datum: data.datum, ref: data.ref_koers, put: data.put_strike, putPrem: data.put_premie,
+          call: data.call_strike, callPrem: data.call_premie, cnt: data.contracten,
+          exp: data.expiratie, vstoxx: data.vstoxx_nu, vstoxxInstap: data.vstoxx_instap,
+          marginInstap: data.margin_instap,
+          profiel: data.profiel, savedAt: data.opgeslagen_op
+        };
+        objectNaarFormulier(pos);
+        const d = new Date(data.opgeslagen_op);
+        const msg = document.getElementById('opslaan-msg');
+        msg.textContent = '☁️ Geladen uit cloud ('+activeUser+') · '+d.toLocaleString('nl-NL',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+        setTimeout(()=>msg.textContent='',5000);
+        return;
+      }
+    } catch(e) { console.warn('Cloud laden mislukt, gebruik lokaal:', e.message); }
+  }
+  // Fallback: localStorage
+  const all = JSON.parse(localStorage.getItem('oesx_posities_v2')||'{}');
+  const pos = all[activeUser];
+  if (!pos) return;
+  objectNaarFormulier(pos);
+  const msg = document.getElementById('opslaan-msg');
+  msg.textContent = '💾 Geladen uit lokale opslag ('+activeUser+')';
+  setTimeout(()=>msg.textContent='',5000);
+}
+function resetPositie() {
+  if(!confirm('Huidige invoer wissen?')) return;
+  ['inp-datum','inp-ref','inp-put','inp-put-prem','inp-call','inp-call-prem','inp-exp'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('inp-cnt').value=30;
+  document.getElementById('positie-stats').style.display='none';
+  updateAlles();
+}
+
+
+// ═══════════════════════════════════════════════════════
+// BLOK 5: BREACH KANS GRAFIEK PER VSTOXX REGIME
+// Dynamisch — gebaseerd op getAllData() incl. user_weeks
+// Maatstaf: vrijdag close → volgende week low/high
+// ═══════════════════════════════════════════════════════
+
+
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  // Herstel gebruiker
+  const _uBtn=document.getElementById('btn-user-'+activeUser.toLowerCase()); if(_uBtn) _uBtn.className='user-btn active';
+  document.getElementById('week-user-label').textContent=activeUser;
+  // Blok 7 alleen zichtbaar voor Sven
+  const _blokDag = document.getElementById('blok-dagelijks');
+  if(_blokDag) _blokDag.style.display = activeUser==='Sven' ? 'block' : 'none';
+
+  bouwRegimeTabel();
+  showTab('put');
+  updateVstoxxHeader();
+
+  // Default datum vandaag in dagdata
+  document.getElementById('dag-datum').value=new Date().toISOString().slice(0,10);
+
+  try {
+    // Initialiseer Supabase
+    await initSupabase();
+
+    // Sync data van cloud naar lokaal
+    if(supabaseOK) {
+      await syncDagDataVanCloud();
+      await syncUserWeeksVanCloud();
+    }
+
+    // Laad positie (cloud of lokaal)
+    await autoLaad();
+
+    refreshDagData();
+  } catch(e) {
+    console.warn('Init fout (niet fataal):', e.message);
+    refreshDagData();
+  }
+
+  // buildTop10 altijd uitvoeren, ongeacht cloud-status
+  try { buildTop10(); } catch(e) { console.warn('buildTop10 fout:', e.message); }
+});
+</script>
+</body>
+</html>
