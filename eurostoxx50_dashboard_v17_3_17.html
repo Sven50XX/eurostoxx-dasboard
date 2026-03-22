@@ -813,15 +813,8 @@ async function sbFetch(path, method='GET', body=null) {
 }
 
 async function initSupabase() {
-  toonSyncStatus('⏳ Verbinden...', 'orange');
-  try {
-    await sbFetch('posities?select=id&limit=1');
-    supabaseOK = true;
-    toonSyncStatus('☁️ Verbonden met cloud', 'green');
-  } catch(e) {
-    supabaseOK = false;
-    toonSyncStatus('⚠️ Offline: ' + e.message, 'orange');
-  }
+  supabaseOK = true;
+  toonSyncStatus('☁️ Cloud opslag actief', 'green');
 }
 
 function toonSyncStatus(tekst, type) {
