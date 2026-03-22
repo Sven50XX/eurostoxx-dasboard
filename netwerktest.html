@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Supabase Netwerktest</title>
+<style>
+body { font-family: sans-serif; padding: 2rem; background: #f5f5f5; }
+.box { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border: 2px solid #ddd; }
+.box.groen { border-color: #22c55e; background: #f0fdf4; }
+.box.rood { border-color: #ef4444; background: #fef2f2; }
+.box.oranje { border-color: #f59e0b; background: #fffbeb; }
+h2 { margin: 0 0 0.5rem; font-size: 1.1rem; }
+p { margin: 0; font-size: 0.9rem; color: #555; }
+.groot { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.25rem; }
+</style>
+</head><body>
+
+<div class="box oranje" id="status-box">
+  <div class="groot" id="status-titel">⏳ Test bezig...</div>
+  <p id="status-detail">Verbinding testen met Supabase (max 5 seconden)</p>
+</div>
+
+<div class="box" id="detail-box" style="display:none">
+  <h2>Details</h2>
+  <p id="detail-tekst"></p>
+</div>
+
+<script>
+const URL_TEST = 'https://pwyanwyyrrqpjqnlmfzu.supabase.co/rest/v1/posities?select=id&limit=1';
+const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB3eWFud3l5cnJxcGpxbmxtZnp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxOTYzMjksImV4cCI6MjA4ODc3MjMyOX0.FVRmL3ZHxBlQ4WWeK6apcVIbxgkGodnzoHBqt9fi9nY';
+
+async function test() {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 5000);
+  const start = Date.now();
+  
+  try {
+    const resp = await fetch(URL_TEST, {
+      signal: controller.signal,
+      headers: {
+        'apikey': KEY,
+        'Authorization': 'Bearer ' + KEY
+      }
+    });
+    clearTimeout(timer);
+    const duur = Date.now() - start;
+    const tekst = await resp.text();
+    
+    if (resp.ok) {
+      toon('groen', '✅ Verbinding gelukt!', 
+        'HTTP ' + resp.status + ' in ' + duur + 'ms — Data: ' + tekst);
+    } else {
+      toon('rood', '❌ HTTP Fout: ' + resp.status,
+        'Response: ' + tekst + ' (' + duur + 'ms)');
+    }
+  } catch(e) {
+    clearTimeout(timer);
+    const duur = Date.now() - start;
+    if (e.name === 'AbortError') {
+      toon('rood', '⏱ Timeout na 5 seconden',
+        'Supabase reageert niet. Mogelijk geblokkeerd door netwerk of firewall. Duur: ' + duur + 'ms');
+    } else {
+      toon('rood', '❌ Netwerkfout: ' + e.name,
+        'Melding: ' + e.message + ' (' + duur + 'ms)');
+    }
+  }
+}
+
+function toon(kleur, titel, detail) {
+  const box = document.getElementById('status-box');
+  box.className = 'box ' + kleur;
+  document.getElementById('status-titel').textContent = titel;
+  document.getElementById('status-detail').textContent = '';
+  document.getElementById('detail-box').style.display = 'block';
+  document.getElementById('detail-tekst').textContent = detail;
+}
+
+test();
+</script>
+</body></html>
