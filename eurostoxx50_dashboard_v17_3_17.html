@@ -794,13 +794,22 @@ const SB_HEADERS = {
 };
 
 async function sbFetch(path, method='GET', body=null) {
-  const opts = { method, headers: SB_HEADERS };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
+  const opts = { method, headers: SB_HEADERS, signal: controller.signal };
   if (body) opts.body = JSON.stringify(body);
-  const resp = await fetch(SUPABASE_URL + '/rest/v1/' + path, opts);
-  const tekst = await resp.text();
-  const data = tekst ? JSON.parse(tekst) : null;
-  if (!resp.ok) throw new Error((data?.message || data?.error || resp.status) + ' (HTTP ' + resp.status + ')');
-  return data;
+  try {
+    const resp = await fetch(SUPABASE_URL + '/rest/v1/' + path, opts);
+    clearTimeout(timer);
+    const tekst = await resp.text();
+    const data = tekst ? JSON.parse(tekst) : null;
+    if (!resp.ok) throw new Error((data?.message || data?.error || resp.status) + ' (HTTP ' + resp.status + ')');
+    return data;
+  } catch(e) {
+    clearTimeout(timer);
+    if (e.name === 'AbortError') throw new Error('Timeout — Supabase reageert niet binnen 8 seconden');
+    throw e;
+  }
 }
 
 async function initSupabase() {
