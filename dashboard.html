@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<!--
+  OESX — VASTE INGANG DASHBOARD
+  ===============================================================
+  Dit is de ENIGE plaats in de hele repository waar het actuele
+  versienummer van het dashboard staat. Alle links naar het
+  dashboard wijzen naar dashboard.html, nooit naar een bestand
+  met een versienummer erin.
+
+  BIJ EEN NIEUWE DASHBOARDVERSIE: wijzig de regel hieronder die
+  begint met "const DOEL". Eén regel, één bestand. Verder niets.
+
+  WAAROM DIT BESTAAT: tot september 2026 codeerden dashboard en
+  rekentool elkaars versienummer hard in een link. Omdat beide
+  tools bewust op verschillende momenten worden opgeleverd, ging
+  dat drie keer mis — bugs #29, #37 en #53. De laatste keer opende
+  het dashboard nog rekentool v11.4 terwijl v11.6 live stond.
+  Een link naar een versie die je niet in dezelfde handeling
+  oplevert, kan per definitie verouderen.
+
+  Skill A v3.10 · OESX Project · OptionRhythm
+-->
+<title>OESX Dashboard — doorsturen…</title>
+<script>
+  const DOEL = 'eurostoxx50_dashboard_v19_22.html';   // ← ENIGE regel die bij een versiebump wijzigt
+
+  // replace() in plaats van href: deze pagina hoort niet in de
+  // browsergeschiedenis te blijven staan. Met href zou de terugknop
+  // de gebruiker hier weer naartoe sturen en meteen weer doorsturen.
+  window.location.replace(DOEL);
+</script>
+<meta http-equiv="refresh" content="0; url=eurostoxx50_dashboard_v19_22.html">
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         background:#f5f3ef; color:#3a3733; display:flex; align-items:center;
+         justify-content:center; min-height:100vh; margin:0; text-align:center; }
+  a { color:#8a6d3b; }
+</style>
+</head>
+<body>
+  <!-- Zichtbaar als JavaScript uit staat én de meta-refresh niet werkt. -->
+  <div>
+    <p>Doorsturen naar het OESX Dashboard…</p>
+    <p><a href="eurostoxx50_dashboard_v19_22.html">Klik hier als er niets gebeurt</a></p>
+  </div>
+</body>
+</html>
