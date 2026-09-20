@@ -3,31 +3,66 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>OESX Rekentool</title>
+<style>
+  body{font-family:system-ui,-apple-system,sans-serif;padding:32px 20px;text-align:center;color:#3d3a34;background:#faf8f5;}
+  .v{font-size:26px;font-weight:700;letter-spacing:.5px;margin:18px 0 6px;}
+  .k{font-size:12px;color:#8a8478;line-height:1.7;}
+  a{color:#b8763e;}
+</style>
 </head>
-<body style="font-family:system-ui,-apple-system,sans-serif;padding:40px;text-align:center;color:#3d3a34;">
-<p id="melding">Doorsturen naar de rekentool&hellip;</p>
+<body>
+<p class="k">OESX Instap Rekentool</p>
+<div class="v" id="versie">&hellip;</div>
+<p class="k" id="melding">Doorsturen&hellip;</p>
 <p id="vangnet"></p>
 <script>
 // ── VASTE INGANG — besluit B28 (Project State 77, coding-spelregels 2.4) ──
-// De bestandsnaam staat in dit bestand op PRECIES EEN plaats. Bij elke
-// versiebump wijzigt alleen de regel hieronder.
-// Uploadvolgorde: eerst het grote bestand, dan deze wijzer -- andersom wijst
-// de wijzer even naar een bestand dat er nog niet is.
+// De bestandsnaam staat in dit bestand op PRECIES EEN plaats.
+// Bij een versiebump wijzigt alleen de regel hieronder.
+// Uploadvolgorde: EERST het grote bestand, DAN deze wijzer.
 const DOEL = 'eurostoxx50_rekentool_v11_11.html';
 
-// Het vangnet wordt uit DOEL opgebouwd in plaats van los opgeschreven, zodat
-// een vergeten tweede vindplaats onmogelijk is. Dat is de hele reden van 2.4:
-// vier gemeten uitleverfouten (bugs #29, #37, #53 en de URL-fout van 20/9).
+// ── v11.11 — probleem van 20/9: een VEROUDERDE WIJZER IS ONZICHTBAAR ────────
+// Symptoom: de wijzer stuurde naar v11.9 terwijl v11.11 al op GitHub stond.
+// De doorsturing zelf ziet er in beide gevallen identiek uit, dus een wijzer
+// die niet is meegeüpload OF uit de browsercache komt, meldt zichzelf niet.
+// Je merkt het pas als je toevallig het versienummer in de header leest.
+// Drie maatregelen, alle drie zichtbaar in plaats van stil:
+
+// 1. De wijzer TOONT zijn eigen doelversie, ook tijdens de flits en in
+//    "paginabron tonen". Uit DOEL afgeleid, dus nooit apart bij te werken.
+const versie = (DOEL.match(/v(\d+)_(\d+)/) || [,'?','?']).slice(1).join('.');
+document.getElementById('versie').textContent = 'v' + versie;
+
+// 2. DIAGNOSEMODUS. Zet ?stay achter de URL en de wijzer stuurt NIET door,
+//    maar vertelt alleen waar hij heen zou gaan. Zo kun je altijd nagaan welke
+//    versie de LIVE wijzer denkt te moeten laden, zonder het te moeten afleiden
+//    uit de pagina waar je op belandt.
+const blijf = location.search.indexOf('stay') !== -1;
+
+// 3. Cachebreker op het doel: de versie hangt achter de URL, dus zodra DOEL
+//    verandert haalt de browser het nieuwe bestand gegarandeerd vers op.
+//    Binnen één versie blijft hij gewoon cachebaar.
+const URL_MET_BREKER = DOEL + '?v=' + versie;
+
 var a = document.createElement('a');
-a.href = DOEL;
-a.textContent = 'Klik hier als er niets gebeurt';
+a.href = URL_MET_BREKER;
+a.textContent = blijf ? ('Open ' + DOEL) : 'Klik hier als er niets gebeurt';
 document.getElementById('vangnet').appendChild(a);
 
-window.location.replace(DOEL);
+if (blijf) {
+  document.getElementById('melding').innerHTML =
+    'Diagnosemodus &mdash; niet doorgestuurd.<br>Deze wijzer verwijst naar <strong>' + DOEL + '</strong>';
+} else {
+  window.location.replace(URL_MET_BREKER);
+}
 </script>
 <noscript>
-<p>JavaScript staat uit. Open het versiebestand rechtstreeks vanuit de repository
+<p class="k">JavaScript staat uit. Open het versiebestand rechtstreeks vanuit
 <a href="https://github.com/sven50xx/eurostoxx-dasboard">sven50xx/eurostoxx-dasboard</a>.</p>
 </noscript>
 </body>
