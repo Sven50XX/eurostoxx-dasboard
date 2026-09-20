@@ -1,50 +1,16 @@
 <!DOCTYPE html>
-<html lang="nl">
-<head>
-<meta charset="UTF-8">
-<!--
-  OESX — VASTE INGANG REKENTOOL
-  ===============================================================
-  Dit is de ENIGE plaats in de hele repository waar het actuele
-  versienummer van de rekentool staat. Alle links naar de
-  rekentool wijzen naar rekentool.html, nooit naar een bestand
-  met een versienummer erin.
-
-  BIJ EEN NIEUWE REKENTOOLVERSIE: wijzig de regel hieronder die
-  begint met "const DOEL". Eén regel, één bestand. Verder niets.
-
-  WAAROM DIT BESTAAT: tot september 2026 codeerden dashboard en
-  rekentool elkaars versienummer hard in een link. Omdat beide
-  tools bewust op verschillende momenten worden opgeleverd, ging
-  dat drie keer mis — bugs #29, #37 en #53. De laatste keer opende
-  het dashboard nog rekentool v11.4 terwijl v11.6 live stond.
-  Een link naar een versie die je niet in dezelfde handeling
-  oplevert, kan per definitie verouderen.
-
-  Skill A v3.10 · OESX Project · OptionRhythm
--->
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>OESX Rekentool — doorsturen…</title>
+<style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#faf8f4;color:#3a362e;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center;padding:24px;}
+.k{background:#fff;border:1px solid #d4cfc4;border-radius:12px;padding:28px 32px;max-width:420px;}
+h1{font-size:15px;font-weight:600;margin:0 0 10px;letter-spacing:.04em;}p{font-size:13px;color:#6b665c;line-height:1.7;margin:0 0 16px;}a{color:#b5761a;font-weight:600;text-decoration:none;}</style></head>
+<body><div class="k"><h1>OESX Rekentool</h1><p>Bezig met doorsturen naar de actuele versie…</p>
+<p><a id="doel" href="#">Klik hier als er niets gebeurt →</a></p>
+<noscript><p><strong>JavaScript staat uit.</strong> Zet het aan, of open het rekentoolbestand rechtstreeks.</p></noscript></div>
 <script>
-  const DOEL = 'eurostoxx50_rekentool_v11_7.html';   // ← ENIGE regel die bij een versiebump wijzigt
-
-  // replace() in plaats van href: deze pagina hoort niet in de
-  // browsergeschiedenis te blijven staan. Met href zou de terugknop
-  // de gebruiker hier weer naartoe sturen en meteen weer doorsturen.
-  window.location.replace(DOEL);
-</script>
-<meta http-equiv="refresh" content="0; url=eurostoxx50_rekentool_v11_7.html">
-<style>
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-         background:#f5f3ef; color:#3a3733; display:flex; align-items:center;
-         justify-content:center; min-height:100vh; margin:0; text-align:center; }
-  a { color:#8a6d3b; }
-</style>
-</head>
-<body>
-  <!-- Zichtbaar als JavaScript uit staat én de meta-refresh niet werkt. -->
-  <div>
-    <p>Doorsturen naar de OESX Rekentool…</p>
-    <p><a href="eurostoxx50_rekentool_v11_7.html">Klik hier als er niets gebeurt</a></p>
-  </div>
-</body>
-</html>
+// VASTE INGANG — besluit B28. De bestandsnaam staat hier op precies ÉÉN plaats.
+// Bij een versiebump wijzigt alleen de regel hieronder.
+const DOEL = 'eurostoxx50_rekentool_v11_8.html';
+document.getElementById('doel').setAttribute('href', DOEL);
+window.location.replace(DOEL);
+</script></body></html>
