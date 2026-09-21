@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OESX Instap Rekentool v11.15</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f1ea; --surface: #ffffff; --surface2: #ede9e0;
+  --border: #d4cfc4; --border2: #e8e4db;
+  --text: #1a1714; --text2: #5c5650; --text3: #9c9890;
+  --green: #1a6e45; --green-bg: #e8f5ee; --green-border: #a8d5bb;
+  --red: #b52a2a; --red-bg: #fdeaea; --red-border: #e8a8a8;
+  --orange: #b56a00; --orange-bg: #fff3e0; --orange-border: #f0c070;
+  --gold: #8a6a00; --gold-bg: #fff8e0;
+  --blue: #1a3f7a; --blue-bg: #e6edf8; --blue-border: #a8c0e0;
+  --purple: #5a2d82; --purple-bg: #f3eefb; --purple-border: #c8a8e8;
+  --accent: #c4954a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'IBM Plex Mono', monospace; background: var(--bg); color: var(--text); min-height: 100vh; padding: 20px 16px 60px; }
+
+.page-header { max-width: 900px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.page-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
+.page-title span { color: var(--accent); }
+
+.protocol-banner { max-width: 900px; margin: 0 auto 14px; padding: 11px 16px; border-radius: 8px; background: var(--red-bg); border: 1.5px solid var(--red-border); font-size: 11px; color: var(--red); font-weight: 500; line-height: 1.5; display: none; }
+
+.ls-balk { margin: 0 0 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 9px 14px; border-radius: 8px; font-size: 10px; border: 1.5px solid var(--border); background: var(--surface2); color: var(--text3); transition: all .3s; }
+.ls-balk.geladen { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+.ls-wis-btn { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 500; padding: 4px 10px; border: 1.5px solid var(--red-border); border-radius: 5px; background: var(--red-bg); color: var(--red); cursor: pointer; letter-spacing: .04em; transition: all .15s; }
+.ls-wis-btn:hover { background: var(--red); color: #fff; }
+
+.wrap { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 20px; }
+.card-title { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--text3); margin-bottom: 16px; }
+
+/* INVOER */
+.input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width:480px) { .input-grid { grid-template-columns: 1fr; } }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 10px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); }
+.field input { font-family: 'IBM Plex Mono', monospace; font-size: 13px; padding: 9px 11px; border: 1.5px solid var(--border); border-radius: 7px; background: var(--bg); color: var(--text); width: 100%; transition: border-color .15s; }
+.field input:focus { outline: none; border-color: var(--accent); }
+.veld-fout input { border-color: var(--red) !important; background: var(--red-bg) !important; }
+
+/* INTRAWEEK — PUT-EXITREGEL */
+/* v11.0: .stoplicht-wrap HIER VERWIJDERD. Het blok heeft geen twee-koloms
+   wrapper meer: vier invoervelden in de bestaande .input-grid, daaronder de
+   lamp over de volle breedte. Een ongebruikte CSS-klasse laten staan is
+   dezelfde val als een dode constante. */
+.call-warn { border-radius: 8px; padding: 11px 14px; margin-bottom: 14px; background: var(--blue-bg); border: 1.5px solid var(--blue-border); font-size: 10px; line-height: 1.6; color: var(--text2); }
+.call-warn strong { color: var(--blue); }
+.verval-box { border-radius: 8px; padding: 11px 14px; margin-bottom: 14px; background: var(--orange-bg); border: 1.5px solid var(--orange-border); font-size: 10px; line-height: 1.6; color: var(--orange); }
+.drempel-box { margin-top: 12px; }
+.drempel-box:empty { display: none; }
+.drempel-kop { font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; }
+.drempel-tekst { font-size: 11px; line-height: 1.7; color: var(--text2); padding: 11px 14px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border2); }
+.drempel-tekst strong { color: var(--text); }
+.drempel-modus { font-size: 10px; color: var(--text3); line-height: 1.6; margin-top: 7px; }
+.toggle-btn.active-modus { background: #1a1714; border-color: #1a1714; color: #fff; font-weight: 600; }
+.lamp-rij { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 8px; border: 1.5px solid; }
+.lamp-rij.leeg { background: var(--surface2); border-color: var(--border); border-style: dashed; }
+.lamp-rij.groen { background: var(--green-bg); border-color: var(--green-border); }
+.lamp-rij.oranje { background: var(--orange-bg); border-color: var(--orange-border); }
+.lamp-rij.geel { background: #fefce8; border-color: #fde047; }
+.lamp-rij.rood { background: var(--red-bg); border-color: var(--red-border); }
+.lamp { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; }
+.lamp.leeg { background: var(--border); }
+.lamp.groen { background: var(--green); box-shadow: 0 0 8px rgba(26,110,69,.5); }
+.lamp.oranje { background: var(--orange); box-shadow: 0 0 8px rgba(181,106,0,.5); }
+.lamp.geel { background: #eab308; box-shadow: 0 0 8px rgba(234,179,8,.55); }
+.lamp.rood { background: var(--red); box-shadow: 0 0 8px rgba(181,42,42,.5); }
+.lamp-titel { font-size: 11px; font-weight: 600; }
+.lamp-rij.leeg .lamp-titel { color: var(--text3); }
+.lamp-rij.groen .lamp-titel { color: var(--green); }
+.lamp-rij.oranje .lamp-titel { color: var(--orange); }
+.lamp-rij.geel .lamp-titel { color: #a16207; }
+.lamp-rij.rood .lamp-titel { color: var(--red); }
+.lamp-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+/* P TABS */
+.p-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.p-tab { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; padding: 7px 14px; border: 1.5px solid var(--border); border-radius: 6px; background: transparent; color: var(--text2); cursor: pointer; transition: all .15s; letter-spacing: .04em; }
+.p-tab.ap97 { background: var(--gold-bg); border-color: var(--gold); color: var(--gold); font-weight: 600; }
+.p-tab.ap98 { background: var(--green-bg); border-color: var(--green); color: var(--green); font-weight: 600; }
+.p-tab.ap99 { background: var(--blue-bg); border-color: var(--blue-border); color: var(--blue); font-weight: 600; }
+.p-tab.ap999 { background: var(--purple-bg); border-color: var(--purple-border); color: var(--purple); font-weight: 600; }
+.advies-badge { font-size: 8px; font-weight: 700; padding: 2px 6px; border-radius: 3px; letter-spacing: .06em; text-transform: uppercase; background: var(--green); color: #fff; margin-left: 5px; vertical-align: middle; }
+
+.tag { font-size: 9px; font-weight: 500; padding: 3px 8px; border-radius: 4px; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; display: inline-block; }
+.regime-tag { display: inline-block; font-size: 9px; font-weight: 500; padding: 3px 9px; border-radius: 4px; letter-spacing: .06em; text-transform: uppercase; border: 1px solid; margin-bottom: 14px; }
+
+/* STRIKES */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media(max-width:600px) { .split { grid-template-columns: 1fr; } }
+
+.strikes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+@media(max-width:480px) { .strikes-grid { grid-template-columns: 1fr; } }
+.sk { border-radius: 9px; padding: 14px; text-align: center; }
+.sk.put  { background: var(--red-bg); border: 1.5px solid var(--red-border); }
+.sk.call { background: var(--blue-bg); border: 1.5px solid var(--blue-border); }
+.sk-lbl { font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 5px; }
+.sk.put  .sk-lbl { color: var(--red); }
+.sk.call .sk-lbl { color: var(--blue); }
+.sk-val { font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 700; }
+.sk.put  .sk-val { color: var(--red); }
+.sk.call .sk-val { color: var(--blue); }
+.sk-sub { font-size: 10px; color: var(--text2); margin-top: 4px; }
+.sk-badge { font-size: 8px; font-weight: 700; padding: 2px 7px; border-radius: 3px; letter-spacing: .06em; text-transform: uppercase; display: inline-block; margin-top: 5px; }
+.sk.put  .sk-badge { background: var(--red); color: #fff; }
+.sk.call .sk-badge { background: var(--blue); color: #fff; }
+.vloer-badge { background: var(--orange) !important; color: #fff !important; }
+/* v11.4 — zichtbaarheidseis monotoniegrendel (Skill A v3.8 sectie 7.2). Eigen
+   kleur, want het is een ander soort ingreep dan de 4%-vloer: de vloer legt een
+   ondergrens op, de grendel neemt een niet-monotonie in de meting weg. */
+.grendel-badge { background: var(--purple, #7c3aed) !important; color: #fff !important; }
+
+/* ALARMWAARDEN — de twee getallen die de hele week gelden */
+.alarm-box { border-radius: 9px; padding: 14px 16px; margin-top: 12px; background: var(--gold-bg); border: 1.5px solid var(--gold); }
+.alarm-kop { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+.alarm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width:480px) { .alarm-grid { grid-template-columns: 1fr; } }
+.alarm-stat { text-align: center; }
+.alarm-val { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 700; color: var(--gold); }
+.alarm-sub { font-size: 9px; color: var(--text2); margin-top: 3px; line-height: 1.5; }
+.alarm-voet { font-size: 10px; color: var(--text3); line-height: 1.6; margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--gold); }
+.alarm-box.voorlopig { background: var(--surface2); border-color: var(--border); border-style: dashed; }
+.alarm-box.voorlopig .alarm-kop, .alarm-box.voorlopig .alarm-val { color: var(--text2); }
+.alarm-box.voorlopig .alarm-voet { border-top-color: var(--border); }
+.grens-regel { font-size: 10px; color: var(--gold); margin-top: 4px; font-weight: 500; }
+.kant-rij { display: grid; grid-template-columns: 96px 1fr; gap: 8px; font-size: 11px; line-height: 1.9; }
+.kant-lbl { color: var(--text3); }
+
+/* RAAKRISICO MBOX */
+.mbox { border-radius: 9px; padding: 14px 16px; margin-bottom: 0; }
+.mbox.ok     { background: var(--green-bg); border: 1.5px solid var(--green-border); }
+.mbox.warn   { background: var(--orange-bg); border: 1.5px solid var(--orange-border); }
+.mbox.danger { background: var(--red-bg); border: 1.5px solid var(--red-border); }
+/* v10.10 — neutrale toestand: er IS geen gemeten waarde. Bewust grijs en
+   zonder vinkje; een nul met een groen vinkje is een bewering (bug #28). */
+.mbox.onbekend { background: var(--surface2); border: 1.5px dashed var(--border); }
+.mbox-title { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 10px; }
+.mbox.ok       .mbox-title { color: var(--green); }
+.mbox.warn     .mbox-title { color: var(--orange); }
+.mbox.danger   .mbox-title { color: var(--red); }
+.mbox.onbekend .mbox-title { color: var(--text3); }
+.mbox-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.mbox-stat { text-align: center; }
+.mbox-val { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; }
+.mbox.ok       .mbox-val { color: var(--green); }
+.mbox.warn     .mbox-val { color: var(--orange); }
+.mbox.danger   .mbox-val { color: var(--red); }
+.mbox.onbekend .mbox-val { color: var(--text3); }
+.mbox-sub { font-size: 9px; color: var(--text3); margin-top: 2px; line-height: 1.4; }
+
+/* BLOKKADE BANNER */
+.blokkade-banner { border-radius: 10px; padding: 24px; background: var(--red-bg); border: 2px solid var(--red); text-align: center; }
+.blokkade-icon { font-size: 32px; margin-bottom: 8px; }
+.blokkade-titel { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--red); margin-bottom: 4px; }
+.blokkade-vstoxx { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 700; color: var(--red); margin: 8px 0; }
+.blokkade-sub { font-size: 11px; color: var(--text2); line-height: 1.7; }
+.blokkade-tip { font-size: 10px; color: var(--text3); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--red-border); }
+
+/* STAP 3 TOGGLE */
+.pos-toggle { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.toggle-btn { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; padding: 8px 16px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text2); cursor: pointer; letter-spacing: .04em; transition: all .15s; }
+.toggle-btn.active-put      { background: var(--red-bg);    border-color: var(--red);        color: var(--red);    font-weight: 600; }
+.toggle-btn.active-call     { background: var(--blue-bg);   border-color: var(--blue);       color: var(--blue);   font-weight: 600; }
+.toggle-btn.active-strangle { background: #1a1714;          border-color: #1a1714;           color: #fff;          font-weight: 600; }
+
+/* MARGIN STATISTIEKEN */
+.margin-blok-header { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 12px; color: var(--text2); }
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+@media(max-width:600px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+.stat-box { background: var(--surface2); border-radius: 8px; padding: 10px 11px; }
+.stat-lbl { font-size: 9px; color: var(--text3); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 4px; }
+.stat-val { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); }
+.stat-sub { font-size: 9px; color: var(--text3); margin-top: 2px; }
+
+.prog-rij { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.prog-naam { font-size: 9px; color: var(--text3); width: 150px; flex-shrink: 0; }
+.prog-track { flex: 1; height: 6px; background: var(--border2); border-radius: 3px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 3px; transition: width .3s; }
+.prog-pct { font-size: 10px; font-weight: 600; width: 36px; text-align: right; }
+
+/* v11.8 — HET VOLLEDIGE LIQUIDATIEBLOK IS VERWIJDERD (Skill A v3.13 sectie
+   21.10). Alle .liq-* opmaakklassen zijn FYSIEK weg. Reden: de berekende
+   liquidatiekoers verschuift over VSTOXX 12-80 slechts 0,8 indexpunt, terwijl
+   Saxo's werkelijke beslag in de Iran-week ruwweg verdubbelde. Het getal rustte
+   op de aanname dat de volatiliteit constant blijft -- precies de aanname die
+   breekt wanneer liquidatie dreigt. Optie A (v11.5) haalde het oordeel weg,
+   niet de aanname.
+   Wat hier BLIJFT is .warn-box en de statboxen: die beschrijven het
+   INSTAPMOMENT, waar de formule op gefit is (afwijking <= 2%), in plaats van
+   te extrapoleren naar een toestand die nog niet bestaat. Zie 21.11. */
+.warn-box { border-radius:8px; padding:12px 14px; font-size:11px; line-height:1.6; margin-bottom:10px; }
+.warn-box.rood { background:var(--red-bg); border:1.5px solid var(--red-border); color:var(--red); }
+/* v11.5 -- oranje is hier WEL toegestaan: deze regel gaat over marginverbruik,
+   en 75% is een drempel MET herkomst (Skill A sectie 9.0, eigen instapnorm).
+   Dat is precies het onderscheid uit sectie 21: kleur mag, mits geijkt. */
+.warn-box.oranje { background:var(--orange-bg); border:1.5px solid var(--orange-border); color:var(--orange); }
+
+/* ALLE P TABEL */
+.strike-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.strike-table th { font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text3); padding: 6px 8px; border-bottom: 1.5px solid var(--border); text-align: center; }
+.strike-table th:first-child { text-align: left; }
+.strike-table td { padding: 8px; border-bottom: 1px solid var(--border2); text-align: center; }
+.strike-table td:first-child { text-align: left; }
+.strike-table tr:last-child td { border-bottom: none; }
+.strike-table tr.hl td { background: var(--green-bg); font-weight: 600; }
+.td-p { color: var(--red); font-weight: 500; }
+.td-c { color: var(--blue); font-weight: 500; }
+
+/* RISICO FOOTER */
+.risk-footer { background: #1a1714; border-radius: 10px; padding: 14px 18px; }
+.risk-footer-titel { font-size: 9px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: #9c9890; margin-bottom: 10px; }
+.risk-regels { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+@media(max-width:480px) { .risk-regels { grid-template-columns: 1fr; } }
+.risk-regel { font-size: 10px; color: #ede9e0; line-height: 1.5; }
+.risk-regel strong { color: #f0c070; }
+
+/* UITLEG */
+hr { border: none; border-top: 1px solid var(--border2); margin: 14px 0; }
+.uitleg-toggle { font-size:10px; color:var(--accent); cursor:pointer; letter-spacing:.04em; border:none; background:none; font-family:inherit; padding:0; margin-top:10px; text-decoration:underline; }
+.uitleg-body { display:none; margin-top:12px; padding:12px; background:var(--surface2); border-radius:8px; font-size:11px; line-height:1.7; color:var(--text2); }
+.uitleg-body.open { display:block; }
+.uitleg-body h4 { font-size:10px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--text3); margin:10px 0 4px; }
+.uitleg-body h4:first-child { margin-top:0; }
+
+.footer { text-align: center; font-size: 9px; color: var(--text3); letter-spacing: .08em; margin-top: 24px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <div class="page-title">📐 OESX Instap <span>Rekentool</span> v11.15</div>
+    <div style="font-size:10px;color:var(--text3);letter-spacing:.06em;margin-top:3px;">VSTOXX · P97 / P98 / <strong>P99 ★</strong> / P99.9 · O→Low/High altijd actief · Instap uitsluitend vrijdag 15:00–16:30</div>
+  </div>
+  <!-- v11.12 — DE KRUISVERWIJZING NAAR HET DASHBOARD IS HIER FYSIEK VERWIJDERD.
+       CEO-besluit 20/9/2026: besluit B28 (vaste ingangen, Project State 77)
+       is INGETROKKEN. Reden: de CEO gebruikte de knop nooit, en het
+       doorstuurbestand dashboard.html leverde alleen verwarring op -- op 20/9
+       stuurde een uit de browsercache geladen wijzer hem naar v11.9 terwijl
+       v11.11 al live stond, en dat meldde zichzelf niet.
+       De vervanging is niet technisch maar procedureel: bij elke oplevering
+       krijgt de CEO de directe, versiedragende URL in de chat.
+       BOUW HIER NOOIT OPNIEUW EEN LINK NAAR HET DASHBOARD IN -- niet naar
+       dashboard.html (bestaat niet meer) en niet naar een versiedragende
+       bestandsnaam (dat was bug #29, #37 en #53). Wil een volgende architect
+       toch navigatie, dan is dat een nieuw CEO-besluit, geen invulling. -->
+</div>
+
+<!-- PROTOCOL BANNER -->
+<div class="protocol-banner" id="protocol-banner">
+  ⚠️ <strong>Vandaag is geen vrijdag.</strong> Instap is bedoeld voor vrijdag ~16:30. Gebruik de tool voor voorbereiding.
+</div>
+
+<!-- VSTOXX LINK -->
+<div style="max-width:900px;margin:0 auto 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:10px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;font-size:11px;color:var(--text2);">
+  <span>📊 Live VSTOXX ophalen:</span>
+  <a href="https://stoxx.com/index/v2tx/" target="_blank" rel="noopener" style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:6px 12px;background:var(--gold-bg);border:1.5px solid var(--gold);border-radius:5px;color:var(--gold);text-decoration:none;letter-spacing:.04em;white-space:nowrap;">stoxx.com/index/v2tx/ →</a>
+</div>
+
+<div class="wrap">
+
+  <!-- STAP 1: INVOER -->
+  <div class="card">
+    <div class="card-title">Stap 1 — Invoer <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--red);font-size:10px;margin-left:6px;">★ alle 4 velden verplicht</span></div>
+    <!-- v11.13 — BUG #68. Deze balk stond tot en met v11.12 bovenaan de pagina,
+         boven de VSTOXX-link en LOSGEKOPPELD van de velden waarover hij iets
+         zegt. Hij rapporteert de opgeslagen KOERS en VSTOXX -- dat zijn twee
+         van de vier velden hieronder -- dus hoort hij binnen deze kaart.
+         Hij stond daar al sinds v11.6 en is NIET door een recente wijziging
+         verplaatst; de CEO zag hem op 20/9 voor het eerst gevuld, omdat de
+         balk pas groen wordt zodra er werkelijk invoer is opgeslagen.
+         De negatieve bovenmarge van de VSTOXX-link hierboven is meegegaan van
+         -8px naar 0: die trok de link omhoog TEGEN deze balk aan, en zonder
+         de balk zou hij tegen de protocolbanner aan kruipen. -->
+    <div class="ls-balk" id="ls-balk">
+      <span id="ls-status">⏳ Geen opgeslagen invoer gevonden</span>
+      <button class="ls-wis-btn" id="ls-wis-btn" onclick="wisInvoer()" style="display:none;">✕ Wis invoer</button>
+    </div>
+    <div class="input-grid">
+      <div class="field" id="veld-koers">
+        <label>Koers (vrijdag ~16:30) <span style="color:var(--red);">*</span></label>
+        <input type="number" id="koers" placeholder="bijv. 5450" step="1" oninput="veldGewijzigd('koers')">
+      </div>
+      <div class="field" id="veld-vstoxx">
+        <label>VSTOXX instap <span style="color:var(--red);">*</span></label>
+        <input type="number" id="vstoxx" placeholder="bijv. 20.0" step="0.1" oninput="veldGewijzigd('vstoxx')">
+      </div>
+      <div class="field" id="veld-kas">
+        <label>Beschikbaar kapitaal (€) <span style="color:var(--red);">*</span></label>
+        <input type="number" id="kas" placeholder="bijv. 475000" step="100" oninput="veldGewijzigd('kas')">
+      </div>
+      <div class="field" id="veld-contracts">
+        <label>Aantal contracten <span style="color:var(--red);">*</span></label>
+        <input type="number" id="contracts" placeholder="bijv. 10" step="1" oninput="veldGewijzigd('contracts')">
+      </div>
+    </div>
+    <div id="verplicht-tip" style="display:none;margin-top:12px;padding:9px 12px;border-radius:7px;font-size:10px;background:var(--surface2);border:1px dashed var(--border);color:var(--text3);">
+      ⬆ Vul alle 4 velden in om strikes en margin te berekenen.
+    </div>
+  </div>
+
+  <!-- INTRAWEEK — PUT-EXITREGEL (Skill A v3.7 sectie 9.1) -->
+  <div class="card">
+    <div class="card-title">Intraweek positiebewaking — PUT-exitregel</div>
+
+    <div class="call-warn">
+      <strong>Dit is een PUT-exitregel. De CALL-zijde is NIET gedekt.</strong><br>
+      Er bestaat geen call-exitregel en geen call-raakrisico. Gemeten over 695 weken op P99 CALL-strikes
+      eindigden 5 weken ITM op de CALL; de regel &quot;sprong ≥ 4 én buffer ≤ 3%&quot; zou er <strong>0 van de 5</strong>
+      vangen — in alle vijf <em>daalde</em> de VSTOXX. Dat is structuur, geen toeval: de CALL komt in gevaar
+      bij een stijgende markt, en een stijgende markt gaat samen met dalende volatiliteit. Een paniekmeter
+      kan per definitie niet waarschuwen voor het risico aan de bovenkant (Skill A sectie 9.5).
+    </div>
+
+    <div class="verval-box" id="intraweek-verval" style="display:none;"></div>
+
+    <div class="pos-toggle" id="exit-modus">
+      <button class="toggle-btn active-modus" data-modus="avond"   onclick="setExitModus('avond')">🌙 Avondmeting — ma t/m do na 17:30</button>
+      <button class="toggle-btn"              data-modus="ochtend" onclick="setExitModus('ochtend')">☀️ Ochtendtoets — 09:00</button>
+    </div>
+
+    <div class="input-grid">
+      <div class="field">
+        <label>VSTOXX slot instapvrijdag</label>
+        <input type="number" id="vstoxx_slot_instap" placeholder="bijv. 17.59" step="0.01" oninput="veldGewijzigd('vstoxx_slot_instap')">
+        <div style="font-size:10px;color:var(--text3);margin-top:4px;">Nulpunt van de sprong · na 17:30 corrigeren</div>
+      </div>
+      <div class="field">
+        <label>Geschreven PUT-strike</label>
+        <input type="number" id="put_strike_geschreven" placeholder="bijv. 5850" step="5" oninput="veldGewijzigd('put_strike_geschreven')">
+        <div style="font-size:10px;color:var(--text3);margin-top:4px;" id="strike-grens">De strike die je werkelijk hebt geschreven</div>
+      </div>
+      <div class="field">
+        <label>Actuele VSTOXX</label>
+        <input type="number" id="vstoxx_intraweek" placeholder="bijv. 24.0" step="0.1" oninput="veldGewijzigd('vstoxx_intraweek')">
+        <div style="font-size:10px;color:var(--text3);margin-top:4px;">Dagslot (avond) of opening (ochtend)</div>
+      </div>
+      <div class="field">
+        <label>Actuele EuroStoxx 50</label>
+        <input type="number" id="koers_intraweek" placeholder="bijv. 6000" step="1" oninput="veldGewijzigd('koers_intraweek')">
+        <div style="font-size:10px;color:var(--text3);margin-top:4px;">Zelfde meetmoment als de VSTOXX hiernaast</div>
+      </div>
+    </div>
+
+    <div class="lamp-rij leeg" id="intraweek-lamp" style="margin-top:14px;">
+      <div class="lamp leeg"></div>
+      <div>
+        <div class="lamp-titel">Lamp uit — nog niet te berekenen</div>
+        <div class="lamp-sub">Vul de vier velden hierboven in</div>
+      </div>
+    </div>
+
+    <div class="drempel-box" id="exit-drempels"></div>
+  </div>
+
+  <!-- STAP 2: P-NIVEAU & STRIKES -->
+  <div class="card">
+    <div class="card-title">Stap 2 — P-niveau &amp; strikes <span style="font-weight:500;color:var(--text3);">· strike-risico</span></div>
+    <div id="p-tab-section">
+      <div class="p-tabs">
+        <button class="p-tab ap97" id="ptab-97" onclick="setP(97)">P97</button>
+        <button class="p-tab" id="ptab-98" onclick="setP(98)">P98</button>
+        <button class="p-tab" id="ptab-99" onclick="setP(99)">P99 ★ <span class="advies-badge">Advies</span></button>
+        <button class="p-tab" id="ptab-999" onclick="setP(999)">P99.9</button>
+      </div>
+    </div>
+    <div id="result-main">
+      <div style="text-align:center;color:var(--text3);font-size:11px;padding:20px 0;">Vul alle 4 velden in ↑</div>
+    </div>
+  </div>
+
+  <!-- STAP 3: MARGIN & POSITIEGROOTTE -- margin-risico (Skill A v3.13 sectie 21) -->
+  <!-- v11.8 — AANNAME 3: de ID's liq-card en liq-inhoud houden hun historische
+       naam. Ze dragen Stap 3 zelf, niet het verwijderde liquidatieblok.
+       Hernoemen zou setHTML('liq-inhoud') en de display-toggle raken zonder
+       iets op te lossen. Wie hier naar liquidatiecode zoekt: die bestaat niet
+       meer, zie Skill A v3.13 sectie 21.10. -->
+  <div class="card" id="liq-card" style="display:none;">
+    <div class="card-title">Stap 3 — Margin &amp; positiegrootte <span style="font-weight:500;color:var(--text3);">· margin-risico</span></div>
+    <div style="font-size:10px;color:var(--text3);margin-bottom:12px;line-height:1.7;"><strong>Dit blok zegt niets over de kwaliteit van je strike.</strong> Het meet of je positiegrootte past bij je kapitaal <strong>op het moment van instappen</strong>. Het strike-risico staat in Stap 2.<br>Model: Saxo PRiME-benadering — indicatief, het interne model van Saxo is niet openbaar. Gemeten over <strong>elf instapweken</strong> vroeg Saxo élke week méér dan de formule berekende, gemiddeld <strong>5,1%</strong> (spreiding 2,0–7,5%). Die 5,1% wordt sinds v11.10 in de berekening meegenomen, zodat 75% hierboven ook ongeveer 75% bij Saxo betekent. Wat overblijft is een onzekerheid van ruwweg drie contracten, beide kanten op (Skill A v3.13 §23).<br><strong>Het zegt niets over de rest van de week.</strong> De formule reageert nauwelijks op volatiliteit, dus wat je marge bij een VSTOXX-spike werkelijk doet, weten wij niet. Daarom toont deze tool geen liquidatiekoers meer (Skill A v3.13 §21.10).</div>
+    <div class="pos-toggle">
+      <button class="toggle-btn active-put" id="toggle-put"      onclick="setToggle('put')">🔴 Alleen PUT</button>
+      <button class="toggle-btn"            id="toggle-call"     onclick="setToggle('call')">🔵 Alleen CALL</button>
+      <button class="toggle-btn"            id="toggle-strangle" onclick="setToggle('strangle')">🔴🔵 Strangle</button>
+    </div>
+    <div id="liq-inhoud"></div>
+  </div>
+
+  <!-- ALLE P-NIVEAUS + REGIME REFERENTIE -->
+  <div class="split">
+    <div class="card">
+      <div class="card-title">Alle P-niveaus — O→Low/High basis</div>
+      <div id="alle-p"><div style="font-size:11px;color:var(--text3);">Vul alle 4 velden in</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">VSTOXX regime referentie</div>
+      <table class="strike-table">
+        <thead><tr>
+          <th style="text-align:left;">VSTOXX</th>
+          <th>Regime</th>
+          <th>P99 PUT</th>
+          <th>P99 CALL</th>
+        </tr></thead>
+        <tbody id="regime-tbody"></tbody>
+      </table>
+      <div id="regime-voetnoot" style="font-size:9px;color:var(--text3);margin-top:8px;line-height:1.7;"></div>
+    </div>
+  </div>
+
+  <!-- RISICO FOOTER -->
+  <div class="risk-footer">
+    <div class="risk-footer-titel">⚖️ Risicomanagement — vaste regels</div>
+    <div class="risk-regels">
+      <div class="risk-regel">🔴 <strong>Geen instap</strong> bij VSTOXX ≥ 35</div>
+      <div class="risk-regel">🔴 <strong>Sluit positie</strong> bij VSTOXX-sprong ≥ +4 <strong>én</strong> buffer ≤ 3% — de PUT-exitregel, ma t/m do, uitvoeren de volgende ochtend 09:00</div>
+      <div class="risk-regel">🔴 <strong>Sluit positie</strong> bij VSTOXX ≥ 40 — noodrem, direct, ook overdag</div>
+      <div class="risk-regel">🟡 <strong>Max. 75%</strong> marginverbruik bij instap</div>
+      <div class="risk-regel">🟡 <strong>Min. 4% OTM</strong> voor PUT strikes altijd</div>
+      <div class="risk-regel">⚪ <strong>CALL-zijde niet gedekt</strong> — geen call-exitregel, geen call-raakrisico</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- UITLEG -->
+<div class="card" style="max-width:900px;margin:16px auto 0;">
+  <div class="card-title">💡 Uitleg model</div>
+
+  <button class="uitleg-toggle" onclick="toggleUitleg('u1')">▶ VSTOXX: wat is het en waarom is het de motor?</button>
+  <div class="uitleg-body" id="u1">
+    <h4>Wat is VSTOXX?</h4>
+    De VSTOXX meet hoeveel beweging de optiemarkt verwacht voor de komende 30 dagen op de Euro Stoxx 50. VSTOXX 15 = rustige markt. VSTOXX 35+ = instap geblokkeerd.
+    <h4>Lage VSTOXX is niet "veilig"</h4>
+    Bij lage VSTOXX zijn premies laag — je schrijft dichter bij de koers om rendement te halen. De 4% OTM-vloer beschermt je bij gewone correcties die niets met crisis te maken hebben.
+  </div>
+
+  <button class="uitleg-toggle" onclick="toggleUitleg('u5')" style="margin-top:8px;">▶ P97 / P98 / P99 / P99.9: wat betekent het?</button>
+  <div class="uitleg-body" id="u5">
+    <h4>Statistische veiligheid</h4>
+    P99 betekent: 99% van de weken beweegt de markt (O→Low/High) minder dan jouw strike. In 1% van de weken wordt de strike geraakt. P97 = 3% kans, P98 = 2% kans. Voor P99.9 is het raakrisico <strong>niet berekend</strong> — de tool toont daar bewust een streepje in plaats van een getal.
+    <h4>P99 is het systeem-advies</h4>
+    Dat is gemeten, geen voorkeur. Over de zeventien weken mei t/m september 2026 lag het P-equivalent van de feitelijk geschreven strike <strong>veertien keer tussen P98,5 en P99,5</strong>. Daarnaast levert P99 met de PUT-exitregel over 695 weken het hoogste resultaat. P98 blijft gewoon selecteerbaar en is geïnterpoleerd tussen P97 en P99. P99.9 is geëxtrapoleerd — statistisch niet direct onderbouwd, puur als diepste anker, en uitsluitend bedoeld als handmatige Trump-modus bij een aangekondigd binair risico.
+    <h4>Rendement vs. veiligheid</h4>
+    P97 = meer premie, iets meer risico. P99.9 = minimale premie, maximale veiligheid. Keuze is altijd aan jou.
+  </div>
+</div>
+
+<div class="footer" style="max-width:900px;margin:16px auto 0;">
+  Versie 11.15 · 21 september 2026 · OESX Rekentool · O→Low/High altijd actief · strike-afronding /5 · PUT omlaag, CALL omhoog · 4% OTM vloer PUT · monotoniegrendel actief · default P99 ★ · Instap geblokkeerd VSTOXX ≥ 35 · PUT-exitregel sprong ≥ 4 én buffer ≤ 3% · CALL-zijde niet gedekt · Saxo PRiME-model · 984 weken 2007–2026 · OLOW_REGIME v3.0 · liquidatieblok verwijderd (Skill A 21.10) · uitstapgrens op 0,1 punt · afrondingsklasse volledig doorgevoerd · margecorrectie +5,1% bij instap (B35) · marginverbruik kleurt op de onafgeronde waarde (#66) · kruisverwijzing verwijderd (B28 ingetrokken) · invoerbalk in Stap 1 (#68) · Skill A v3.13
+</div>
+
+<script>
+// ═══ CONSTANTEN ═══════════════════════════════════════════
+// v10.10: SIGMA en SIGMA_CALL hier VERWIJDERD. Gemeten vóór verwijdering:
+// 1 definitie, 0 aanroepen. De sigma-formule is per Skill A v3.5 sectie 2a
+// uitsluitend bedoeld voor de Custom kaart (strike -> P-equivalent terug-
+// rekenen), en die kaart bestaat in deze rekentool niet. Alle vier de
+// P-kaarten draaien op OLOW_REGIME v3.0. Een dode constante met een
+// vervallen model erin is een val voor de volgende sessie die "de
+// strikeformule" zoekt — zelfde reden als het verwijderen van de dode
+// getOlowStrike() uit het dashboard in v19.15.
+const MGN_A       = 1688.666;
+const MGN_a       = 0.0070;
+const MGN_b       = -0.1792;
+// v11.10 — BESLUIT B35 (CEO 20/9/2026, Skill A v3.13 sectie 23.5).
+// Het marginmodel is bij instap STRUCTUREEL te laag: gemeten over elf zuivere
+// PUT-weken (12-06 t/m 11-09-2026) vroeg Saxo in 11 van de 11 gevallen meer dan
+// de formule berekent. Gemiddelde ratio 1,051 — uit de ratiokolom exact 1,05100,
+// uit de onderliggende eurobedragen 1,05086. Spreiding 1,020 tot 1,075.
+// Bron: posities_history x Saxo-transactierapport 01-01 t/m 20-09-2026.
+//
+// Dit is GEEN herfit. MGN_A, MGN_a en MGN_b blijven ongewijzigd: de exponenten
+// zijn uit deze data niet te schatten (t = -0,96 en -1,36, VSTOXX- en OTM-bereik
+// allebei factor 1,28, onderlinge correlatie +0,92 — zie Skill A 23.3). Een
+// getal zonder herkomst vervangen door een getal met een SLECHTE herkomst is
+// erger, want het ziet er gemeten uit.
+//
+// GELDIGHEIDSGEBIED: gemeten bij OTM 5,18-6,65% en VSTOXX 14,9-19,1, op het
+// INSTAPMOMENT. Dichter bij de strike loopt het gat op tot 25-31% (20-08-2026);
+// daarvoor is deze factor te klein. Daarom staat het bereik ook op het scherm.
+const MGN_CORR    = 1.051;
+// v11.8 — SAXO_LIQ (1,251) is FYSIEK verwijderd samen met saxoLiqKoers().
+// Saxo's liquidatiegrens van 125,1% bestaat nog steeds; wij kunnen alleen niet
+// uitrekenen bij welke indexkoers hij bereikt wordt, zolang de VSTOXX-exponent
+// niet gekalibreerd is (bug #51). Zie Skill A v3.13 sectie 21.10.
+const SAXO_VEILIG = 0.75;
+
+const INSTAP_BLOKKADE   = 35;
+// v11.0 — INTRAWEEK_EXIT_D (was 8) is hier FYSIEK VERWIJDERD, niet
+// uitgecommentarieerd. De +8-regel is per Skill A v3.6 sectie 9 vervangen door de
+// PUT-exitregel hieronder. Een achtergelaten constante met een vervallen model
+// erin is een val voor de volgende sessie — zelfde reden als de dode SIGMA in v10.10.
+// Meting die de vervanging droeg: +8 zonder buffer gaf +EUR 104.512/jaar over 695
+// weken, +4 met buffer <= 3% gaf +EUR 122.435. Vijf keer zo vaak uitstappen kost
+// minder, omdat elke exit goedkoper is: 1,2x premie bij +4 tegen 6,6x bij +8.
+const EXIT_SPRONG       = 4;    // Skill A v3.7 sectie 9.1 — VSTOXX-sprong t.o.v. SLOT instapvrijdag
+const EXIT_BUFFER_PCT   = 3;    // Skill A v3.7 sectie 9.1 — buffer t.o.v. ACTUELE koers
+const INTRAWEEK_EXIT_ABS = 40;  // noodrem, ongewijzigd — absoluut, niet relatief
+const INTRAWEEK_VERVAL_DAGEN = 7;
+const OTM_VLOER_PCT     = 0.04;
+
+const REGIMES = [
+  { lo: 0,  hi: 15, naam: 'Rustig',   kleur: 'green'  },
+  { lo: 15, hi: 18, naam: 'Normaal',  kleur: 'green'  },
+  { lo: 18, hi: 22, naam: 'Verhoogd', kleur: 'orange' },
+  { lo: 22, hi: 28, naam: 'Onrustig', kleur: 'orange' },
+  { lo: 28, hi: 35, naam: 'Stress',   kleur: 'red'    },
+  { lo: 35, hi: 99, naam: 'Crisis',   kleur: 'red'    },
+];
+
+// Empirische O→Low/High percentielwaarden per VSTOXX-band
+// OLOW_REGIME v3.0 — Herberekend 10 april 2026 — 984 vrijdag→vrijdag weken, 01/07/2007 t/m 03/22/2026
+// P95/P97/P99 = historisch empirisch | P98 = interpolatie (gem. P97+P99) | P99.9 (key 999) = extrapolatie via sigma-ratio
+// ⚠️ v2.0 waarden (930 weken, Chat A 8 april) zijn ONJUIST wegens methodologische fout — nooit meer gebruiken
+const OLOW_REGIME = {
+  'Rustig':   {
+    put:  { 95:-4.339, 97:-4.534, 98:-4.600, 99:-4.666, 999:-6.196 },
+    call: { 95: 2.703, 97: 2.931, 98: 3.229, 99: 3.527, 999: 4.620 }
+  },
+  'Normaal':  {
+    put:  { 95:-4.023, 97:-4.427, 98:-5.223, 99:-6.019, 999:-7.993 },
+    call: { 95: 3.291, 97: 3.573, 98: 3.819, 99: 4.066, 999: 5.326 }
+  },
+  'Verhoogd': {
+    put:  { 95:-4.519, 97:-4.787, 98:-5.386, 99:-5.985, 999:-7.948 },
+    call: { 95: 3.731, 97: 4.459, 98: 4.686, 99: 4.913, 999: 6.436 }
+  },
+  'Onrustig': {
+    put:  { 95:-5.663, 97:-6.715, 98:-7.901, 99:-9.087, 999:-12.068 },
+    call: { 95: 4.895, 97: 5.315, 98: 5.796, 99: 6.278, 999:  8.224 }
+  },
+  'Stress':   {
+    put:  { 95:-7.581, 97:-8.690, 98:-9.567, 99:-10.444, 999:-13.870 },
+    call: { 95: 5.908, 97: 6.574, 98: 6.685, 99:  6.797, 999:  8.904 }
+  },
+  'Crisis':   {
+    put:  { 95:-12.813, 97:-13.717, 98:-18.113, 99:-22.509, 999:-29.892 },
+    call: { 95: 11.646, 97: 12.188, 98: 13.128, 99: 14.068, 999: 18.429 }
+  },
+};
+
+// ═══ MONOTONIEGRENDEL (Skill A v3.8 sectie 7.2) ═════════════════════
+// Op vier PUT-plaatsen geeft de tabel een HOGER regime MINDER buffer dan een
+// lager regime — bij VSTOXX 18,5 adviseerde de tool een krappere strike dan
+// bij VSTOXX 17. De grendel legt op wat de VSTOXX per definitie betekent:
+// meer verwachte beweging => grotere afstand voor dezelfde zekerheid.
+// De tabelwaarden zelf blijven ONGEWIJZIGD; de grendel zit in de toegang.
+// Hij kan een buffer alleen VERGROTEN, nooit verkleinen, en kan dus per
+// definitie geen nieuw risico introduceren.
+//
+// AANNAME 1 bewaakt: de regimevolgorde wordt AFGELEID uit REGIMES — dezelfde
+// constante die bepaalt in welk regime een VSTOXX valt. Een tweede, los
+// opgeschreven lijst kon stilzwijgend uit de pas lopen met de eerste; een
+// ontbrekend of verkeerd gespeld regime zou de lus dan stil overslaan.
+const REGIME_VOLGORDE = REGIMES.map(r => r.naam);
+
+function olowBuffer(regimeNaam, p, kant) {          // kant: 'put' | 'call'
+  const idx = REGIME_VOLGORDE.indexOf(regimeNaam);
+  if (idx < 0) return null;
+  let grootste = null;
+  for (let i = 0; i <= idx; i++) {                  // dit regime + alle LAGERE
+    // AANNAME 2 bewaakt: niet elke P-key hoeft te bestaan. In RAAK_RISICO is
+    // key 999 bewust VERWIJDERD (bug #28); wie dat ooit op OLOW toepast krijgt
+    // hier undefined. Zo'n waarde wordt overgeslagen, niet als 0 meegeteld.
+    const v = OLOW_REGIME[REGIME_VOLGORDE[i]]?.[kant]?.[p];
+    if (typeof v !== 'number' || !isFinite(v)) continue;
+    // AANNAME 3 bewaakt: PUT-waarden zijn negatief, CALL positief. Een max()
+    // op de RUWE waarden kiest bij PUT juist de krapste buffer — exact
+    // verkeerd om. Vergelijken gebeurt daarom op Math.abs(), en het teken
+    // wordt per kant hersteld bij de teruggave.
+    const abs = Math.abs(v);
+    if (grootste === null || abs > grootste) grootste = abs;
+  }
+  if (grootste === null) return null;               // ontbrekende meting blijft null
+  return (kant === 'put') ? -grootste : grootste;   // PUT negatief, CALL positief
+}
+
+// Of de grendel op deze cel daadwerkelijk iets heeft overruled. Staat BEWUST
+// in hetzelfde blok als olowBuffer(): dit zijn samen de enige twee plaatsen
+// die OLOW_REGIME rechtstreeks lezen, zodat de vergelijking nooit kan gaan
+// verlopen met de waarde die de rest van de tool gebruikt.
+// Zichtbaarheidseis Skill A v3.8 sectie 7.2: een grendel die stilzwijgend het
+// model wijzigt is faalpatroon 13.9 — geen foutmelding, wel een ander getal.
+function olowGrendelActief(regimeNaam, p, kant) {
+  const tabel = OLOW_REGIME[regimeNaam]?.[kant]?.[p];
+  const gegrendeld = olowBuffer(regimeNaam, p, kant);
+  if (typeof tabel !== 'number' || !isFinite(tabel) || gegrendeld === null) return false;
+  return Math.abs(Math.abs(gegrendeld) - Math.abs(tabel)) > 1e-9;
+}
+
+// Empirisch raakrisico O→Low/High strike tijdens de week (%)
+// RAAK_RISICO v3.0 — bijgewerkt 10 april 2026, 984 vrijdag→vrijdag weken
+// P95/P97/P98/P99 herberekend op basis van OLOW_REGIME v3.0
+// ⚠️ Dit is UITSLUITEND de PUT-zijde. Een CALL-raakrisicotabel bestaat niet —
+// die is nooit berekend (Skill A v3.5 sectie 8.2). De UI vermeldt dat expliciet.
+//
+// v10.10 — bug #28: de key 999 stond hier op 0.0 met het commentaar "nog niet
+// herberekend", en de UI presenteerde dat als 0,0% met een groen vinkje. Een
+// gebruiker las daaruit dat de diepste strike nooit geraakt wordt. De key is nu
+// WEG in plaats van nul, zodat getRaakRisico() null teruggeeft en de UI '—'
+// toont. Meting 13/9/2026 op dezelfde 984 weken gaf 0,41–0,69% in vier van de
+// zes regimes, elk op precies één waarneming — een frequentie, geen kans. Die
+// waarden worden bewust NIET ingevuld tot ze in Skill A staan (principe 0.1).
+const RAAK_RISICO = {
+  'Rustig':   { 95: 5.5, 97: 3.4, 98: 1.4, 99: 1.4 },
+  'Normaal':  { 95: 5.2, 97: 3.3, 98: 1.4, 99: 1.4 },
+  'Verhoogd': { 95: 5.3, 97: 3.3, 98: 2.0, 99: 1.2 },
+  'Onrustig': { 95: 5.3, 97: 3.4, 98: 2.4, 99: 1.5 },
+  'Stress':   { 95: 5.0, 97: 4.0, 98: 2.0, 99: 1.0 },
+  'Crisis':   { 95: 5.3, 97: 4.0, 98: 2.7, 99: 1.3 },
+};
+
+// v11.0 — besluit B3 (Skill A v3.7 sectie 2): de default gaat van P98 naar P99.
+// Onderbouwing is gemeten, geen voorkeur: over 17 weken mei-september 2026 lag
+// het P-equivalent van de feitelijk geschreven strike 14 van de 17 keer tussen
+// P98,5 en P99,5. De default van P98 beschreef niemand. Geen enkele
+// OLOW_REGIME- of RAAK_RISICO-waarde is aangeraakt; alleen de sterren.
+let activeP      = 99;
+let activeToggle = 'put';
+let exitModus    = 'avond';   // 'avond' (ma-do na 17:30) | 'ochtend' (hertoets 09:00)
+let slotHandmatig = false;    // true zodra de CEO het slotveld zelf heeft aangeraakt
+// Bug #48: laadOp() roept setP() aan VOORDAT de invoervelden hersteld zijn, en
+// setP() eindigt met slaOp(). Die las dan lege velden en overschreef de zojuist
+// gelezen opslag met lege strings. Het scherm zag er goed uit — `data` stond al
+// in het geheugen — maar bij het VOLGENDE herladen was alles weg. Deze vlag zet
+// slaOp() stil zolang laadOp() bezig is.
+let bezigMetLaden = false;
+
+// ═══ HULPFUNCTIES ══════════════════════════════════════════
+function fmt(v, d=2) {
+  if (v === null || v === undefined || isNaN(v)) return '—';
+  return v.toLocaleString('nl-NL', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+function getVal(id) { const v = parseFloat(document.getElementById(id)?.value); return isNaN(v) ? null : v; }
+
+// AANNAME 4 bewaakt: een gevuld veld dat de code als leeg leest.
+// Bij <input type="number"> draait de browser een value sanitization algorithm:
+// is de inhoud geen geldig floating-point getal (bijv. "18,5" met een komma in
+// een niet-NL locale), dan wordt .value de LEGE STRING. De getypte tekst is dan
+// al weg, dus een komma->punt-normalisatie in getVal() zou een no-op zijn die
+// eruitziet als een fix. validity.badInput staat in precies dat geval op true
+// en is daarmee het enige betrouwbare onderscheid tussen leeg en onleesbaar.
+function isOnleesbaar(id) {
+  const el = document.getElementById(id);
+  return !!(el && el.validity && el.validity.badInput);
+}
+function veldBron(id) {
+  if (isOnleesbaar(id)) return 'onleesbaar';
+  return getVal(id) === null ? 'leeg' : 'ok';
+}
+function setHTML(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; }
+
+function vstoxxRegime(v) {
+  return REGIMES.find((r, i) => i === 0 ? v <= r.hi : v > r.lo && v <= r.hi) || REGIMES[REGIMES.length - 1];
+}
+function rKleur(k) {
+  return k === 'green' ? 'var(--green)' : k === 'orange' ? 'var(--orange)' : 'var(--red)';
+}
+function pLabel(p) { return p === 999 ? 'P99.9' : 'P' + p; }
+
+// Strike berekening altijd op O→Low/High basis, deler 5, richting WEG van de koers.
+// Skill A v3.5 sectie 3: PUT omlaag (Math.floor), CALL omhoog (Math.ceil).
+// Math.round is verboden — dat rondt naar de dichtstbijzijnde kant en kan een
+// strike dus NAAR de koers toe schuiven, waardoor de feitelijke buffer kleiner
+// wordt dan de buffer die bij het gekozen P-niveau hoort.
+// Retourneert { raw, strike }: raw = onafgerond, voor weergave (Skill A 3.2).
+function getOlowStrike(vstoxx, p, kant, koers) {
+  const r = vstoxxRegime(vstoxx);
+  // v11.4: de buffer komt niet meer rechtstreeks uit de tabel maar door de
+  // monotoniegrendel (Skill A v3.8 sectie 7.2). Die kan de buffer uitsluitend
+  // verdiepen, dus de strike schuift alleen wég van de koers, nooit ernaartoe.
+  const weekPct = olowBuffer(r.naam, p, kant);
+  if (weekPct === null) return null;
+  const raw = koers * (1 + weekPct / 100);
+  // AANNAME 1 bewaakt: floor/ceil op een niet-positieve of ongeldige waarde
+  // levert een onzinnige strike zonder foutmelding. Blokkeer dat hier.
+  if (!isFinite(raw) || raw <= 0) return null;
+  const strike = kant === 'put'
+    ? Math.floor(raw / 5) * 5
+    : Math.ceil (raw / 5) * 5;
+  return { raw, strike, grendel: olowGrendelActief(r.naam, p, kant) };
+}
+
+// 4% OTM-vloer voor PUT — één definitie, gebruikt door bereken(), setToggle()
+// en de tabel met alle P-niveaus. Stond vóór v10.9 op drie plaatsen los
+// overgeschreven, wat betekende dat een wijziging er één kon missen.
+// Rondt naar BENEDEN af: een vloer die naar boven afrondt kan onder de 4%
+// zakken terwijl de UI "4% vloer actief" meldt (Skill A v3.5 sectie 4).
+function vloerStrike(koers) {
+  return Math.floor(koers * (1 - OTM_VLOER_PCT) / 5) * 5;
+}
+
+// Exacte waarde onder een strike tonen (Skill A v3.5 sectie 3.2).
+// De CEO bepaalt zelf of hij een stap dichter bij de koers instapt; daarvoor
+// moet hij zien wat de berekening werkelijk zegt, niet alleen het afgeronde getal.
+function exactRegel(raw, kant) {
+  if (raw == null || !isFinite(raw)) return '';
+  const richting = kant === 'put' ? 'afgerond omlaag' : 'afgerond omhoog';
+  return `<div style="font-size:9px;color:var(--text3);margin-top:3px;">exact ${fmt(raw,1)} · ${richting}</div>`;
+}
+
+// v10.10: retourneert NULL als er geen gemeten waarde is, niet 0.
+// AANNAME 4 bewaakt: de oude `|| 0` maakte van elke onbekende of ontbrekende
+// key stilzwijgend "0,0%", en 0 < 1 betekent in bereken() een groen vinkje.
+// Een ontbrekende meting mag nooit als de veiligste uitkomst worden getoond.
+function getRaakRisico(vstoxx, p) {
+  const r = vstoxxRegime(vstoxx);
+  const tabel = RAAK_RISICO[r.naam];
+  if (!tabel) return null;
+  const waarde = tabel[p];
+  return (typeof waarde === 'number' && isFinite(waarde)) ? waarde : null;
+}
+
+// ═══ PROTOCOL CHECK ═══════════════════════════════════════
+function checkProtocol() {
+  const dag = new Date().getDay();
+  if (dag !== 5) document.getElementById('protocol-banner').style.display = 'block';
+}
+
+// ═══ P-TAB SELECTIE ═══════════════════════════════════════
+function setP(p) {
+  activeP = p;
+  [97, 98, 99, 999].forEach(n => {
+    const el = document.getElementById('ptab-' + n);
+    if (!el) return;
+    el.className = 'p-tab' + (n === p ? ' ap' + n : '');
+    // P99 draagt de advies-badge (besluit B3). P98 blijft gewoon selecteerbaar.
+    if (n === 99) {
+      el.innerHTML = 'P99 ★ <span class="advies-badge">Advies</span>';
+    } else if (n === 999) {
+      el.innerHTML = 'P99.9';
+    } else {
+      el.innerHTML = 'P' + n;
+    }
+  });
+  hertekenAlles();
+  slaOp();
+}
+
+// ═══ TOGGLE PUT / CALL / STRANGLE ══════════════════════════
+// v11.4 — de tweede, losse kopie van de strike- en vloerberekening is hier
+// FYSIEK verwijderd. Skill A sectie 3.5 noemt die kopie met name: een wijziging
+// aan de vloer kon er één missen. maakMarginHTML() leest activeToggle zelf, dus
+// hertekenAlles() levert exact dezelfde uitvoer — uit de ééne rekenketen.
+function setToggle(t) {
+  activeToggle = t;
+  tekenToggleKnoppen();
+  hertekenAlles();
+  slaOp();
+}
+
+function tekenToggleKnoppen() {
+  ['put', 'call', 'strangle'].forEach(id => {
+    const btn = document.getElementById('toggle-' + id);
+    if (!btn) return;
+    btn.className = 'toggle-btn' + (id === activeToggle ? ' active-' + id : '');
+  });
+}
+
+// ═══ INTRAWEEK — PUT-EXITREGEL ════════════════════════════
+// Volledig herschreven in v11.0. De oude functie draaide op INTRAWEEK_EXIT_D = 8
+// en keek uitsluitend naar de VSTOXX. Skill A v3.7 sectie 9.1 vervangt dat door een
+// EN/EN-regel: sprong >= 4 ÉN buffer <= 3%. Eén van beide alleen is GEEN exit —
+// acht keer in 14,6 jaar sprong de VSTOXX >= 8 terwijl de buffer ruim bleef, en
+// NUL van de acht eindigde ITM (sectie 20.4). Paniek is geen gevaar.
+
+// Tekent alleen de knoppen. Bewust GESCHEIDEN van setExitModus(), want de init
+// moet de knopstand kunnen zetten ZONDER slaOp() aan te roepen — dat zou een lege
+// record naar localStorage schrijven vóórdat laadOp() de opgeslagen invoer leest.
+function tekenExitModus() {
+  const wrap = document.getElementById('exit-modus');
+  if (!wrap) return;
+  wrap.querySelectorAll('button').forEach(b => {
+    b.className = 'toggle-btn' + (b.dataset.modus === exitModus ? ' active-modus' : '');
+  });
+}
+
+function setExitModus(m) {
+  exitModus = (m === 'ochtend') ? 'ochtend' : 'avond';
+  tekenExitModus();
+  updateIntraweekStoplicht();
+  slaOp();
+}
+
+function markeerSlotHandmatig() { slotHandmatig = true; }
+
+// Het slotveld neemt de 16:25-stand over als VOORSTEL, zolang de CEO het veld
+// niet zelf heeft aangeraakt. Vrijdagavond na 17:30 corrigeert hij het; vanaf
+// dat moment blijft zijn waarde staan. De 7-daagse vervaltoets in laadOp() zet
+// slotHandmatig weer op false, zodat een NIEUWE week wél opnieuw voorstelt.
+function voorstelSlotVanInstap() {
+  if (slotHandmatig) return;
+  const doel = document.getElementById('vstoxx_slot_instap');
+  const bron = document.getElementById('vstoxx');
+  if (doel && bron) doel.value = bron.value;
+}
+
+function updateIntraweekStoplicht() {
+  const lampEl    = document.getElementById('intraweek-lamp');
+  const drempelEl = document.getElementById('exit-drempels');
+  if (!lampEl) return;
+
+  const zetLamp = (kleur, titel, sub) => {
+    lampEl.className = 'lamp-rij ' + kleur;
+    lampEl.innerHTML = `<div class="lamp ${kleur}"></div><div><div class="lamp-titel">${titel}</div><div class="lamp-sub">${sub}</div></div>`;
+  };
+  const zetDrempels = (html) => { if (drempelEl) drempelEl.innerHTML = html; };
+
+  // v11.6 — ÉÉN plaats waar de uitstapgrens wordt berekend en afgerond, zodat
+  // het getal in Stap 2 en het verdict in het exitblok niet uit elkaar kunnen
+  // lopen. Dat liep in v11.5 wél uit elkaar: fmt(...,0) maakte van 6.030,93
+  // het getal 6.031, en bij koers 6031 zei de tool tegelijk "grens 6.031" en
+  // "geen exit". Naar BENEDEN afgerond op 0,1 punt, zodat alles wat de tool
+  // als exit aanwijst ook volgens de onafgeronde regel een exit IS.
+  // De beslissing zelf blijft op de ONAFGERONDE buffer draaien.
+  // De koersgrens uit de WERKELIJK geschreven strike. Staat los van elke
+  // vroege terugkeer hieronder, want hij is ook nuttig als de rest nog leeg is.
+  // Alleen tonen bij een plausibele strike — een getal naast een typefout
+  // ziet eruit als een bevestiging van die typefout.
+  const strikeRuw = getVal('put_strike_geschreven');
+  const grensEl   = document.getElementById('strike-grens');
+  if (grensEl) {
+    grensEl.innerHTML = (strikeRuw !== null && strikeRuw >= 1000 && strikeRuw % 5 === 0)
+      ? `<span class="grens-regel">→ uitstapgrens <strong>${fmt(uitstapGrensToon(strikeRuw), 1)}</strong> · op of onder dat niveau is de buffer ${EXIT_BUFFER_PCT}% of krapper</span>`
+      : 'De strike die je werkelijk hebt geschreven';
+  }
+
+  const vstoxxNu = getVal('vstoxx_intraweek');
+
+  // ── 1. NOODREM — absoluut, los van het dagritme en los van de buffer.
+  // Staat VOOROP omdat hij niet mag afhangen van velden die nog leeg zijn:
+  // VSTOXX 41 met een onbekende strike is nog steeds VSTOXX 41.
+  if (vstoxxNu !== null && vstoxxNu >= INTRAWEEK_EXIT_ABS) {
+    zetLamp('rood', 'NOODREM — sluit positie direct',
+      `VSTOXX ${fmt(vstoxxNu,1)} ≥ ${INTRAWEEK_EXIT_ABS} absoluut · ook overdag · ongeacht de buffer`);
+    zetDrempels(`<div class="drempel-kop">Noodrem actief</div>
+      <div class="drempel-tekst">De absolute drempel van <strong>VSTOXX ${INTRAWEEK_EXIT_ABS}</strong> staat los van de en/en-regel en van het dagritme. Er wordt niet gewacht op een ochtendtoets (Skill A sectie 9.1).</div>`);
+    return;
+  }
+
+  // ── 2. AANNAME 3 bewaakt: expliciete null-check VÓÓR elke vergelijking.
+  // `null - 18,5` geeft NaN, en elke vergelijking met NaN is false — de code zou
+  // in de else-tak vallen en GROEN "niets doen" tonen. Een leeg veld mag zich
+  // nooit voordoen als een veilige positie. Zelfde faalvolgorde als de null-tak
+  // van bug #43, waar `null < 1` in JavaScript true is.
+  const velden = [
+    { id: 'vstoxx_slot_instap',    naam: 'VSTOXX slot instapvrijdag' },
+    { id: 'put_strike_geschreven', naam: 'geschreven PUT-strike' },
+    { id: 'vstoxx_intraweek',      naam: 'actuele VSTOXX' },
+    { id: 'koers_intraweek',       naam: 'actuele EuroStoxx 50' },
+  ];
+
+  // AANNAME 4 bewaakt: onleesbaar is iets anders dan leeg, en moet ook anders
+  // gemeld worden — anders zoekt de CEO naar een veld dat hij al heeft ingevuld.
+  const onleesbaar = velden.filter(v => veldBron(v.id) === 'onleesbaar');
+  if (onleesbaar.length) {
+    zetLamp('leeg', 'Lamp uit — onleesbare invoer',
+      `${onleesbaar.map(v => v.naam).join(' · ')} — gebruik een <strong>punt</strong> als decimaalteken, geen komma`);
+    zetDrempels('');
+    return;
+  }
+
+  const leeg = velden.filter(v => getVal(v.id) === null);
+  if (leeg.length) {
+    zetLamp('leeg', 'Lamp uit — nog niet te berekenen',
+      `Vul in: ${leeg.map(v => v.naam).join(' · ')}`);
+    zetDrempels('');
+    return;
+  }
+
+  const vstoxxSlot = getVal('vstoxx_slot_instap');
+  const strike     = getVal('put_strike_geschreven');
+  const koersNu    = getVal('koers_intraweek');
+
+  // ── 3. AANNAME 2 bewaakt: een typefout in de strike. 585 geeft een buffer van
+  // 90%, 58500 geeft -840%, en in beide gevallen zou de lamp op GROEN springen.
+  // Faalt de plausibiliteitstoets, dan gaat de lamp UIT met de reden erbij.
+  // Nooit toch een lamp tonen — stilzwijgende degradatie is verboden.
+  if (strike > koersNu) {
+    zetLamp('leeg', 'Lamp uit — PUT staat ITM',
+      // v11.10 — bug #64. Hier stond fmt(koersNu,0): bij koers 5849,6 en strike
+      // 5850 las dat als "Strike 5.850 ligt bóven de koers 5.850" — een zin die
+      // zichzelf tegenspreekt, precies op het gevaarlijkste punt van de week.
+      // koersToon() toont de deelsom-koers met decimalen zodra hij die heeft.
+      `Strike ${koersToon(strike)} ligt bóven de koers ${koersToon(koersNu)}. De PUT-exitregel is niet op ITM-posities gemeten — beoordeel handmatig.`);
+    zetDrempels('');
+    return;
+  }
+  if (strike < koersNu * 0.5 || strike % 5 !== 0) {
+    zetLamp('leeg', 'Lamp uit — strike onwaarschijnlijk',
+      `Strike ${koersToon(strike)} bij koers ${koersToon(koersNu)}: moet tussen ${fmt(koersNu*0.5,0)} en ${koersToon(koersNu)} liggen én deelbaar zijn door 5.`);
+    zetDrempels('');
+    return;
+  }
+
+  // ── 4. De twee metingen (Skill A sectie 9.2).
+  const sprong    = vstoxxNu - vstoxxSlot;
+  const buffer    = (koersNu - strike) / koersNu * 100;
+  // v11.14 — exact, zodat "sprong" en "slot + 4" dezelfde som vertellen (#83).
+  const sprongStr = (sprong >= 0 ? '+' : '') + vstoxxToon(sprong);
+
+  const sprongVoldaan = sprong >= EXIT_SPRONG;
+  const bufferVoldaan = buffer <= EXIT_BUFFER_PCT;
+
+  // v11.6 — de grens staat hier BOVEN de beslissing, omdat de lamptekst hem
+  // nodig heeft. De beslissing zelf gebruikt hem niet: die draait op de
+  // onafgeronde buffer, precies zoals Skill A sectie 9.1 voorschrijft.
+  const koersDrempel    = uitstapGrens(strike);
+  const koersDrempelStr = fmt(uitstapGrensToon(strike), 1);
+  const puntenTotGrens  = koersNu - koersDrempel;
+
+  // ── 5. De en/en-beslissing.
+  if (sprongVoldaan && bufferVoldaan) {
+    if (exitModus === 'ochtend') {
+      zetLamp('rood', 'UITSTAPPEN — hertoets bevestigt, sluit direct',
+        `Sprong ${sprongStr} ≥ ${EXIT_SPRONG} ÉN buffer ${bufferToon(buffer)} ≤ ${EXIT_BUFFER_PCT}% · beide condities gelden óók bij de opening`);
+    } else {
+      // De oude tekst zei "vanavond NIET handelen". Dat was onjuist: de beurs
+      // sluit om 17:30 en deze meting gebruikt juist die slotkoers, dus er valt
+      // 's avonds niets te handelen. Wat de regel werkelijk zegt is dat dit
+      // signaal nog geen besluit is.
+      zetLamp('oranje', 'Signaal — nog geen besluit · hertoets morgen 09:00',
+        `Beide voorwaarden gelden op het dagslot: sprong ${sprongStr} ≥ ${EXIT_SPRONG} én buffer ${bufferToon(buffer)} ≤ ${EXIT_BUFFER_PCT}%. Vul morgenochtend de openingskoersen in en zet de knop op Ochtendtoets. Gelden ze dan nog, dán sluit je. Gemeten over 2.736 nachten: nul keer opende de koers onder de strike, mediaan betaal je 0,27× de avondprijs`);
+    }
+  } else {
+    // v11.6 — de koerskant wordt niet langer verantwoord met een AFGEROND
+    // percentage. Bij koers 6031 en strike 5850 is de buffer 3,0012%; dat
+    // toonde de tool als "3,00%" en zei er vervolgens "en dus > 3%" achter.
+    // Het afgeronde getal werd zo zijn eigen bewijs. De koerskant spreekt nu
+    // in punten tot de grens -- dat is exact en niet voor tweeërlei uitleg
+    // vatbaar. Het percentage blijft staan als informatie, niet als argument.
+    const koersZin  = `de koers staat nog <strong>${restToon(puntenTotGrens)} punt</strong> boven de uitstapgrens ${koersDrempelStr} (buffer ${bufferToon(buffer)})`;
+    const sprongZin = `de VSTOXX moet nog <strong>${restToon(EXIT_SPRONG - sprong)} punt</strong> stijgen tot de drempel ${vstoxxToon(vstoxxDrempel(vstoxxSlot))}`;
+
+    // v11.8 — DE GELE STAND, symmetrisch. Groen is voortaan uitsluitend
+    // "beide voorwaarden nog veilig". Is er ÉÉN geraakt, dan geel. Dat is geen
+    // nieuwe drempel: het leest alleen af welke van de twee bestaande
+    // voorwaarden al geldt. Tot v11.8 stond hier groen met "Niets doen" terwijl
+    // de VSTOXX-voorwaarde al was overschreden — formeel juist, maar op het
+    // scherm niet te verdedigen (CEO-besluit 19/9/2026).
+    if (exitStand(sprongVoldaan, bufferVoldaan) === 'een') {
+      const geraakt = sprongVoldaan
+        ? `VSTOXX-voorwaarde GERAAKT: sprong ${sprongStr} ≥ ${EXIT_SPRONG} (slot ${vstoxxToon(vstoxxSlot)} + ${EXIT_SPRONG} = ${vstoxxToon(vstoxxDrempel(vstoxxSlot))})`
+        : `Koersvoorwaarde GERAAKT: buffer ${bufferToon(buffer)} ≤ ${EXIT_BUFFER_PCT}% (uitstapgrens ${koersDrempelStr})`;
+      const rest = sprongVoldaan ? koersZin : sprongZin;
+      zetLamp('geel', 'ALERT — één van de twee voorwaarden geraakt',
+        `${geraakt}. Nog geen exit: de regel is en/en — ${rest}.`);
+    } else {
+      zetLamp('groen', 'Niets doen', `De regel is en/en: ${koersZin} · ${sprongZin}`);
+    }
+  }
+
+  // ── 6. De grenzen in getallen, niet in formules.
+  const vstoxxDrempelNu = vstoxxToon(vstoxxDrempel(vstoxxSlot));   // v11.14: exact, al een tekst
+  const vstoxxInstap = getVal('vstoxx');
+  let slotAfwijking = '';
+  if (vstoxxInstap !== null && Math.abs(vstoxxInstap - vstoxxSlot) >= 0.005) {
+    const d = vstoxxSlot - vstoxxInstap;
+    slotAfwijking = `<br><span style="color:var(--orange);">Het slot wijkt ${(d >= 0 ? '+' : '')}${fmt(d,2)} punt af van de 16:25-stand (${fmt(vstoxxInstap,1)}). Voor de exitregel is het <strong>slot</strong> leidend — de regel is over 695 weken op slotkoersen gemeten (besluit B19).</span>`;
+  }
+
+  const dag = new Date().getDay();   // 0 = zo · 5 = vr · 6 = za
+  let dagTekst;
+  if (dag === 5) {
+    dagTekst = '⚠️ Expiratiedag — de PUT-exitregel geldt vandaag niet. De optie expireert om 12:00, de slotmeting valt om 17:30; een trigger vandaag is een afrekening achteraf, geen exitbesluit (Skill A sectie 9.3).';
+  } else if (dag === 0 || dag === 6) {
+    dagTekst = 'ℹ️ Geen handelsdag — geen meetmoment. De regel meet maandag t/m donderdag.';
+  } else {
+    dagTekst = exitModus === 'avond'
+      ? '🌙 Avondmeting: dagslotwaarden, ma t/m do na 17:30. De beurs is dan al gesloten — een treffer is dus nog geen besluit, maar een reden om morgen om 09:00 te hertoetsen.'
+      : '☀️ Ochtendtoets 09:00: dezelfde twee formules met de openingswaarden. Een mechanische hertoets, geen beoordeling — vervalt één van beide condities, dan gebeurt er niets en meet je vanavond opnieuw.';
+  }
+
+  // Per kant tonen of hij AL voldaan is, of hoeveel er nog te gaan is. De oude
+  // tekst zette beide grenzen passief naast elkaar; de gebruiker moest zelf twee
+  // getallen vergelijken om te zien dat een kant allang gepasseerd was.
+  const vink = '<strong style="color:var(--orange);">✓ voldaan</strong>';
+  // v11.9 — bug #62. Hier stond `${fmt(vstoxxNu,1)} ≥ ${fmt(vstoxxDrempelNu,1)}`:
+  // twee correct afgeronde getallen die samen een onwaarheid vertelden. De
+  // drempel gaat terecht naar BOVEN (22,325 -> 22,4, Skill A 22.2), de actuele
+  // stand naar de dichtstbijzijnde (22,34 -> 22,3). Scherm: "✓ voldaan —
+  // 22,3 ≥ 22,4". Gemeten op de week slot 18,325 / nu 22,34: sprong 4,015,
+  // dus werkelijk voldaan. De voldaan-tak herhaalt de vergelijking nu niet
+  // meer maar noemt de afstand ± dezelfde behandeling die de niet-voldaan-tak
+  // hieronder in v11.6 al kreeg (zie het commentaar boven koersZin).
+  // v11.10 — Skill A 22.4 punt 5. Bij een sprong die exact op de drempel
+  // uitkomt gaf restToon() de string "0", en dat las als "0 punt voorbij de
+  // drempel": een afstand van nul gepresenteerd als een afstand. Tekstueel
+  // opgelost, GEEN rekenregel — de beslissing draait onveranderd op de
+  // onafgeronde sprong.
+  const vstoxxKant = sprongVoldaan
+    ? (sprong - EXIT_SPRONG <= 0
+        ? `${vink} — sprong ${sprongStr}, dat is <strong>precies op de drempel</strong> ${vstoxxDrempelNu}`
+        : `${vink} — sprong ${sprongStr}, dat is <strong>${restToon(sprong - EXIT_SPRONG)} punt</strong> voorbij de drempel ${vstoxxDrempelNu}`)
+    : `nog <strong>${restToon(vstoxxDrempel(vstoxxSlot) - vstoxxNu)} punt</strong> te gaan — drempel ${vstoxxDrempelNu}`;
+  // v11.9 — bug #63, het spiegelbeeld van #62. Hier stond
+  // `${fmt(koersNu,0)} ligt op of onder ${koersDrempelStr}`. De grens gaat
+  // terecht naar BENEDEN (6030,9278 -> 6030,9, Skill A 9.11), de koers naar
+  // boven (6030,92 -> 6031). Scherm: "✓ voldaan — 6031 ligt op of onder
+  // 6030,9", terwijl de buffer 2,9997% is en de conditie dus geldt.
+  const koersKant = bufferVoldaan
+    ? (koersDrempel - koersNu <= 0
+        ? `${vink} — de koers staat <strong>precies op de grens</strong> ${koersDrempelStr}`
+        : `${vink} — de koers staat <strong>${restToon(koersDrempel - koersNu)} punt</strong> onder de uitstapgrens ${koersDrempelStr}`)
+    : `nog <strong>${restToon(puntenTotGrens)} punt</strong> te gaan — grens ${koersDrempelStr}`;
+
+  zetDrempels(`
+    <div class="drempel-kop">Exitgrenzen voor deze positie</div>
+    <div class="drempel-tekst">
+      <div class="kant-rij">
+        <span class="kant-lbl">VSTOXX-kant</span><span>${vstoxxKant}</span>
+        <span class="kant-lbl">Koers-kant</span><span>${koersKant}</span>
+        <span class="kant-lbl">Buffer nu</span><span><strong>${bufferToon(buffer)}</strong> = (${koersToon(koersNu)} − ${koersToon(strike)}) ÷ ${koersToon(koersNu)}</span>
+      </div>${slotAfwijking}
+    </div>
+    <div class="drempel-modus">${dagTekst}<br>Noodrem: VSTOXX ≥ ${INTRAWEEK_EXIT_ABS} absoluut, direct uit, ook overdag.</div>
+  `);
+}
+
+// ═══ HOOFDBEREKENING ══════════════════════════════════════
+// v11.4 — ÉÉN HERTEKENFUNCTIE.
+// Tot en met v11.3 koos elk invoerveld in zijn eigen oninput-attribuut welk
+// deel van het scherm het bijwerkte: vier velden riepen bereken() aan, twee
+// alleen updateIntraweekStoplicht(). Drie bugs op 19/9/2026 hadden exact die
+// vorm — een veld dat het ene blok bijwerkte en het andere niet. Zolang er
+// iets te kiezen valt, kan die keuze fout zijn.
+//
+// Er is nu één ingang. Elk veld roept veldGewijzigd() aan, die de hertekening
+// niet deelt maar volledig doet. De volgorde staat hier in de code, niet
+// verspreid over acht HTML-attributen.
+function hertekenAlles() {
+  tekenExitModus();
+  tekenToggleKnoppen();
+  bereken();                 // roept updateIntraweekStoplicht() zelf aan
+  bouwRegimeTabel();
+}
+
+// De enige plaats waar een veld iets mag doen VÓÓR de hertekening. Wat hier
+// staat is veldspecifieke VOORBEWERKING, geen weergave. Wie een veld toevoegt
+// leest alleen dit lijstje, niet acht attributen.
+function veldGewijzigd(id) {
+  if (id === 'vstoxx')             voorstelSlotVanInstap();
+  if (id === 'vstoxx_slot_instap') markeerSlotHandmatig();
+  hertekenAlles();
+  slaOp();
+}
+
+function bereken() {
+  const koers   = getVal('koers');
+  const vstoxx  = getVal('vstoxx');
+  const kas     = getVal('kas');
+  const n       = getVal('contracts');
+
+  // Veldvalidatie. AANNAME 4 bewaakt: onderscheid tussen LEEG en ONLEESBAAR.
+  // Een komma in een numeriek veld maakt .value leeg terwijl de gebruiker een
+  // getal ziet staan. Zonder dit onderscheid zoekt hij naar een veld dat hij al
+  // heeft ingevuld — dat is precies het beeld uit de screenshot bij bug #46.
+  let ontbreekt = false;
+  const onleesbaarVeld = [];
+  ['koers', 'vstoxx', 'kas', 'contracts'].forEach(id => {
+    const bron = veldBron(id);
+    const fout = (bron !== 'ok');
+    document.getElementById('veld-' + id)?.classList.toggle('veld-fout', fout);
+    if (fout) ontbreekt = true;
+    if (bron === 'onleesbaar') onleesbaarVeld.push(id);
+  });
+
+  // Intraweek stoplicht altijd updaten
+  updateIntraweekStoplicht();
+
+  const tipEl       = document.getElementById('verplicht-tip');
+  const ptabSection = document.getElementById('p-tab-section');
+  const liqCard     = document.getElementById('liq-card');
+
+  if (ontbreekt) {
+    tipEl.style.display = 'block';
+    tipEl.innerHTML = onleesbaarVeld.length
+      ? `⛔ Onleesbare invoer in: <strong>${onleesbaarVeld.join(', ')}</strong>. Gebruik een <strong>punt</strong> als decimaalteken, geen komma — het veld ziet er gevuld uit maar is voor de berekening leeg.`
+      : '⬆ Vul alle 4 velden in om strikes en margin te berekenen.';
+    ptabSection.style.display = 'block';
+    liqCard.style.display = 'none';
+    setHTML('result-main', '<div style="text-align:center;color:var(--text3);font-size:11px;padding:20px 0;">Vul alle 4 velden in om strikes te berekenen ↑</div>');
+    setHTML('alle-p', '<div style="font-size:11px;color:var(--text3);">Vul alle 4 velden in</div>');
+    return;
+  }
+  tipEl.style.display = 'none';
+
+  // ─── VSTOXX ≥ 35 → INSTAP GEBLOKKEERD ───────────────────
+  if (vstoxx >= INSTAP_BLOKKADE) {
+    ptabSection.style.display = 'none';
+    liqCard.style.display = 'none';
+    setHTML('alle-p', '');
+    setHTML('result-main', `
+      <div class="blokkade-banner">
+        <div class="blokkade-icon">⛔</div>
+        <div class="blokkade-titel">Instap geblokkeerd</div>
+        <div class="blokkade-vstoxx">VSTOXX ${fmt(vstoxx,1)}</div>
+        <div class="blokkade-sub">
+          Grens is 35,0 — schrijf geen opties deze week.<br>
+          Kom terug volgende vrijdag.
+        </div>
+        <div class="blokkade-tip">
+          💡 Terugkomend na een exit? Controleer zelf of de afgelopen twee vrijdagen allebei onder 35 sloten.
+        </div>
+      </div>
+    `);
+    return;
+  }
+
+  // ─── NORMALE BEREKENING ───────────────────────────────────
+  ptabSection.style.display = 'block';
+
+  const p   = activeP;
+  const r   = vstoxxRegime(vstoxx);
+  const kl  = rKleur(r.kleur);
+
+  // Strikes: altijd O→Low/High, deler 5, PUT omlaag / CALL omhoog (Skill A v3.5 §3)
+  const putRes  = getOlowStrike(vstoxx, p, 'put',  koers);
+  const callRes = getOlowStrike(vstoxx, p, 'call', koers);
+
+  if (putRes === null || callRes === null) {
+    setHTML('result-main', '<div style="color:var(--red);font-size:11px;padding:12px;">Fout: regime data ontbreekt.</div>');
+    return;
+  }
+
+  let putStrike      = putRes.strike;
+  const callStrike   = callRes.strike;
+  const putRaw       = putRes.raw;
+  const callRaw      = callRes.raw;
+
+  // 4% OTM vloer voor PUT. Let op: lokale naam is bewust NIET vloerStrike,
+  // dat is de globale functie — een gelijknamige const zou die afschermen.
+  const vloerPut    = vloerStrike(koers);
+  const vloerActief = putStrike > vloerPut;
+  if (vloerActief) putStrike = vloerPut;
+
+  const putOtmPct  = (koers - putStrike)  / koers * 100;
+  const callOtmPct = (callStrike - koers) / koers * 100;
+
+  // v10.10 — de null-tak staat BEWUST vóór de vergelijkingen. In JavaScript is
+  // `null < 1` waar, dus een omgekeerde volgorde geeft een onbekende waarde
+  // alsnog het groene vinkje. Dat was precies bug #28.
+  const mPct     = getRaakRisico(vstoxx, p);
+  const mOnbekend = (mPct === null);
+  const mKlasse  = mOnbekend ? 'onbekend' : mPct < 1 ? 'ok'  : mPct < 3 ? 'warn' : 'danger';
+  const mIcon    = mOnbekend ? '—'        : mPct < 1 ? '✅' : mPct < 3 ? '⚠️'  : '⚡';
+  const mSub     = mOnbekend
+    ? 'niet berekend voor dit P-niveau — geen conclusie mogelijk'
+    : 'kans dat de PUT-strike geraakt wordt · CALL-zijde niet berekend';
+
+  // ── De twee alarmwaarden van de PUT-exitregel, al bij instap ──────────
+  // De koersgrens is het niveau waarop de buffer tot de strike nog precies
+  // EXIT_BUFFER_PCT bedraagt. "3% buffer" is te abstract om tijdens de week uit
+  // je hoofd te doen; dit ene getal is dat niet. De VSTOXX-drempel komt uit het
+  // SLOT-veld, niet uit de 16:25-stand, want dat is het nulpunt van de regel.
+  // ── De twee uitstapwaarden. SYMMETRISCH: beide rekenen met de werkelijke
+  // positie zodra die bekend is, en vallen daarvóór zichtbaar terug op de
+  // gegevens van Stap 1. Dat het ene getal wél meebewoog met de invoer en het
+  // andere niet, was de verwarring: twee getallen in één kader die op een
+  // verschillende werkelijkheid rekenden.
+  //
+  //   koersgrens   ← geschreven PUT-strike   · anders de ADVIES-strike
+  //   VSTOXX-drempel ← slot instapvrijdag    · anders de 16:25-stand
+  //
+  // Terugvallen mag, stilzwijgend terugvallen niet: elk getal zegt zelf op
+  // welke basis het staat, en een voorlopige basis is aan ⏳ te herkennen.
+  const strikeGeschreven = getVal('put_strike_geschreven');
+  const opStrike   = (strikeGeschreven !== null && strikeGeschreven >= 1000 && strikeGeschreven % 5 === 0);
+  const grensStrike = opStrike ? strikeGeschreven : putStrike;
+  // v11.8 — liep via een eigen berekening én werd op 0 decimalen getoond:
+  // 6030,93 verscheen als "6031", waar de buffer al 3,0012% is. Nu de gedeelde
+  // functie, naar beneden afgerond, gelijk aan het intraweek-blok.
+  const exitKoersGrens = uitstapGrensToon(grensStrike);
+
+  const slotInstap = getVal('vstoxx_slot_instap');
+  const opSlot     = (slotInstap !== null);
+  const nulpunt    = opSlot ? slotInstap : vstoxx;
+  const vstoxxDrempelInstap = vstoxxToon(vstoxxDrempel(nulpunt));   // v11.14: exact (#83)
+
+  const definitief = opStrike && opSlot;
+  const nogNodig = [
+    opStrike ? null : 'de <strong>geschreven PUT-strike</strong>',
+    opSlot   ? null : 'de <strong>VSTOXX-slotkoers van de instapvrijdag</strong> (na 17:30)',
+  ].filter(Boolean);
+
+  const alarmHTML = `
+    <div class="alarm-box${definitief ? '' : ' voorlopig'}">
+      <div class="alarm-kop">⚠️ Uitstapwaarden voor deze week — PUT-exitregel${definitief ? '' : ' · VOORLOPIG'}</div>
+      <div class="alarm-grid">
+        <div class="alarm-stat">
+          <div class="alarm-val">${fmt(exitKoersGrens, 1)}</div>
+          <div class="alarm-sub">Uitstapkoers EuroStoxx${opStrike
+              ? ` · buffer tot je geschreven PUT <strong>${fmt(grensStrike,0)}</strong> is hier nog precies ${EXIT_BUFFER_PCT}%`
+              : ` · ⏳ op de <strong>advies</strong>-strike ${fmt(putStrike,0)}`}</div>
+        </div>
+        <div class="alarm-stat">
+          <div class="alarm-val">${vstoxxDrempelInstap}</div>
+          <div class="alarm-sub">Uitstap-VSTOXX${opSlot
+              ? ` · slot instapvrijdag <strong>${vstoxxToon(slotInstap)}</strong> + ${EXIT_SPRONG}`
+              : ` · ⏳ op de <strong>16:25-stand</strong> ${vstoxxToon(vstoxx)} + ${EXIT_SPRONG}`}</div>
+        </div>
+      </div>
+      <div class="alarm-voet">${definitief
+        ? '✓ Beide getallen staan op hun definitieve basis: jouw geschreven strike en de slotkoers van de instapvrijdag. Dit zijn de twee waarden die de hele week gelden.'
+        : `⏳ <strong>Voorlopig.</strong> Vul bij de positiebewaking hierboven ${nogNodig.join(' en ')} in; ${nogNodig.length > 1 ? 'beide getallen verschuiven' : 'dit getal verschuift'} dan mee naar de definitieve basis.`}<br>
+      De exitregel vuurt alleen als <strong>beide</strong> gelden, gemeten maandag t/m donderdag op het dagslot. Eén van de twee alleen is geen exit.<br>
+      Tijdens de week toets je hierboven tegen deze twee grenzen met de <strong>actuele koers en VSTOXX</strong>.</div>
+    </div>`;
+
+  // Stap 2 resultaat
+  setHTML('result-main', `
+    <span class="regime-tag" style="background:${kl}20;color:${kl};border-color:${kl}50;">
+      VSTOXX ${fmt(vstoxx,1)} — ${r.naam} · O→Low/High actief
+    </span>
+    <div class="strikes-grid">
+      <div class="sk put">
+        <div class="sk-lbl">PUT — O→Low basis</div>
+        <div class="sk-val">${fmt(putStrike, 0)}</div>
+        <div class="sk-sub">−${fmt(koers - putStrike, 0)} pts · −${fmt(putOtmPct, 1)}% OTM</div>
+        ${vloerActief
+          ? exactRegel(koers * (1 - OTM_VLOER_PCT), 'put')
+          : exactRegel(putRaw, 'put')}
+        ${vloerActief
+          ? '<span class="sk-badge vloer-badge">4% vloer actief</span>'
+          : `<span class="sk-badge">${pLabel(p)} PUT</span>`}
+        ${putRes.grendel
+          ? '<span class="sk-badge grendel-badge" title="Een lager VSTOXX-regime gaf op dit P-niveau meer buffer. De diepste waarde wint.">⛓ monotoniegrendel actief</span>'
+          : ''}
+      </div>
+      <div class="sk call">
+        <div class="sk-lbl">CALL — O→High basis</div>
+        <div class="sk-val">${fmt(callStrike, 0)}</div>
+        <div class="sk-sub">+${fmt(callStrike - koers, 0)} pts · +${fmt(callOtmPct, 1)}% OTM</div>
+        ${exactRegel(callRaw, 'call')}
+        <span class="sk-badge" style="background:var(--blue);color:#fff;">${pLabel(p)} CALL</span>
+      </div>
+    </div>
+    ${alarmHTML}
+    <div class="mbox ${mKlasse}" style="margin-top:12px;">
+      <div class="mbox-title">${mIcon} Raakrisico ${r.naam} regime — ${pLabel(p)}</div>
+      <div class="mbox-grid">
+        <div class="mbox-stat">
+          <div class="mbox-val">${mOnbekend ? '—' : fmt(mPct, 1) + '%'}</div>
+          <div class="mbox-sub">${mSub}</div>
+        </div>
+        <div class="mbox-stat">
+          <div class="mbox-val">−${fmt(putOtmPct, 1)}%</div>
+          <div class="mbox-sub">PUT buffer t.o.v. koers</div>
+        </div>
+        <div class="mbox-stat">
+          <div class="mbox-val">+${fmt(callOtmPct, 1)}%</div>
+          <div class="mbox-sub">CALL buffer t.o.v. koers</div>
+        </div>
+      </div>
+    </div>
+  `);
+
+  // Alle P-niveaus tabel
+  let rows = '';
+  let grendelInTabel = false;
+  [97, 98, 99, 999].forEach(pN => {
+    const pRes = getOlowStrike(vstoxx, pN, 'put',  koers);
+    const cRes = getOlowStrike(vstoxx, pN, 'call', koers);
+    if (pRes === null || cRes === null) return;
+    if (pRes.grendel) grendelInTabel = true;
+    let psN     = pRes.strike;
+    let psRaw   = pRes.raw;
+    const csN   = cRes.strike;
+    // 4% vloer ook in tabel — zelfde gedeelde functie als in bereken()
+    const vlActief = psN > vloerPut;
+    if (vlActief) { psN = vloerPut; psRaw = koers * (1 - OTM_VLOER_PCT); }
+    const pOtm = (koers - psN) / koers * 100;
+    const cOtm = (csN - koers)  / koers * 100;
+    const isAct = pN === p;
+    const ex = 'font-size:8px;color:var(--text3);display:block;margin-top:2px;';
+    rows += `<tr${isAct ? ' class="hl"' : ''}>
+      <td><strong>${pLabel(pN)}</strong>${isAct ? ' ★' : ''}</td>
+      <td class="td-p">${fmt(psN, 0)}${pRes.grendel ? '<span style="color:var(--purple,#7c3aed);font-weight:700;"> ⛓</span>' : ''}<span style="${ex}">${fmt(psRaw, 1)}</span></td>
+      <td style="font-size:9px;color:var(--text3);">−${fmt(pOtm, 1)}%</td>
+      <td class="td-c">${fmt(csN, 0)}<span style="${ex}">${fmt(cRes.raw, 1)}</span></td>
+      <td style="font-size:9px;color:var(--text3);">+${fmt(cOtm, 1)}%</td>
+    </tr>`;
+  });
+
+  setHTML('alle-p', `
+    <table class="strike-table">
+      <thead><tr>
+        <th style="text-align:left;">P</th>
+        <th>PUT</th><th>OTM%</th>
+        <th>CALL</th><th>OTM%</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="font-size:9px;color:var(--text3);margin-top:8px;">
+      VSTOXX-band ${r.naam} · O→Low/High · 5-punts · PUT omlaag, CALL omhoog · klein getal = exact${vloerActief ? ' · <span style="color:var(--orange);">4% vloer actief</span>' : ''}${grendelInTabel ? '<br><span style="color:var(--purple,#7c3aed);">⛓ = monotoniegrendel actief — een láger VSTOXX-regime gaf op dit P-niveau méér buffer; de diepste waarde wint (Skill A 7.2)</span>' : ''}
+    </div>
+  `);
+
+  // Stap 3 tonen
+  liqCard.style.display = 'block';
+  setHTML('liq-inhoud', maakMarginHTML(koers, vstoxx, kas, n, putStrike, callStrike));
+}
+
+// v11.6 — de uitstapgrens op één plaats. uitstapGrens() is de exacte waarde
+// en wordt gebruikt om te REKENEN; uitstapGrensToon() is dezelfde waarde naar
+// beneden afgerond op 0,1 punt en wordt uitsluitend gebruikt om te TONEN.
+// Naar beneden, zodat het getoonde niveau nooit een exit belooft die de
+// onafgeronde regel niet geeft.
+// ═══════════════════════════════════════════════════════════════════
+// v11.8 — AFRONDINGSKLASSE. Elk getal dat zowel GETOOND als VERGELEKEN wordt,
+// krijgt één weergavefunctie die naar de VEILIGE kant rondt. Wie een van deze
+// functies wijzigt, wijzigt hem in dashboard EN rekentool.
+//
+//   koersgrens      -> naar BENEDEN : je moet eronder komen
+//   VSTOXX-drempel  -> EXACT (v11.14, bug #83) : zie vstoxxToon() hieronder
+//
+// Gemeten geval 19/9/2026: slot 18,325 -> drempel 22,325, getoond als "22,3".
+// De CEO typte 22,3, de sprong was 3,975 en de tool meldde "nog 0,0 punt".
+// Het scherm toonde een drempel die je niet haalt door hem te halen.
+// ═══════════════════════════════════════════════════════════════════
+function uitstapGrens(strike)     { return strike / (1 - EXIT_BUFFER_PCT / 100); }
+function uitstapGrensToon(strike) { return Math.floor(uitstapGrens(strike) * 10) / 10; }
+function vstoxxDrempel(slot)      { return slot + EXIT_SPRONG; }
+// v11.14 — BUG #83: vstoxxDrempelToon() is VERWIJDERD, woordelijk gelijk aan
+// dashboard v19.32. Hij rondde de drempel naar BOVEN af (22,325 -> "22,4"),
+// terwijl het slot in dezelfde zin gewoon werd afgerond (18,325 -> "18,3").
+// Samen vertelden ze de som 18,3 + 4 = 22,4. Gemeld door de CEO, 21/9/2026.
+// De VSTOXX-kant wordt nu EXACT getoond: dan klopt de som altijd.
+// Een VSTOXX-waarde EXACT, tot vier decimalen, zonder nullen achteraan; minstens één.
+function vstoxxToon(x) {
+  const r = Number(x.toFixed(4));
+  const dec = Math.max(1, (String(r).split('.')[1] || '').length);
+  return fmt(r, dec);
+}
+// v11.9 — een koers die als DEELSOM op het scherm staat, moet die som ook
+// opleveren. fmt(x,0) rondde de invoer af terwijl de buffer met de onafgeronde
+// waarde is berekend: bij koers 6031,4 toonde het kader (6031 − 5850) ÷ 6031
+// = 3,0012% naast een werkelijke buffer van 3,0076%. Bij 6031,93 wees de fout
+// de verkeerde kant op — de som suggereerde méér buffer dan er was.
+function koersToon(x) { return Number.isInteger(x) ? fmt(x, 0) : fmt(x, 2); }
+
+// Een afstand die nog NIET overbrugd is mag nooit als "0,0" verschijnen.
+function restToon(x) {
+  if (x <= 0)    return '0';
+  if (x >= 0.1)  return fmt(x, 1);
+  if (x >= 0.01) return fmt(x, 2);
+  return 'minder dan 0,01';
+}
+// Een buffer die boven de drempel ligt mag nooit als "3,00%" verschijnen, en
+// andersom. Bij twijfel meer decimalen in plaats van een misleidende twee.
+function bufferToon(b) {
+  const tweeDec = Number(b.toFixed(2));
+  const mis = (b > EXIT_BUFFER_PCT && tweeDec <= EXIT_BUFFER_PCT)
+           || (b < EXIT_BUFFER_PCT && tweeDec >= EXIT_BUFFER_PCT);
+  return fmt(b, mis ? 4 : 2) + '%';
+}
+// v11.11 — DE ZESDE FUNCTIE (bug #66). Marginverbruik wordt zowel GETOOND als
+// VERGELEKEN — progKleur() kent de drempels 75 en 100 — en valt daarmee per
+// definitie onder de afrondingsklasse (B30, Skill A 22.2).
+// De beslissing draait sinds v11.11 op pctExact. Deze functie zorgt dat het
+// GETOONDE getal die beslissing niet tegenspreekt: ligt de afgeronde weergave
+// aan de andere kant van een drempel dan de werkelijke waarde, dan komen er
+// decimalen bij tot dat niet meer zo is.
+//   74,622%  ->  "74,6%" groen      (was: "75%" oranje naast een groene ✅)
+//   74,96%   ->  "74,96%" groen
+//   75,4%    ->  "75,4%" oranje
+//   74,4%    ->  "74%" groen        (geen twijfel, geen decimalen)
+// Zelfde vorm als bufferToon(), zelfde reden: een afgerond getal mag nooit
+// zijn eigen bewijs worden.
+// v11.14 — drempels en minDec als parameter, woordelijk gelijk aan dashboard
+// v19.32 (bug #69). De standaardwaarden geven exact het gedrag van v11.13.
+function verbruikToon(pct, drempels = [75, 100], minDec = 0) {
+  const misleidend = (dec) => {
+    const r = Number(pct.toFixed(dec));
+    return drempels.some(d => (pct < d && r >= d) || (pct > d && r <= d));
+  };
+  // Doorschalen tot 4 decimalen, net als bufferToon(). Gemeten randgeval:
+  // 74,999% gaf op 2 decimalen nog "75,00%" naast een GROENE kleur.
+  for (const dec of [0, 1, 2, 3, 4]) {
+    if (dec >= minDec && !misleidend(dec)) return fmt(pct, dec) + '%';
+  }
+  return fmt(pct, 4) + '%';
+}
+
+// De en/en-regel kent vier standen. Deze functie kent GEEN eigen drempel: hij
+// leest alleen af welke van de twee bestaande voorwaarden gelden.
+function exitStand(sprongVoldaan, bufferVoldaan) {
+  if (sprongVoldaan && bufferVoldaan) return 'beide';
+  if (sprongVoldaan || bufferVoldaan) return 'een';
+  return 'geen';
+}
+
+// ═══ MARGIN MODULE ═════════════════════════════════════════
+function marginPerContract(koers, strike, vstoxx, kant) {
+  const otm = kant === 'call'
+    ? (strike - koers) / koers
+    : (koers - strike) / koers;
+  // AANNAME 1 bewaakt: 9999 is een SENTINEL, geen marge. Hij staat bewust
+  // vóór de correctie. Zou MGN_CORR er overheen gaan, dan werd 9999 -> 10509
+  // en faalde de plausibiliteitstoets `mpc_eff < 9999` in maakMarginHTML()
+  // stilzwijgend -- precies bij een strike op de koers, het gevaarlijkste punt
+  // van de week. Geen foutmelding, wel een verdwenen waarschuwing.
+  if (otm <= 0.005) return 9999;
+  const vst = vstoxx && vstoxx > 0 ? vstoxx : 20;
+  // v11.10 — besluit B35: de correctie staat HIER, op de bron, en niet bij
+  // max_n alleen. Anders vertelt hetzelfde paneel twee dingen die niet allebei
+  // waar zijn: "je zit op 70%, de grens is 75%" naast een maximum dat op 71%
+  // uitkomt. Alle afnemers (mpc_put/call/strangle, totalMgn, pctVerbruik,
+  // max_n, progKleur) lezen zo één gecorrigeerd getal. Zie Skill A 23.5.
+  return MGN_A * Math.pow(vst, MGN_a) * Math.pow(otm, MGN_b) * MGN_CORR;
+}
+
+function maakMarginHTML(koers, vstoxx, kas, n, putStrike, callStrike) {
+  const mpc_put    = marginPerContract(koers, putStrike,  vstoxx, 'put');
+  const mpc_call   = marginPerContract(koers, callStrike, vstoxx, 'call');
+  const mpc_strangle = Math.max(mpc_put, mpc_call) + Math.min(mpc_put, mpc_call) * 0.10;
+
+  const kant = activeToggle;
+  let mpc_eff, headerTekst;
+
+  if (kant === 'strangle') {
+    mpc_eff    = mpc_strangle;
+    headerTekst = `🔴🔵 Strangle — PUT ${fmt(putStrike,0)} + CALL ${fmt(callStrike,0)} · ${fmt(n,0)} contracten · Saxo offset 10%`;
+  } else if (kant === 'call') {
+    mpc_eff    = mpc_call;
+    headerTekst = `🔵 CALL — ${fmt(callStrike,0)} · ${fmt(n,0)} contracten`;
+  } else {
+    mpc_eff    = mpc_put;
+    headerTekst = `🔴 PUT — ${fmt(putStrike,0)} · ${fmt(n,0)} contracten`;
+  }
+
+  const totalMgn   = mpc_eff * n;
+  const tooMany    = totalMgn > kas;
+  const pctVerbruik = mpc_eff * n / kas;
+  // v11.11 — BUG #66. Hier stond `const pctRond = Math.round(pctVerbruik*100)`,
+  // en dát getal ging zowel naar het scherm ALS naar progKleur(). De beslissing
+  // draaide dus op een afgerond getal, tegen rule 1 van de afrondingsklasse
+  // (B30, Skill A 22.2). Gemeten geval week 11-09-2026: verbruik 74,622% --
+  // onder de eigen norm van 75 -- werd getoond als "75%" en gekleurd ORANJE,
+  // naast een groene ✅ bij "Max. aanbevolen 121, jij 121". Twee uitspraken op
+  // één paneel die niet allebei waar kunnen zijn.
+  // De fout bestond al in v11.9, maar was onbereikbaar zolang het model 5%
+  // te laag rekende: het verbruik zat dan rond 70%. Besluit B35 zet elke week
+  // pal op 74-75%, dus precies in de band 74,500-74,999 waar hij leeft.
+  const pctExact   = pctVerbruik * 100;
+  const max_n      = Math.floor(kas * SAXO_VEILIG / mpc_eff);
+
+  // ── B32-DOORVOER (CEO 20/9/2026, Skill A v3.13 sectie 21.11a) ────────────
+  // De drempels hieronder zijn 75/100; het DASHBOARD kleurt hetzelfde getal op
+  // 101/116. Dat is GEEN inconsistentie en mag NIET geharmoniseerd worden.
+  //
+  //   rekentool = ADVIESdrempel  -> vrijdag, vóór de order, keuze die je nog
+  //                                 kunt maken: "hoeveel contracten mag ik?"
+  //   dashboard = BEWAKINGSdrempel -> ma t/m vr, positie staat, toestand die
+  //                                 je ondergaat: "moet ik nu iets doen?"
+  //
+  // Zet je het dashboard op 75/100, dan staat die lamp oranje bij 90% -- een
+  // volstrekt normaal weekverloop waar geen handeling bij hoort. Een lamp die
+  // te vaak afgaat wordt genegeerd, en dan mist hij de keer dat het telt.
+  // Alle vier de getallen hebben herkomst: 75 = eigen instapnorm (Skill A 9.0),
+  // 100 = volle benutting + orderweigering Saxo, 101/116 = CEO-besluit 27/4/2026.
+  //
+  // v11.10 — de INVOER van deze functie is sinds B35 gecorrigeerd (MGN_CORR).
+  // De drempels zelf zijn NIET verlaagd: besluit B34 laat de 75%-norm staan.
+  // Niet de grens was fout, maar het getal dat ertegen werd afgezet.
+  function progKleur(pct) {
+    return pct < 75 ? 'var(--green)' : pct < 100 ? 'var(--orange)' : 'var(--red)';
+  }
+  const statValKleur = tooMany ? 'var(--red)' : progKleur(pctExact);
+  const jijBadge    = n > max_n ? '⚠️' : '✅';
+
+  // ── v11.5 ONDERDEEL 1 — de kaders aan elkaar knopen ──────────────────
+  // AANNAME 1 bewaakt: max_n moet een plausibel getal zijn. Levert
+  // marginPerContract() de 9999-tak (strike op of vlak bij de koers), dan
+  // wordt max_n onzinnig klein en zou deze regel iets ONJUISTS beweren met
+  // een concreet getal erin. Geen plausibele mpc_eff => geen regel, geen getal.
+  const mpcPlausibel = isFinite(mpc_eff) && mpc_eff > 0 && mpc_eff < 9999;
+  // AANNAME 2 bewaakt: de regel doet uitsluitend een uitspraak over MARGE, en
+  // die wordt NAGEREKEND in plaats van geredeneerd -- bij max_n moet het
+  // verbruik werkelijk op of onder de adviesgrens uitkomen. Komt dat er niet
+  // uit, dan deugt max_n niet en verschijnt er geen regel. (Onder optie A
+  // bestaan er geen lampen meer om iets over te beweren; de oude formulering
+  // uit bouwplan v11.5 sectie 3 sprak over "beide lampen groen" en is daarmee
+  // vervallen. Zie Skill A v3.9 sectie 21.0.)
+  const pctBijMaxN = (mpcPlausibel && max_n >= 1) ? (mpc_eff * max_n / kas) : null;
+  const toonContractRegel = mpcPlausibel && max_n >= 1 && n > max_n
+                            && pctBijMaxN !== null && pctBijMaxN <= SAXO_VEILIG;
+  const contractRegel = toonContractRegel
+    ? `<div class="warn-box oranje" style="margin-top:12px;">⚠️ <strong>Dit komt door het AANTAL CONTRACTEN, niet door de strike.</strong><br>Bij <strong>${max_n} contracten</strong> zakt het marginverbruik naar ${verbruikToon(pctBijMaxN*100)} — binnen de adviesgrens van ${Math.round(SAXO_VEILIG*100)}% — met exact dezelfde strikes. Jij voert er ${Math.round(n)} in (${verbruikToon(pctExact)}).</div>`
+    : '';
+
+  // ── v11.10 — AANNAME 2 en 3 zichtbaar gemaakt in plaats van afgedwongen ──
+  // Beide aannames zijn NIET in een rekenregel te vangen zonder een tweede,
+  // ongemeten getal in te voeren -- precies wat Skill A sectie 21 verbiedt en
+  // wat deze maand bij de 8/4 en de "-2" juist is weggehaald. Dus: geen kleur,
+  // geen drempel, geen blokkade. Alleen de herkomst, in woorden, altijd zichtbaar.
+  //   aanname 2: 1,051 geldt bij OTM 5,18-6,65% op het INSTAPMOMENT.
+  //   aanname 3: de vijf strangle-weken lagen 7,6-13,6% te laag, niet 5,1%.
+  // v11.15 — uitleg en strangle-noot herschreven in gebruikerstaal (CEO
+  // 21/9/2026), woordelijk gelijk aan dashboard v19.36.
+  const strangleNoot = (kant === 'strangle')
+    ? '<br><strong>Schrijf je ook een call (strangle)?</strong> Dan is de marge waarschijnlijk hoger: op vijf gemeten strangle-weken lag de formule 7,6 à 13,6% te laag, dus de 5,1% is dan vermoedelijk te weinig. Er is bewust nog geen aparte correctie voor strangles, omdat vijf weken te weinig is om op te bouwen.'
+    : '';
+  const correctieRegel = `<div style="font-size:9px;color:var(--text3);line-height:1.6;margin-top:10px;">
+      ⚖️ <strong>Wat is dit bedrag?</strong> Een schatting van de marge die Saxo per contract vasthoudt op het moment van instappen. De formule kwam op 11 echte instapvrijdagen steeds ongeveer 5% te laag uit, daarom telt de rekentool er <strong>5,1%</strong> bij op. Gemeten bij strikes 5,2 à 6,7% onder de koers en een VSTOXX tussen ongeveer 15 en 19.<br><strong>Let op: dit geldt alleen voor het instapmoment.</strong> Zakt de koers later in de week richting je strike, dan vraagt Saxo tot bijna een derde meer marge dan deze formule. Tijdens de week kijk je daarom naar "Saxo margin % nu" in Blok 2 van het dashboard.${strangleNoot}
+    </div>`;
+
+  // Liquidatiekoers sectie
+  let liqHTML = '';
+  if (tooMany) {
+    // v11.5 — de contractenregel verschijnt hier BEWUST NIET. Boven de 100%
+    // worden de liquidatieblokken helemaal niet getoond, dus er is geen
+    // kleur om uit te leggen, en de rode box noemt max_n zelf al. Een zachter
+    // oranje kader boven een harder rood kader keert de rangorde om.
+    liqHTML = `<div class="warn-box rood" style="margin-top:12px;">⛔ Marginverbruik &gt; 100% — verlaag naar max. ${max_n} contracten.</div>`;
+  } else {
+    // v11.8 — hier stonden tot v11.6 de twee liquidatieblokken. Ze zijn weg
+    // (Skill A v3.13 sectie 21.10). Wat overblijft is de contractenregel, die
+    // over het marginverbruik gaat en dus over drempels MET herkomst.
+    liqHTML = contractRegel;
+  }
+
+  return `
+    <div class="margin-blok-header">${headerTekst}</div>
+    <div class="stat-grid">
+      <div class="stat-box">
+        <div class="stat-lbl">Margin / contract</div>
+        <div class="stat-val">€${Math.round(mpc_eff).toLocaleString('nl-NL')}</div>
+        <div class="stat-sub">${kant === 'strangle' ? 'PUT dom. + 10% CALL' : kant === 'call' ? 'CALL OTM' : 'PUT OTM'} · incl. +5,1%</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-lbl">Totaal margin</div>
+        <div class="stat-val" style="color:${statValKleur};">€${Math.round(totalMgn).toLocaleString('nl-NL')}</div>
+        <div class="stat-sub">van €${Math.round(kas).toLocaleString('nl-NL')}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-lbl">Marginverbruik</div>
+        <div class="stat-val" style="color:${progKleur(pctExact)};">${verbruikToon(pctExact)}</div>
+        <div class="stat-sub">grens: 75%</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-lbl">Max. aanbevolen</div>
+        <div class="stat-val" style="color:${n > max_n ? 'var(--red)' : 'var(--green)'};">${max_n}</div>
+        <div class="stat-sub">jij: ${Math.round(n)} ${jijBadge}</div>
+      </div>
+    </div>
+    <div class="prog-rij">
+      <div class="prog-naam">Marginverbruik</div>
+      <div class="prog-track"><div class="prog-fill" style="width:${Math.min(pctExact,100)}%;background:${progKleur(pctExact)};"></div></div>
+      <div class="prog-pct" style="color:${progKleur(pctExact)};">${verbruikToon(pctExact)}</div>
+    </div>
+    <div class="prog-rij">
+      <div class="prog-naam">Adviesgrens (75%)</div>
+      <div class="prog-track"><div class="prog-fill" style="width:75%;background:var(--accent);opacity:.5;"></div></div>
+      <div class="prog-pct" style="color:var(--accent);">75%</div>
+    </div>
+    ${correctieRegel}
+    ${liqHTML}
+  `;
+}
+
+// ═══ REGIME REFERENTIE TABEL ═══════════════════════════════
+function bouwRegimeTabel() {
+  const tbody = document.getElementById('regime-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  const regimesDisplay = [
+    { naam: 'Rustig',   bereik: '≤ 15' },
+    { naam: 'Normaal',  bereik: '15–18' },
+    { naam: 'Verhoogd', bereik: '18–22' },
+    { naam: 'Onrustig', bereik: '22–28' },
+    { naam: 'Stress',   bereik: '28–35' },
+  ];
+
+  let grendelInRef = false;
+
+  regimesDisplay.forEach(({ naam, bereik }) => {
+    const r = REGIMES.find(x => x.naam === naam);
+    if (!r) return;
+    const kl = rKleur(r.kleur);
+    // v11.4: door de grendel, zodat deze tabel exact laat zien wat de tool
+    // ook werkelijk adviseert. Twee decimalen — met één decimaal toonden
+    // Normaal (−6,019%) en Verhoogd (−5,985%) allebei −6,0%, waardoor de
+    // niet-monotonie die de grendel wegneemt onzichtbaar was.
+    const put99  = olowBuffer(naam, 99, 'put');
+    const call99 = olowBuffer(naam, 99, 'call');
+    if (olowGrendelActief(naam, 99, 'put')) grendelInRef = true;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${bereik}</strong></td>
+      <td><span class="tag" style="background:${kl}15;color:${kl};border:1px solid ${kl}40;">${naam}</span></td>
+      <td>${put99  !== null ? fmt(put99,  2) + '%' + (olowGrendelActief(naam, 99, 'put') ? ' <span style="color:var(--purple,#7c3aed);font-weight:700;">⛓</span>' : '') : '—'}</td>
+      <td>${call99 !== null ? '+' + fmt(call99, 2) + '%' : '—'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Blokkade rij
+  const trBlok = document.createElement('tr');
+  trBlok.innerHTML = `
+    <td><strong>≥ 35</strong></td>
+    <td><span style="font-size:9px;font-weight:700;color:var(--red);">⛔ Geblokkeerd</span></td>
+    <td style="color:var(--text3);">—</td>
+    <td style="color:var(--text3);">—</td>
+  `;
+  tbody.appendChild(trBlok);
+
+  // Voetnoot — principe 0.3: een getal in de UI zonder zijn herkomst is niet
+  // controleerbaar. Hier staat waarom twee regimes bijna gelijk zijn en wat de
+  // grendel daaraan doet.
+  const voet = document.getElementById('regime-voetnoot');
+  if (voet) {
+    voet.innerHTML =
+      'PUT- en CALL-buffer bij P99, na de <strong>monotoniegrendel</strong> (Skill A v3.8 sectie 7.2). '
+      + (grendelInRef ? '<span style="color:var(--purple,#7c3aed);font-weight:700;">⛓</span> = de tabelwaarde van dit regime gaf mínder buffer dan een láger regime; de diepste waarde wint. ' : '')
+      + 'Normaal (−6,02%) en Verhoogd (−5,99%) liggen zo dicht bij elkaar dat het verschil binnen de meetruis van een P99-schatting valt — daarom twee decimalen: met één waren ze niet te onderscheiden. '
+      + 'Het raakrisico bij Stap 2 is een <strong>aparte meting</strong> op dezelfde 984 weken en kan dus een andere kant op wijzen dan de buffer (Verhoogd 1,2% tegen Normaal 1,4%). Dat is geen tegenspraak, maar twee schattingen die elk op weinig waarnemingen rusten.';
+  }
+}
+
+// ═══ LOCALSTORAGE ══════════════════════════════════════════
+const LS_KEY = 'oesx_rekentool_v10_8';
+
+function slaOp() {
+  // Bug #48 bewaakt: tijdens het herstellen zijn de velden nog leeg. Wegschrijven
+  // betekent dan de opslag wissen met de gegevens die je net aan het lezen bent.
+  if (bezigMetLaden) return;
+  try {
+    const lees = id => document.getElementById(id)?.value;
+    const strikeNu = lees('put_strike_geschreven') || '';
+
+    // AANNAME 1 bewaakt: instap_datum hoort bij de GESCHREVEN POSITIE, niet bij
+    // het moment van opslaan. Zou hij bij elke toetsaanslag opnieuw worden gezet,
+    // dan schuift de vervaltermijn van 7 dagen elke dag vooruit en loopt hij
+    // nooit af — precies de bewaking die hij moet zijn, uitgeschakeld door zijn
+    // eigen implementatie. Alleen een GEWIJZIGDE strike is een andere positie.
+    let instapDatum = null;
+    try {
+      const vorig = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+      if (strikeNu && vorig.put_strike_geschreven === strikeNu && vorig.instap_datum) {
+        instapDatum = vorig.instap_datum;
+      }
+    } catch(e) {}
+    if (strikeNu && !instapDatum) instapDatum = new Date().toISOString();
+
+    const data = {
+      p: activeP,
+      toggle: activeToggle,
+      exitModus: exitModus,
+      slotHandmatig: slotHandmatig,
+      koers:                 lees('koers'),
+      vstoxx:                lees('vstoxx'),
+      vstoxx_slot_instap:    lees('vstoxx_slot_instap'),
+      vstoxx_intraweek:      lees('vstoxx_intraweek'),
+      koers_intraweek:       lees('koers_intraweek'),
+      put_strike_geschreven: strikeNu,
+      kas:                   lees('kas'),
+      contracts:             lees('contracts'),
+      instap_datum: instapDatum,
+      tijdstip: new Date().toISOString()
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+    updateLsBalk(data);
+  } catch(e) {}
+}
+
+function laadOp() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) { updateLsBalk(null); return false; }
+    const data = JSON.parse(raw);
+    bezigMetLaden = true;   // bug #48 — niets wegschrijven tot alles terugstaat
+
+    // P-niveau herstellen
+    activeP = data.p || 99;
+    setP(activeP);
+
+    // Toggle herstellen
+    activeToggle = data.toggle || 'put';
+    ['put', 'call', 'strangle'].forEach(id => {
+      const btn = document.getElementById('toggle-' + id);
+      if (btn) btn.className = 'toggle-btn' + (id === activeToggle ? ' active-' + id : '');
+    });
+
+    // Meetmodus herstellen
+    exitModus = (data.exitModus === 'ochtend') ? 'ochtend' : 'avond';
+    tekenExitModus();
+
+    // AANNAME 1 bewaakt: de opgeslagen intraweek-gegevens horen bij de LOPENDE
+    // positie. localStorage houdt PUT 5850 vast; schrijft de CEO over drie weken
+    // 5700 en vult hij alleen de VSTOXX in, dan rekent de tool zijn buffer tegen
+    // 5850. Geen foutmelding, wél een verkeerd getal — en het wijst de VERKEERDE
+    // kant op: een te ruime buffer betekent te laat uitstappen.
+    let vervallen = false;
+    if (data.instap_datum) {
+      const dagen = (Date.now() - new Date(data.instap_datum).getTime()) / 86400000;
+      if (!isFinite(dagen) || dagen > INTRAWEEK_VERVAL_DAGEN) vervallen = true;
+    } else if (data.put_strike_geschreven) {
+      // Strike zonder datum = opslag van vóór v11.0. Herkomst onbekend, dus niet
+      // vertrouwen. Eén keer opnieuw invullen is goedkoper dan één verkeerde buffer.
+      vervallen = true;
+    }
+
+    // Invoervelden herstellen — instapvelden altijd, positievelden alleen als
+    // ze niet vervallen zijn.
+    if (data.koers)     document.getElementById('koers').value     = data.koers;
+    if (data.vstoxx)    document.getElementById('vstoxx').value    = data.vstoxx;
+    if (data.kas)       document.getElementById('kas').value       = data.kas;
+    if (data.contracts) document.getElementById('contracts').value = data.contracts;
+
+    const vervalEl = document.getElementById('intraweek-verval');
+    if (vervallen) {
+      slotHandmatig = false;   // nieuwe week mag het slot opnieuw voorstellen
+      ['vstoxx_slot_instap', 'put_strike_geschreven', 'vstoxx_intraweek', 'koers_intraweek']
+        .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      if (vervalEl) {
+        vervalEl.style.display = 'block';
+        vervalEl.innerHTML = '⏳ <strong>Opgeslagen positiegegevens zijn ouder dan een week</strong> — VSTOXX slot instapvrijdag, geschreven PUT-strike, actuele VSTOXX en actuele koers zijn gewist. Vul ze opnieuw in voor de lopende positie. De instapvelden (koers, VSTOXX, kapitaal, contracten) zijn bewaard.';
+      }
+    } else {
+      slotHandmatig = !!data.slotHandmatig;
+      if (data.vstoxx_slot_instap)    document.getElementById('vstoxx_slot_instap').value    = data.vstoxx_slot_instap;
+      if (data.put_strike_geschreven) document.getElementById('put_strike_geschreven').value = data.put_strike_geschreven;
+      if (data.vstoxx_intraweek)      document.getElementById('vstoxx_intraweek').value      = data.vstoxx_intraweek;
+      if (data.koers_intraweek)       document.getElementById('koers_intraweek').value       = data.koers_intraweek;
+      if (vervalEl) vervalEl.style.display = 'none';
+    }
+
+    bezigMetLaden = false;
+
+    // Alleen na een verval is de opslag echt gewijzigd (vier velden gewist) en
+    // moet dat vastgelegd worden. Anders blijft het opgeslagen record ongemoeid,
+    // inclusief het oorspronkelijke tijdstip in de statusbalk.
+    if (vervallen) slaOp();
+
+    updateLsBalk(data);
+    hertekenAlles();
+    return true;
+  } catch(e) { bezigMetLaden = false; updateLsBalk(null); return false; }
+}
+
+function wisInvoer() {
+  if (!confirm('Opgeslagen invoer wissen?')) return;
+  try { localStorage.removeItem(LS_KEY); } catch(e) {}
+  ['koers', 'vstoxx', 'kas', 'contracts',
+   'vstoxx_slot_instap', 'put_strike_geschreven', 'vstoxx_intraweek', 'koers_intraweek'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+    const veldEl = document.getElementById('veld-' + id);
+    if (veldEl) veldEl.classList.remove('veld-fout');
+  });
+  activeP = 99;
+  activeToggle = 'put';
+  exitModus = 'avond';
+  slotHandmatig = false;
+  tekenExitModus();
+  const vervalEl = document.getElementById('intraweek-verval');
+  if (vervalEl) vervalEl.style.display = 'none';
+  setP(99);
+  tekenToggleKnoppen();
+  updateLsBalk(null);
+  document.getElementById('verplicht-tip').style.display = 'none';
+  setHTML('result-main', '<div style="text-align:center;color:var(--text3);font-size:11px;padding:20px 0;">Vul alle 4 velden in ↑</div>');
+  setHTML('alle-p', '<div style="font-size:11px;color:var(--text3);">Vul alle 4 velden in</div>');
+  document.getElementById('liq-card').style.display = 'none';
+  document.getElementById('p-tab-section').style.display = 'block';
+}
+
+function updateLsBalk(data) {
+  const balk   = document.getElementById('ls-balk');
+  const status = document.getElementById('ls-status');
+  const wisBtn = document.getElementById('ls-wis-btn');
+  if (data && (data.koers || data.vstoxx)) {
+    const d = new Date(data.tijdstip);
+    const tijdStr = d.toLocaleString('nl-NL', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+    balk.className = 'ls-balk geladen';
+    status.textContent = `💾 Invoer van ${tijdStr} · VSTOXX ${data.vstoxx || '?'} · Koers ${data.koers || '?'}`;
+    wisBtn.style.display = '';
+  } else {
+    balk.className = 'ls-balk';
+    status.textContent = '⏳ Geen opgeslagen invoer — vul koers, VSTOXX, kapitaal en contracten in';
+    wisBtn.style.display = 'none';
+  }
+}
+
+// ═══ UITLEG TOGGLE ═════════════════════════════════════════
+function toggleUitleg(id) {
+  const el  = document.getElementById(id);
+  const btn = el?.previousElementSibling;
+  if (!el) return;
+  el.classList.toggle('open');
+  if (btn) {
+    btn.textContent = btn.textContent.replace(
+      el.classList.contains('open') ? '▶' : '▼',
+      el.classList.contains('open') ? '▼' : '▶'
+    );
+  }
+}
+
+// ═══ INIT ══════════════════════════════════════════════════
+// AANNAME 5 bewaakt — bug #46: ingevulde velden die de code niet ziet.
+// De tool hing volledig aan `oninput`. Chrome herstelt bij een herlaad de
+// formulierwaarden ZONDER input-event en NA DOMContentLoaded. De init draaide dus
+// op lege velden, Chrome vulde ze daarna in, en er rekende niemand meer iets uit:
+// vier gevulde velden met een rode rand en de melding "vul alle 4 velden in".
+// Op de iPad viel dit nooit op omdat daar localStorage gevuld is en laadOp() het
+// werk doet; op een nieuw apparaat is die leeg — dus op elk apparaat van elke
+// toekomstige gebruiker.
+// `load` vuurt ná het formulierherstel; `pageshow` vuurt óók bij terugkeer uit de
+// bfcache (iOS-PWA), waar `load` niet opnieuw afgaat. bereken() is idempotent —
+// het leest de DOM en schrijft de uitvoer opnieuw — dus dubbel draaien is veilig.
+function herstelEnBereken() { hertekenAlles(); }
+
+window.addEventListener('DOMContentLoaded', () => {
+  checkProtocol();
+  bouwRegimeTabel();
+  tekenExitModus();          // alleen tekenen: setExitModus() zou hier slaOp()
+                             // aanroepen en een lege record wegschrijven vóórdat
+                             // laadOp() de opgeslagen invoer heeft gelezen.
+  const geladen = laadOp();
+  if (!geladen) setP(99);
+});
+window.addEventListener('load',     herstelEnBereken);
+window.addEventListener('pageshow', herstelEnBereken);
+</script>
+</body>
+</html>
