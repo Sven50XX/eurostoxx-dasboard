@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>OESX Rekentool v12.0</title>
+<!-- v12.0 — herbouw volgens bouwplan rekentool v12.0 (GO CEO 30/9/2026, Skill A v3.23,
+     besluiten B73–B78). Apple-stijl: systeemlettertype, witte kaarten, één kolom, tekst
+     >= 15 px, kleur alleen bij een handeling. Het positieblok (intraweekbewaking) en het
+     contractenveld zijn weg: de rekentool ADVISEERT, hij bewaakt niet (B53, B78). -->
+<style>
+:root {
+  --pagina: #f2f2f7; --kaart: #ffffff; --tekst: #1c1c1e; --tekst2: #6e6e73;
+  --lijn: #e5e5ea; --veld: #f2f2f7; --spoor: #e3e3e8; --gekozen: #ffffff;
+  --actie: #c4001a; --actie-bg: #fff0f1; --link: #0a60d0; --focus: #0a60d0;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --pagina: #000000; --kaart: #1c1c1e; --tekst: #f5f5f7; --tekst2: #a1a1a6;
+    --lijn: #38383a; --veld: #2c2c2e; --spoor: #2c2c2e; --gekozen: #636366;
+    --actie: #ff6961; --actie-bg: #3a1416; --link: #5aa9ff; --focus: #5aa9ff;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--pagina); color: var(--tekst);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  font-size: 17px; line-height: 1.45; font-variant-numeric: tabular-nums;
+}
+a { color: var(--link); }
+.wrap { max-width: 720px; margin: 0 auto; padding: 28px 16px 48px; }
+h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.015em; margin: 0 0 2px; }
+.ondertitel { font-size: 15px; color: var(--tekst2); margin: 0 0 20px; }
+h2 { font-size: 21px; font-weight: 650; margin: 0 0 14px; letter-spacing: -0.01em; }
+h3 { font-size: 17px; font-weight: 600; margin: 18px 0 8px; }
+.banner { display: none; background: var(--kaart); border-radius: 14px; padding: 12px 16px; font-size: 15px; color: var(--tekst2); margin-bottom: 16px; }
+.kaart { background: var(--kaart); border-radius: 20px; padding: 20px; margin-bottom: 16px; }
+
+/* Stap 1 */
+.ls-balk { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 15px; color: var(--tekst2); margin: -6px 0 12px; }
+.tekstknop { font: inherit; font-size: 15px; color: var(--link); background: none; border: 0; padding: 4px 0; cursor: pointer; }
+.velden { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 580px) { .velden { grid-template-columns: 1fr; } }
+.veld label { display: block; font-size: 15px; color: var(--tekst2); margin-bottom: 6px; }
+.veld input {
+  width: 100%; font: inherit; font-size: 21px; font-weight: 500; padding: 10px 12px;
+  border: 0; border-radius: 12px; background: var(--veld); color: var(--tekst); outline: none;
+  -moz-appearance: textfield;
+}
+.veld input::-webkit-outer-spin-button, .veld input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.veld input:focus-visible { box-shadow: 0 0 0 3px var(--focus); }
+.veld.veld-fout input { box-shadow: 0 0 0 2px var(--actie); }
+.herkomst { font-size: 15px; color: var(--tekst2); margin-top: 6px; min-height: 1.45em; }
+.p-blok { margin-top: 18px; }
+.p-label { font-size: 15px; color: var(--tekst2); margin-bottom: 6px; }
+.tip { margin-top: 14px; font-size: 15px; color: var(--actie); }
+
+/* Segmentknoppen zoals iOS */
+.segment { display: flex; background: var(--spoor); border-radius: 11px; padding: 3px; gap: 2px; }
+.segment button {
+  flex: 1; font: inherit; font-size: 15px; font-weight: 500; color: var(--tekst);
+  border: 0; background: transparent; padding: 8px 6px; border-radius: 9px; cursor: pointer;
+}
+.segment button.aan { background: var(--gekozen); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.14); }
+.segment button:focus-visible, .tekstknop:focus-visible, summary:focus-visible, .uitleg-toggle:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.kant-segment { margin-bottom: 16px; }
+
+/* Stap 2 — advieskaarten */
+.regime-regel { font-size: 15px; color: var(--tekst2); margin-bottom: 12px; }
+.kaarten { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 640px) { .kaarten.twee { grid-template-columns: 1fr 1fr; } }
+.advies { background: var(--veld); border-radius: 16px; padding: 18px; }
+.advies-kop { font-size: 15px; font-weight: 600; color: var(--tekst2); }
+.strike { font-size: 48px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.08; margin: 4px 0 2px; }
+.klein { font-size: 15px; color: var(--tekst2); }
+.afstand { font-size: 17px; margin-top: 8px; }
+.rijen { margin-top: 14px; border-top: 1px solid var(--lijn); }
+.rij { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--lijn); }
+.rij .lbl { white-space: nowrap; }
+.rij .waarde { font-weight: 600; text-align: right; }
+.rij .sub { display: block; font-size: 15px; font-weight: 400; color: var(--tekst2); }
+.badges { margin-top: 10px; }
+.badge { display: inline-block; font-size: 15px; color: var(--tekst2); background: var(--kaart); border-radius: 8px; padding: 3px 10px; margin: 6px 6px 0 0; }
+.noten { margin-top: 14px; }
+.noot { font-size: 15px; color: var(--tekst2); margin: 6px 0 0; }
+.leeg { font-size: 15px; color: var(--tekst2); padding: 8px 0; }
+.verbod { background: var(--actie-bg); color: var(--actie); border-radius: 16px; padding: 28px 20px; text-align: center; }
+.verbod .groot { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+.te-dicht { color: var(--actie); font-weight: 600; margin-top: 10px; }
+
+/* Strike checken */
+.check-uit { margin-top: 16px; }
+.p-groot { font-size: 48px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.08; margin: 4px 0 2px; }
+
+/* Achtergrond en vaste regels */
+details.kaart > summary { font-size: 19px; font-weight: 600; cursor: pointer; list-style: none; }
+details.kaart > summary::-webkit-details-marker { display: none; }
+details.kaart > summary::after { content: "+"; float: right; color: var(--tekst2); font-weight: 400; }
+details.kaart[open] > summary::after { content: "\2212"; }
+.vraag { display: inline-block; width: 24px; height: 24px; line-height: 24px; text-align: center; border-radius: 50%; background: var(--veld); color: var(--tekst2); font-size: 15px; margin-left: 6px; }
+.regels { margin: 14px 0 0; padding-left: 20px; }
+.regels li { margin-bottom: 8px; }
+.tabel-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { padding: 8px 6px; border-bottom: 1px solid var(--lijn); text-align: right; white-space: nowrap; }
+th { color: var(--tekst2); font-weight: 500; }
+th:first-child, td:first-child { text-align: left; }
+tr.hl td { font-weight: 650; }
+td .exact { display: block; font-size: 15px; color: var(--tekst2); font-weight: 400; }
+.uitleg-toggle { display: block; width: 100%; text-align: left; font: inherit; font-size: 15px; color: var(--link); background: none; border: 0; padding: 10px 0 4px; cursor: pointer; }
+.uitleg-body { display: none; font-size: 15px; color: var(--tekst); padding: 4px 0 8px; }
+.uitleg-body.open { display: block; }
+.uitleg-body h4 { font-size: 15px; margin: 12px 0 4px; }
+footer { text-align: center; font-size: 15px; color: var(--tekst2); margin-top: 24px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>OESX Rekentool v12.0</h1>
+  <p class="ondertitel">Advies voor de instap op vrijdag rond 16:30</p>
+</header>
+
+<div class="banner" id="protocol-banner">Vandaag is geen vrijdag. Instappen doe je op vrijdag rond 16:30; gebruik de tool nu ter voorbereiding.</div>
+
+<!-- STAP 1 — INVOER (Skill A §2a [v3.21]: koers · VSTOXX · kas · P, elk met herkomstlabel) -->
+<section class="kaart">
+  <h2>Stap 1 · Invoer</h2>
+  <div class="ls-balk" id="ls-balk">
+    <span id="ls-status">Nog geen bewaarde invoer</span>
+    <button class="tekstknop" id="ls-wis-btn" onclick="wisInvoer()" style="display:none;">Wis invoer</button>
+  </div>
+  <div class="velden">
+    <div class="veld" id="veld-koers">
+      <label for="koers">Koers</label>
+      <input type="number" inputmode="decimal" id="koers" placeholder="6297" step="any" oninput="veldGewijzigd('koers')">
+      <div class="herkomst" id="herkomst-koers"></div>
+    </div>
+    <div class="veld" id="veld-vstoxx">
+      <label for="vstoxx">VSTOXX om 16:25</label>
+      <input type="number" inputmode="decimal" id="vstoxx" placeholder="17.08" step="any" oninput="veldGewijzigd('vstoxx')">
+      <div class="herkomst" id="herkomst-vstoxx"></div>
+      <a class="klein" href="https://stoxx.com/index/v2tx/" target="_blank" rel="noopener">VSTOXX op stoxx.com</a>
+    </div>
+    <div class="veld" id="veld-kas">
+      <label for="kas">Kas bij Saxo (€)</label>
+      <input type="number" inputmode="decimal" id="kas" placeholder="478951.81" step="any" oninput="veldGewijzigd('kas')">
+      <div class="herkomst" id="herkomst-kas"></div>
+    </div>
+  </div>
+  <div class="p-blok" id="p-tab-section">
+    <div class="p-label">Zekerheid</div>
+    <div class="segment" role="group" aria-label="Zekerheid">
+      <button id="ptab-97"  onclick="setP(97)">P97</button>
+      <button id="ptab-98"  onclick="setP(98)">P98</button>
+      <button id="ptab-99"  onclick="setP(99)">P99 ★</button>
+      <button id="ptab-999" onclick="setP(999)">P99.9</button>
+    </div>
+  </div>
+  <div class="tip" id="verplicht-tip" style="display:none;"></div>
+</section>
+
+<!-- STAP 2 — ADVIES. v12.0: de ID's liq-card en liq-inhoud houden hun historische naam
+     (bouwplan §6: blijven). liq-card is nu de adviesKAART, liq-inhoud de noten eronder.
+     Wie hier naar liquidatie- of margeblokcode zoekt: die bestaat niet meer. -->
+<section class="kaart" id="liq-card">
+  <h2>Stap 2 · Advies</h2>
+  <div class="segment kant-segment" role="group" aria-label="Kant">
+    <button id="toggle-put"      onclick="setToggle('put')">Alleen PUT</button>
+    <button id="toggle-call"     onclick="setToggle('call')">Alleen CALL</button>
+    <button id="toggle-strangle" onclick="setToggle('strangle')">Strangle</button>
+  </div>
+  <div id="result-main"><div class="leeg">Vul koers, VSTOXX en kas in.</div></div>
+  <div id="liq-inhoud"></div>
+</section>
+
+<!-- STRIKE CHECKEN (B75, Skill A §2a [v3.23]) -->
+<section class="kaart">
+  <h2>Strike checken</h2>
+  <div class="veld">
+    <label for="strike-check">Strike uit de Saxo-keten · onder de koers is een PUT, erboven een CALL</label>
+    <input type="number" inputmode="numeric" id="strike-check" placeholder="5900" step="5" oninput="veldGewijzigd('strike-check')">
+  </div>
+  <div class="check-uit" id="strike-check-uit"></div>
+</section>
+
+<!-- ACHTERGROND (inklapbaar, inhoud ongewijzigd t.o.v. v11.16) -->
+<details class="kaart" id="achtergrond">
+  <summary>Achtergrond</summary>
+  <h3>Raakrisico en alle P-niveaus</h3>
+  <div id="alle-p"><div class="leeg">Vul koers, VSTOXX en kas in.</div></div>
+  <h3>VSTOXX-regimes</h3>
+  <div class="tabel-wrap">
+    <table>
+      <thead><tr><th>VSTOXX</th><th>Regime</th><th>P99 PUT</th><th>P99 CALL</th></tr></thead>
+      <tbody id="regime-tbody"></tbody>
+    </table>
+  </div>
+  <p class="noot" id="regime-voetnoot"></p>
+  <h3>Uitleg</h3>
+  <button class="uitleg-toggle" onclick="toggleUitleg('u1')">▶ VSTOXX: wat is het en waarom is het de motor?</button>
+  <div class="uitleg-body" id="u1">
+    <h4>Wat is VSTOXX?</h4>
+    De VSTOXX meet hoeveel beweging de optiemarkt verwacht voor de komende 30 dagen op de Euro Stoxx 50. VSTOXX 15 = rustige markt. Vanaf VSTOXX 35 stap je niet in.
+    <h4>Lage VSTOXX is niet "veilig"</h4>
+    Bij lage VSTOXX zijn premies laag — je schrijft dichter bij de koers om rendement te halen. De 4% OTM-vloer beschermt je bij gewone correcties die niets met crisis te maken hebben.
+  </div>
+  <button class="uitleg-toggle" onclick="toggleUitleg('u5')">▶ P97 / P98 / P99 / P99.9: wat betekent het?</button>
+  <div class="uitleg-body" id="u5">
+    <h4>Statistische veiligheid</h4>
+    P99 betekent: 99% van de weken beweegt de markt (O→Low/High) minder dan jouw strike. In 1% van de weken wordt de strike geraakt. P97 = 3% kans, P98 = 2% kans. Voor P99.9 is het raakrisico <strong>niet berekend</strong> — de tool toont daar bewust een streepje in plaats van een getal.
+    <h4>P99 is het systeem-advies</h4>
+    Dat is gemeten, geen voorkeur. Over de zeventien weken mei t/m september 2026 lag het P-equivalent van de feitelijk geschreven strike <strong>veertien keer tussen P98,5 en P99,5</strong>. Daarnaast levert P99 met de PUT-exitregel over 695 weken het hoogste resultaat. P98 blijft gewoon selecteerbaar en is geïnterpoleerd tussen P97 en P99. P99.9 is geëxtrapoleerd — statistisch niet direct onderbouwd, puur als diepste anker, en uitsluitend bedoeld als handmatige Trump-modus bij een aangekondigd binair risico.
+    <h4>Rendement vs. veiligheid</h4>
+    P97 = meer premie, iets meer risico. P99.9 = minimale premie, maximale veiligheid. Keuze is altijd aan jou.
+  </div>
+</details>
+
+<!-- VASTE REGELS (achter een vraagteken, zonder percentages bij grenzen — B72) -->
+<details class="kaart" id="vaste-regels">
+  <summary>Vaste regels <span class="vraag" aria-hidden="true">?</span></summary>
+  <ul class="regels"></ul>
+</details>
+
+<footer>Versie 12.0 · 1 oktober 2026 · Skill A v3.23</footer>
+</div>
+
+<script>
+// ═══ CONSTANTEN ═══════════════════════════════════════════
+// v12.0 — MGN_A, MGN_a, MGN_b en MGN_CORR zijn hier FYSIEK VERWIJDERD. De rekentool
+// rekent de marge met Saxo's formule (Skill A §23.11, bouwplan §3). De "+5,1%" van
+// B35 bleek het gemiste vloerdeel te zijn (§23.11.2) en was de oorzaak van #65:
+// bij een CALL adviseerde v11.16 111 contracten waar de formule 93 geeft.
+const SAXO_VEILIG     = 0.75;   // marge bij instap maximaal 75% (Skill A §9.0, §23.11.2)
+const INSTAP_BLOKKADE = 35;     // geen instap bij VSTOXX 16:25 >= 35 (§9.0)
+const EXIT_SPRONG     = 4;      // PUT: VSTOXX-drempel = slot instapvrijdag + 4 (§9.1)
+const EXIT_BUFFER_PCT = 3;      // PUT: Exit = strike / 0,97 (§9.1, §22.2)
+const CALL_EXIT_BUFFER_PCT = 2; // CALL: Exit = strike / 1,02 (§9.5, B46/B64)
+const INTRAWEEK_EXIT_ABS = 40;  // noodrem, direct (§9.0)
+const OTM_VLOER_PCT   = 0.04;   // PUT-vloer 4% (§4)
+const CALL_VLOER_PCT  = 0.035;  // CALL-vloer 3,5% (§4, §9.5, B49) — nieuw gebouwd in v12.0
+
+// Saxo-marge per contract [MODEL], Skill A §23.11.1:
+//   PUT  10 × max(0,05 × K ; K − 0,9007 × S)    CALL  10 × max(0,05 × S ; 1,1017 × S − K)
+const CONTRACTGROOTTE   = 10;
+const MARGE_VLOER       = 0.05;
+const MARGE_PUT_FACTOR  = 0.9007;  // S × (1 − 0,0993)
+const MARGE_CALL_FACTOR = 1.1017;  // S × (1 + 0,1017)
+
+// Rode kaart — vaste rekenwijze B77 (Skill A §21.10 [v3.23]).
+const RODE_KAART_RATIO = 1.25;   // Saxo liquideert rond 125%
+const RODE_KAART_DAGEN = 3.77;   // maandag 17:30 -> vrijdag 12:00 (eerstvolgende avondmeting)
+const IV_SKEW          = 0.075;  // engine.py: iv = VSTOXX/100 × (1 + 0,075 × OTM%)
+
+// Plausibiliteit van de invoer (bouwplan §7, aanname 1).
+const KOERS_MIN = 2000, KOERS_MAX = 10000, VSTOXX_MIN = 5, VSTOXX_MAX = 80;
+
+// Het veld `kleur` wordt in v12.0 niet meer gelezen (kleur alleen bij een handeling,
+// bouwplan §9). De tabel zelf blijft gelijk aan het dashboard.
+const REGIMES = [
+  { lo: 0,  hi: 15, naam: 'Rustig',   kleur: 'green'  },
+  { lo: 15, hi: 18, naam: 'Normaal',  kleur: 'green'  },
+  { lo: 18, hi: 22, naam: 'Verhoogd', kleur: 'orange' },
+  { lo: 22, hi: 28, naam: 'Onrustig', kleur: 'orange' },
+  { lo: 28, hi: 35, naam: 'Stress',   kleur: 'red'    },
+  { lo: 35, hi: 99, naam: 'Crisis',   kleur: 'red'    },
+];
+
+// Empirische O→Low/High percentielwaarden per VSTOXX-band — ONGEWIJZIGD.
+// OLOW_REGIME v3.0 — Herberekend 10 april 2026 — 984 vrijdag→vrijdag weken, 01/07/2007 t/m 03/22/2026
+// P95/P97/P99 = historisch empirisch | P98 = interpolatie (gem. P97+P99) | P99.9 (key 999) = extrapolatie via sigma-ratio
+const OLOW_REGIME = {
+  'Rustig':   {
+    put:  { 95:-4.339, 97:-4.534, 98:-4.600, 99:-4.666, 999:-6.196 },
+    call: { 95: 2.703, 97: 2.931, 98: 3.229, 99: 3.527, 999: 4.620 }
+  },
+  'Normaal':  {
+    put:  { 95:-4.023, 97:-4.427, 98:-5.223, 99:-6.019, 999:-7.993 },
+    call: { 95: 3.291, 97: 3.573, 98: 3.819, 99: 4.066, 999: 5.326 }
+  },
+  'Verhoogd': {
+    put:  { 95:-4.519, 97:-4.787, 98:-5.386, 99:-5.985, 999:-7.948 },
+    call: { 95: 3.731, 97: 4.459, 98: 4.686, 99: 4.913, 999: 6.436 }
+  },
+  'Onrustig': {
+    put:  { 95:-5.663, 97:-6.715, 98:-7.901, 99:-9.087, 999:-12.068 },
+    call: { 95: 4.895, 97: 5.315, 98: 5.796, 99: 6.278, 999:  8.224 }
+  },
+  'Stress':   {
+    put:  { 95:-7.581, 97:-8.690, 98:-9.567, 99:-10.444, 999:-13.870 },
+    call: { 95: 5.908, 97: 6.574, 98: 6.685, 99:  6.797, 999:  8.904 }
+  },
+  'Crisis':   {
+    put:  { 95:-12.813, 97:-13.717, 98:-18.113, 99:-22.509, 999:-29.892 },
+    call: { 95: 11.646, 97: 12.188, 98: 13.128, 99: 14.068, 999: 18.429 }
+  },
+};
+
+// ═══ MONOTONIEGRENDEL (Skill A v3.8 sectie 7.2) — ongewijzigd ══════════
+// Een hoger regime mag nooit minder buffer geven dan een lager. De grendel zit in
+// de toegang; de tabelwaarden blijven ongewijzigd. Hij kan alleen VERGROTEN.
+// AANNAME bewaakt: de regimevolgorde wordt AFGELEID uit REGIMES, geen tweede lijst.
+const REGIME_VOLGORDE = REGIMES.map(r => r.naam);
+
+function olowBuffer(regimeNaam, p, kant) {          // kant: 'put' | 'call'
+  const idx = REGIME_VOLGORDE.indexOf(regimeNaam);
+  if (idx < 0) return null;
+  let grootste = null;
+  for (let i = 0; i <= idx; i++) {                  // dit regime + alle LAGERE
+    // AANNAME bewaakt: een ontbrekende P-key wordt overgeslagen, niet als 0 geteld.
+    const v = OLOW_REGIME[REGIME_VOLGORDE[i]]?.[kant]?.[p];
+    if (typeof v !== 'number' || !isFinite(v)) continue;
+    // AANNAME bewaakt: PUT negatief, CALL positief — vergelijken op Math.abs().
+    const abs = Math.abs(v);
+    if (grootste === null || abs > grootste) grootste = abs;
+  }
+  if (grootste === null) return null;
+  return (kant === 'put') ? -grootste : grootste;
+}
+
+// Of de grendel op deze cel iets heeft overruled (zichtbaarheidseis §7.2).
+function olowGrendelActief(regimeNaam, p, kant) {
+  const tabel = OLOW_REGIME[regimeNaam]?.[kant]?.[p];
+  const gegrendeld = olowBuffer(regimeNaam, p, kant);
+  if (typeof tabel !== 'number' || !isFinite(tabel) || gegrendeld === null) return false;
+  return Math.abs(Math.abs(gegrendeld) - Math.abs(tabel)) > 1e-9;
+}
+
+// Empirisch raakrisico PUT (%) — ongewijzigd. Key 999 bewust WEG (bug #28): geen
+// gemeten waarde, dus '—' en nooit 0.
+const RAAK_RISICO = {
+  'Rustig':   { 95: 5.5, 97: 3.4, 98: 1.4, 99: 1.4 },
+  'Normaal':  { 95: 5.2, 97: 3.3, 98: 1.4, 99: 1.4 },
+  'Verhoogd': { 95: 5.3, 97: 3.3, 98: 2.0, 99: 1.2 },
+  'Onrustig': { 95: 5.3, 97: 3.4, 98: 2.4, 99: 1.5 },
+  'Stress':   { 95: 5.0, 97: 4.0, 98: 2.0, 99: 1.0 },
+  'Crisis':   { 95: 5.3, 97: 4.0, 98: 2.7, 99: 1.3 },
+};
+
+// ═══ P TERUGREKENEN — KOPIE UIT DASHBOARD v19.37 (B75) ════════════════
+// Bouwplan §3: otmNaarPEquiv() + pFloatLabel() WOORDELIJK uit het dashboard
+// (r1997, r2133), inclusief P_LADDER en de grendel. Eén antwoord in beide tools:
+// strike 5900 bij koers 6.297 / VSTOXX 17,08 moet hier dezelfde P geven als daar.
+// De σ-formule van §2a vervalt (B75). Wie één van deze functies wijzigt, wijzigt
+// hem in dashboard EN rekentool.
+const P_LADDER = [95, 97, 98, 99, 999]; // 999 = P99.9
+const P_ORANJE = 95;   // de DIEPSTE gemeten trede van de tabel (B39)
+
+// Het dashboard kent vstoxxRegimeNaam() als eigen functie. Hier is het een dunne
+// omhulling van vstoxxRegime(), zodat er in dit bestand maar ÉÉN regimegrens bestaat
+// (gemeten gelijk aan het dashboard: <=15, <=18, <=22, <=28, <=35, daarboven Crisis).
+function vstoxxRegimeNaam(v) { return vstoxxRegime(v).naam; }
+
+// Woordelijk dashboard r902: een ontbrekende meting wordt NULL, nooit 0.
+function olowKolom(regimeNaam, kant) {
+  const uit = {};
+  P_LADDER.forEach(p => { uit[p] = olowBuffer(regimeNaam, p, kant); });
+  return uit;
+}
+
+// Geef P-equivalent terug voor een gegeven OTM% in het huidige regime.
+// otmPct = positief getal (bijv. 7.5 = 7.5% OTM)
+// kant   = 'put' | 'call'
+// Returns { idx, p, pFloat }
+function otmNaarPEquiv(otmPct, vstoxx, kant) {
+  const regime   = vstoxxRegimeNaam(vstoxx);
+  const tabel    = olowKolom(regime, kant);
+  // AANNAME 2 bewaakt: een ontbrekende meting blijft null en wordt NOOIT 0.
+  const drempels = P_LADDER.map(p => (typeof tabel[p] === 'number') ? Math.abs(tabel[p]) : null);
+  const eerste   = drempels.find(d => d !== null);
+
+  if (eerste === undefined) return { idx: -1, p: null, pFloat: null };
+
+  let bestIdx = -1;
+  for (let i = 0; i < P_LADDER.length; i++) {
+    if (drempels[i] !== null && otmPct >= drempels[i]) bestIdx = i;
+  }
+
+  let pFloat;
+  if (bestIdx < 0) {
+    const frac = Math.max(0, Math.min(1, otmPct / eerste));
+    pFloat = 80 + frac * (95 - 80);
+  } else if (bestIdx === P_LADDER.length - 1) {
+    pFloat = 99.92;
+  } else {
+    const lo   = drempels[bestIdx];
+    const hi   = drempels[bestIdx + 1];
+    const frac = (hi !== null && hi > lo) ? Math.min(1, (otmPct - lo) / (hi - lo)) : 0;
+    const pLoNum = P_LADDER[bestIdx] === 999 ? 99.9 : P_LADDER[bestIdx];
+    const pHiNum = P_LADDER[bestIdx + 1] === 999 ? 99.9 : P_LADDER[bestIdx + 1];
+    pFloat = pLoNum + frac * (pHiNum - pLoNum);
+  }
+
+  return { idx: bestIdx, p: bestIdx >= 0 ? P_LADDER[bestIdx] : null, pFloat };
+}
+
+// Woordelijk dashboard r2133: naar BENEDEN op 0,1 (afrondingsklasse §22.2),
+// onder P95 GEEN getal (de schaal daaronder heeft nul metingen).
+function pFloatLabel(pf) {
+  if (pf === null || pf === undefined || isNaN(pf)) return '\u2014';
+  if (pf < P_ORANJE) return 'Onder P95';
+  if (pf >= 99.88)   return 'P99.9';
+  return 'P' + (Math.floor(pf * 10) / 10).toFixed(1).replace('.', ',') + '%';
+}
+
+// ═══ TOESTAND ═════════════════════════════════════════════
+// Default P99 (B3). exitModus en slotHandmatig zijn in v12.0 FYSIEK verwijderd met
+// het positieblok (B78).
+let activeP      = 99;
+let activeToggle = 'put';
+// Bug #48 bewaakt: laadOp() roept setP() aan vóór de velden terugstaan, en setP()
+// eindigt met slaOp(). Deze vlag zet slaOp() stil zolang laadOp() bezig is.
+let bezigMetLaden = false;
+// Herkomst per invoerveld: tijdstip van de laatste handmatige wijziging (ISO).
+// Zo kan Saxo later velden vullen zonder dat het scherm verandert (§2a [v3.21]).
+let herkomst = { koers: null, vstoxx: null, kas: null };
+
+// ═══ HULPFUNCTIES ══════════════════════════════════════════
+function fmt(v, d=2) {
+  if (v === null || v === undefined || isNaN(v)) return '—';
+  return v.toLocaleString('nl-NL', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+function getVal(id) { const v = parseFloat(document.getElementById(id)?.value); return isNaN(v) ? null : v; }
+
+// AANNAME bewaakt: een gevuld veld dat de code als leeg leest. Bij <input
+// type="number"> maakt de browser .value leeg als de inhoud geen geldig getal is
+// (bijv. een komma). validity.badInput is het enige betrouwbare onderscheid.
+function isOnleesbaar(id) {
+  const el = document.getElementById(id);
+  return !!(el && el.validity && el.validity.badInput);
+}
+function veldBron(id) {
+  if (isOnleesbaar(id)) return 'onleesbaar';
+  return getVal(id) === null ? 'leeg' : 'ok';
+}
+function setHTML(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; }
+
+function vstoxxRegime(v) {
+  return REGIMES.find((r, i) => i === 0 ? v <= r.hi : v > r.lo && v <= r.hi) || REGIMES[REGIMES.length - 1];
+}
+function pLabel(p) { return p === 999 ? 'P99.9' : 'P' + p; }
+
+// Strike op O→Low/High basis, deler 5, richting WEG van de koers (Skill A §3):
+// PUT omlaag (floor), CALL omhoog (ceil). Math.round is verboden.
+// Retourneert { raw, strike, grendel }: raw = onafgerond, voor weergave (§3.2).
+function getOlowStrike(vstoxx, p, kant, koers) {
+  const r = vstoxxRegime(vstoxx);
+  const weekPct = olowBuffer(r.naam, p, kant);
+  if (weekPct === null) return null;
+  const raw = koers * (1 + weekPct / 100);
+  // AANNAME bewaakt: floor/ceil op een ongeldige waarde geeft een onzinnige strike.
+  if (!isFinite(raw) || raw <= 0) return null;
+  const strike = kant === 'put'
+    ? Math.floor(raw / 5) * 5
+    : Math.ceil (raw / 5) * 5;
+  return { raw, strike, grendel: olowGrendelActief(r.naam, p, kant) };
+}
+
+// PUT-vloer 4%: naar BENEDEN (Skill A §4). Eén definitie voor advies, tabel en check.
+function vloerStrike(koers) {
+  return Math.floor(koers * (1 - OTM_VLOER_PCT) / 5) * 5;
+}
+// v12.0 — CALL-vloer 3,5% (B49): naar BOVEN, het spiegelbeeld. De CALL-strike is
+// max(OLOW, vloer). Stond tot en met v11.16 nergens: bij P97/P98 in Rustig kwam de
+// CALL op 2,9–3,2% (Project State §106.2).
+function callVloerStrike(koers) {
+  return Math.ceil(koers * (1 + CALL_VLOER_PCT) / 5) * 5;
+}
+
+// v10.10: NULL als er geen gemeten waarde is, nooit 0 (bug #28).
+function getRaakRisico(vstoxx, p) {
+  const r = vstoxxRegime(vstoxx);
+  const tabel = RAAK_RISICO[r.naam];
+  if (!tabel) return null;
+  const waarde = tabel[p];
+  return (typeof waarde === 'number' && isFinite(waarde)) ? waarde : null;
+}
+
+// ═══ AFRONDINGSKLASSE (Skill A §22.2) ══════════════════════
+// Elk getal dat zowel getoond als vergeleken wordt, krijgt één weergavefunctie die
+// naar de VEILIGE kant rondt. Wie hier iets wijzigt, wijzigt het in beide tools.
+//   PUT-Exit  -> naar BENEDEN : de koers moet eronder komen
+//   CALL-Exit -> naar BOVEN   : de koers moet erboven komen (B64)
+//   VSTOXX-drempel -> EXACT (bug #83)
+// restToon() en bufferToon() zijn in v12.0 FYSIEK verwijderd: hun enige afnemer
+// was het positieblok, en percentages als grens staan niet meer op het scherm (B72).
+function uitstapGrens(strike)     { return strike / (1 - EXIT_BUFFER_PCT / 100); }
+function uitstapGrensToon(strike) { return Math.floor(uitstapGrens(strike) * 10) / 10; }
+// v12.0 — NIEUW, woordelijk volgens §22.2 [v3.21]: strike ÷ 1,02, naar BOVEN op 0,1.
+// Niet "÷ 0,98" (ontwerpnotitie 29-09, fout).
+function uitstapGrensCall(strike) { return Math.ceil(strike / (1 + CALL_EXIT_BUFFER_PCT / 100) * 10) / 10; }
+function vstoxxDrempel(slot)      { return slot + EXIT_SPRONG; }
+function vstoxxToon(x) {
+  const r = Number(x.toFixed(4));
+  const dec = Math.max(1, (String(r).split('.')[1] || '').length);
+  return fmt(r, dec);
+}
+// Een koers die als deelsom op het scherm staat, toont zijn decimalen (v11.9).
+function koersToon(x) { return Number.isInteger(x) ? fmt(x, 0) : fmt(x, 2); }
+// Woordelijk gelijk aan het dashboard (v3.15). Hier: de marge bij het maximum, die
+// tegen de 75% wordt afgezet — 74,99% mag nooit als "75%" verschijnen.
+function verbruikToon(pct, drempels = [75, 100], minDec = 0) {
+  const misleidend = (dec) => {
+    const r = Number(pct.toFixed(dec));
+    return drempels.some(d => (pct < d && r >= d) || (pct > d && r <= d));
+  };
+  for (const dec of [0, 1, 2, 3, 4]) {
+    if (dec >= minDec && !misleidend(dec)) return fmt(pct, dec) + '%';
+  }
+  return fmt(pct, 4) + '%';
+}
+
+// ═══ MARGE — Saxo-formule §23.11 [MODEL] ═══════════════════
+// v12.0 — herschreven. Geen VSTOXX meer: de vloer is gemeten onafhankelijk van de
+// VSTOXX (§23.11.3). Geen 9999-sentinel meer: de formule is ook vlak bij of voorbij
+// de strike gedefinieerd, dus er is niets te maskeren.
+function marginPerContract(S, K, kant) {
+  if (kant === 'call') return CONTRACTGROOTTE * Math.max(MARGE_VLOER * S, MARGE_CALL_FACTOR * S - K);
+  return CONTRACTGROOTTE * Math.max(MARGE_VLOER * K, K - MARGE_PUT_FACTOR * S);
+}
+// §23.11.2: contracten bij 75% = floor(0,75 × kas ÷ marge per contract).
+// AANNAME bewaakt: een ongeldige marge of kas geeft GEEN getal, nooit 0 of Infinity.
+function maxContracten(kas, mpc) {
+  if (!(kas > 0) || !(mpc > 0) || !isFinite(mpc)) return null;
+  return Math.floor(SAXO_VEILIG * kas / mpc);
+}
+
+// ═══ PRIJSMODEL — gelijk aan engine.py (B77) ═══════════════
+// Normale verdeling via erf, Abramowitz-Stegun 7.1.26 (fout < 1,5e-7).
+function normCdf(x) {
+  const z = Math.abs(x) / Math.SQRT2;
+  const t = 1 / (1 + 0.3275911 * z);
+  const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-z * z);
+  return x >= 0 ? 0.5 * (1 + y) : 0.5 * (1 - y);
+}
+// Black-Scholes zonder rente, iv met skew: VSTOXX/100 × (1 + 0,075 × OTM%).
+function optieWaarde(S, K, T, vstoxx, kant) {
+  const sig = vstoxx / 100 * (1 + IV_SKEW * Math.abs(S - K) / S * 100);
+  const sT  = sig * Math.sqrt(T);
+  const d1  = (Math.log(S / K) + 0.5 * sig * sig * T) / sT;
+  const d2  = d1 - sT;
+  return kant === 'put'
+    ? K * normCdf(-d2) - S * normCdf(-d1)
+    : S * normCdf(d1) - K * normCdf(d2);
+}
+
+// ═══ RODE KAART (B77) ══════════════════════════════════════
+// De koers waarop n × marge(S) ÷ (kas − n × 10 × optiewaarde(S)) = 125%.
+// Maandagavond (3,77 dagen), premie 0, PUT op de VSTOXX-drempel, CALL op VSTOXX 16:25.
+// Bisectie, 60 stappen, tussen de koers (veilig) en de strike (geraakt).
+// AANNAME 5 bewaakt: er hoeft geen oplossing te zijn — dan GEEN getal, met reden.
+function rodeKaartKoers(kant, K, n, vstoxxScen, koers, kas) {
+  if (!(n >= 1)) return { waarde: null, reden: 'geen contracten' };
+  const T = RODE_KAART_DAGEN / 365;
+  const ratio = S => {
+    const noemer = kas - n * CONTRACTGROOTTE * optieWaarde(S, K, T, vstoxxScen, kant);
+    if (!(noemer > 0)) return Infinity;
+    return n * marginPerContract(S, K, kant) / noemer;
+  };
+  if (ratio(koers) >= RODE_KAART_RATIO) return { waarde: null, reden: 'al boven 125% bij instap' };
+  if (ratio(K) < RODE_KAART_RATIO)      return { waarde: null, reden: 'pas voorbij de strike' };
+  let veilig = koers, geraakt = K;
+  for (let i = 0; i < 60; i++) {
+    const m = (veilig + geraakt) / 2;
+    if (ratio(m) >= RODE_KAART_RATIO) geraakt = m; else veilig = m;
+  }
+  return { waarde: geraakt, reden: null };
+}
+// Weergave op hele punten naar de VEILIGE kant: PUT naar boven, CALL naar beneden.
+function rodeKaartToon(kant, x) { return kant === 'put' ? Math.ceil(x) : Math.floor(x); }
+
+// ═══ DE GETALLEN BIJ ÉÉN STRIKE ═══════════════════════════
+// Eén berekening voor de advieskaart EN Strike checken, zodat beide voor dezelfde
+// strike nooit iets anders zeggen (coding-spelregels, derde kernregel).
+function strikeGetallen(kant, K, koers, vstoxx, kas) {
+  const afstandPt  = kant === 'put' ? koers - K : K - koers;
+  const afstandPct = afstandPt / koers * 100;
+  const exit       = kant === 'put' ? uitstapGrensToon(K) : uitstapGrensCall(K);
+  const drempel    = kant === 'put' ? vstoxxDrempel(vstoxx) : null;   // voorlopig: 16:25 + 4
+  const mpc        = marginPerContract(koers, K, kant);
+  const opVloer    = kant === 'put' ? mpc <= CONTRACTGROOTTE * MARGE_VLOER * K + 1e-9
+                                    : mpc <= CONTRACTGROOTTE * MARGE_VLOER * koers + 1e-9;
+  const n          = maxContracten(kas, mpc);
+  const verbruik   = (n !== null && n >= 1) ? n * mpc / kas * 100 : null;
+  const rode       = rodeKaartKoers(kant, K, n, kant === 'put' ? drempel : vstoxx, koers, kas);
+  return { kant, K, afstandPt, afstandPct, exit, drempel, mpc, opVloer, n, verbruik, rode };
+}
+
+function maakAdvies(kant, koers, vstoxx, kas, p) {
+  const res = getOlowStrike(vstoxx, p, kant, koers);
+  if (res === null) return null;
+  let strike = res.strike, raw = res.raw, vloerActief = false;
+  const vloer = kant === 'put' ? vloerStrike(koers) : callVloerStrike(koers);
+  if (kant === 'put'  && strike > vloer) { strike = vloer; raw = koers * (1 - OTM_VLOER_PCT);  vloerActief = true; }
+  if (kant === 'call' && strike < vloer) { strike = vloer; raw = koers * (1 + CALL_VLOER_PCT); vloerActief = true; }
+  return Object.assign(strikeGetallen(kant, strike, koers, vstoxx, kas),
+                       { raw, vloer, vloerActief, grendel: res.grendel });
+}
+
+// ═══ WEERGAVE VAN DE GETALLEN ═════════════════════════════
+function rij(lbl, waarde, sub) {
+  return `<div class="rij"><span class="lbl">${lbl}</span><span class="waarde">${waarde}${sub ? `<span class="sub">${sub}</span>` : ''}</span></div>`;
+}
+function afstandTekst(g) {
+  return `${fmt(Math.floor(g.afstandPt), 0)} pt · ${fmt(g.afstandPct, 1)}% ${g.kant === 'put' ? 'onder' : 'boven'} de koers`;
+}
+// strangle = true: geen maximum (meting 5) en dus ook geen rode kaart.
+function getallenRijen(g, strangle) {
+  let h = '<div class="rijen">';
+  h += rij('Exit', `koers ${fmt(g.exit, 1)}`, '');
+  h += g.kant === 'put'
+    ? rij('VSTOXX-drempel', vstoxxToon(g.drempel), "alleen 's avonds · voorlopig")
+    : rij('VSTOXX', 'geen', '');
+  if (strangle) {
+    h += rij('Rode kaart', '—', 'strangle-marge niet gemeten');
+  } else if (g.rode.waarde !== null) {
+    h += rij('Rode kaart', `koers ≈ ${fmt(rodeKaartToon(g.kant, g.rode.waarde), 0)}`, 'Saxo 125% · model');
+  } else {
+    h += rij('Rode kaart', '—', g.rode.reden);
+  }
+  if (!strangle) {
+    h += (g.n === null || g.n < 1)
+      ? rij('Max. contracten bij 75%', '0', 'kas te klein voor één contract')
+      : rij('Max. contracten bij 75%', String(g.n), `${verbruikToon(g.verbruik)} van je kas · model`);
+  }
+  return h + '</div>';
+}
+
+function maakAdviesKaart(a, strangle) {
+  const naam = a.kant === 'put' ? 'PUT' : 'CALL';
+  const richting = a.kant === 'put' ? 'afgerond omlaag' : 'afgerond omhoog';
+  let badges = '';
+  if (a.vloerActief) badges += `<span class="badge">vloer actief · ${a.kant === 'put' ? 'niet boven' : 'niet onder'} ${fmt(a.vloer, 0)}</span>`;
+  if (a.grendel)     badges += '<span class="badge" title="Een lager VSTOXX-regime gaf op dit P-niveau meer buffer. De diepste waarde wint.">monotoniegrendel actief</span>';
+  return `<div class="advies">
+    <div class="advies-kop">${naam} · ${pLabel(activeP)}</div>
+    <div class="strike">${fmt(a.K, 0)}</div>
+    <div class="klein">exact ${fmt(a.raw, 1)} · ${richting}</div>
+    <div class="afstand">${afstandTekst(a)}</div>
+    ${badges ? `<div class="badges">${badges}</div>` : ''}
+    ${getallenRijen(a, strangle)}
+  </div>`;
+}
+
+// ═══ INVOER LEZEN ═════════════════════════════════════════
+// AANNAME 1 bewaakt: leeg, onleesbaar of onwaarschijnlijk geeft GEEN advies, met
+// de reden erbij. Nooit toch een getal tonen (stilzwijgende degradatie is verboden).
+function leesInvoer() {
+  const namen = { koers: 'koers', vstoxx: 'VSTOXX', kas: 'kas' };
+  const fout = [], leeg = [], onleesbaar = [], buiten = [];
+  ['koers', 'vstoxx', 'kas'].forEach(id => {
+    const b = veldBron(id);
+    if (b === 'leeg')       { leeg.push(namen[id]); fout.push(id); }
+    if (b === 'onleesbaar') { onleesbaar.push(namen[id]); fout.push(id); }
+  });
+  const koers = getVal('koers'), vstoxx = getVal('vstoxx'), kas = getVal('kas');
+  if (koers !== null && (koers < KOERS_MIN || koers > KOERS_MAX)) {
+    buiten.push(`Koers ${fmt(koers, 0)} klopt niet — verwacht tussen ${fmt(KOERS_MIN, 0)} en ${fmt(KOERS_MAX, 0)}.`); fout.push('koers');
+  }
+  if (vstoxx !== null && (vstoxx < VSTOXX_MIN || vstoxx > VSTOXX_MAX)) {
+    buiten.push(`VSTOXX ${vstoxxToon(vstoxx)} klopt niet — verwacht tussen ${VSTOXX_MIN} en ${VSTOXX_MAX}.`); fout.push('vstoxx');
+  }
+  if (kas !== null && kas <= 0) { buiten.push('Kas moet groter zijn dan 0.'); fout.push('kas'); }
+  let melding = '';
+  if (onleesbaar.length) melding = `Onleesbaar: ${onleesbaar.join(', ')}. Gebruik een punt als decimaalteken, geen komma.`;
+  else if (buiten.length) melding = buiten.join(' ');
+  else if (leeg.length)   melding = `Vul nog in: ${leeg.join(', ')}.`;
+  return { ok: fout.length === 0, koers, vstoxx, kas, fout, melding };
+}
+
+// ═══ PROTOCOL CHECK ═══════════════════════════════════════
+function checkProtocol() {
+  const dag = new Date().getDay();
+  if (dag !== 5) document.getElementById('protocol-banner').style.display = 'block';
+}
+
+// ═══ P EN KANT KIEZEN ═════════════════════════════════════
+function setP(p) {
+  activeP = p;
+  [97, 98, 99, 999].forEach(n => {
+    const el = document.getElementById('ptab-' + n);
+    if (el) el.className = (n === p ? 'aan' : '');
+  });
+  hertekenAlles();
+  slaOp();
+}
+function setToggle(t) {
+  activeToggle = t;
+  hertekenAlles();
+  slaOp();
+}
+function tekenToggleKnoppen() {
+  ['put', 'call', 'strangle'].forEach(id => {
+    const btn = document.getElementById('toggle-' + id);
+    if (btn) btn.className = (id === activeToggle ? 'aan' : '');
+  });
+}
+
+// ═══ HERKOMSTLABELS ═══════════════════════════════════════
+function herkomstLabel(iso) {
+  if (!iso) return 'handmatig';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return 'handmatig';
+  return 'handmatig · ' + d.toLocaleString('nl-NL', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+}
+function tekenHerkomst() {
+  ['koers', 'vstoxx', 'kas'].forEach(id => {
+    // Een leeg veld heeft geen herkomst; dan ook geen label.
+    setHTML('herkomst-' + id, veldBron(id) === 'leeg' ? '' : herkomstLabel(herkomst[id]));
+  });
+}
+
+// ═══ HOOFDBEREKENING ══════════════════════════════════════
+// Eén hertekenfunctie (v11.4): elk veld roept veldGewijzigd() aan, die alles hertekent.
+function hertekenAlles() {
+  tekenToggleKnoppen();
+  tekenHerkomst();
+  bereken();
+  bouwRegimeTabel();
+}
+function veldGewijzigd(id) {
+  if (id in herkomst) herkomst[id] = new Date().toISOString();
+  hertekenAlles();
+  slaOp();
+}
+
+function bereken() {
+  const inv = leesInvoer();
+  // Een volledig lege tool krijgt geen rode randen: daar is niets fout, alleen nog niets.
+  const leegScherm = allesLeeg();
+  ['koers', 'vstoxx', 'kas'].forEach(id =>
+    document.getElementById('veld-' + id)?.classList.toggle('veld-fout', inv.fout.includes(id) && !leegScherm));
+  const tipEl  = document.getElementById('verplicht-tip');
+  const segEl  = document.querySelector('.kant-segment');
+
+  if (!inv.ok) {
+    tipEl.style.display = leegScherm ? 'none' : 'block';
+    tipEl.textContent   = inv.melding;
+    if (segEl) segEl.style.display = '';
+    setHTML('result-main', `<div class="leeg">${leegScherm ? 'Vul koers, VSTOXX en kas in.' : 'Geen advies: ' + inv.melding}</div>`);
+    setHTML('liq-inhoud', '');
+    setHTML('alle-p', '<div class="leeg">Vul koers, VSTOXX en kas in.</div>');
+    strikeChecken(null);
+    return;
+  }
+  tipEl.style.display = 'none';
+  const { koers, vstoxx, kas } = inv;
+
+  // ── Instapverbod: VSTOXX 16:25 >= 35. Eén groot vlak, verder niets (§9.0).
+  if (vstoxx >= INSTAP_BLOKKADE) {
+    if (segEl) segEl.style.display = 'none';
+    setHTML('result-main', `<div class="verbod">
+      <div class="groot">Geen instap deze week</div>
+      <div>VSTOXX ${vstoxxToon(vstoxx)} — vanaf ${INSTAP_BLOKKADE} schrijf je niet.</div>
+      <div class="noot" style="color:inherit;">Na een crisis stap je pas weer in na twee vrijdagslots onder ${INSTAP_BLOKKADE}.</div>
+    </div>`);
+    setHTML('liq-inhoud', '');
+    setHTML('alle-p', '');
+    strikeChecken({ verbod: true });
+    return;
+  }
+  if (segEl) segEl.style.display = '';
+
+  const put  = maakAdvies('put',  koers, vstoxx, kas, activeP);
+  const call = maakAdvies('call', koers, vstoxx, kas, activeP);
+  if (put === null || call === null) {
+    setHTML('result-main', '<div class="leeg">Geen advies: regimedata ontbreekt.</div>');
+    setHTML('liq-inhoud', '');
+    strikeChecken(null);
+    return;
+  }
+
+  const strangle = activeToggle === 'strangle';
+  const kaarten  = activeToggle === 'put' ? [put] : activeToggle === 'call' ? [call] : [put, call];
+  const r = vstoxxRegime(vstoxx);
+  setHTML('result-main', `
+    <div class="regime-regel">Koers ${koersToon(koers)} · VSTOXX ${vstoxxToon(vstoxx)} · regime ${r.naam}</div>
+    <div class="kaarten${kaarten.length === 2 ? ' twee' : ''}">${kaarten.map(k => maakAdviesKaart(k, strangle)).join('')}</div>`);
+
+  // Noten onder de kaarten — elk getal draagt zijn label (model / voorlopig).
+  let noten = '';
+  if (strangle) noten += '<p class="noot"><strong>Strangle:</strong> max. contracten nog niet gemeten — gebruik het Saxo-getal.</p>';
+  if (activeToggle !== 'call') noten += `<p class="noot"><strong>Voorlopig</strong>: de VSTOXX-drempel is hier de 16:25-stand + ${EXIT_SPRONG}. Het echte nulpunt is het vrijdagslot; dat staat in het dashboard.</p>`;
+  noten += '<p class="noot"><strong>Rode kaart</strong>: de koers waarop Saxo\'s marge 125% van je kas raakt, gerekend voor maandagavond en zonder je ontvangen premie. Model — het echte getal zie je in Saxo.</p>';
+  // AANNAME 2 bewaakt: §23.11 is boven de vloer niet getoetst bij onrust (§23.11.5).
+  if (vstoxx > 20) noten += '<p class="noot">Bij een VSTOXX boven 20 is de margeformule boven de vloer niet getoetst.</p>';
+  setHTML('liq-inhoud', `<div class="noten">${noten}</div>`);
+
+  tekenAllePNiveaus(koers, vstoxx);
+  strikeChecken({ koers, vstoxx, kas });
+}
+
+function allesLeeg() {
+  return ['koers', 'vstoxx', 'kas'].every(id => veldBron(id) === 'leeg');
+}
+
+// ═══ STRIKE CHECKEN (B75) ═════════════════════════════════
+// Eén vak: strike -> P (dashboardmethode) + dezelfde getallen als de advieskaart.
+// Geen vloerblokkade; te dicht bij de koers geeft één rode zin met de grens als koers.
+function strikeChecken(ctx) {
+  const uit = msg => setHTML('strike-check-uit', `<div class="leeg">${msg}</div>`);
+  const bron = veldBron('strike-check');
+  if (ctx === null)  { uit(bron === 'leeg' ? '' : 'Vul eerst Stap 1 in.'); return; }
+  if (ctx.verbod)    { uit('Geen instap deze week.'); return; }
+  if (bron === 'leeg')       { uit(''); return; }
+  if (bron === 'onleesbaar') { uit('Onleesbaar — typ alleen cijfers.'); return; }
+  const K = getVal('strike-check');
+  const { koers, vstoxx, kas } = ctx;
+  // AANNAME 1 bewaakt: een strike buiten het indexbereik of buiten de stappen van 5
+  // geeft geen uitkomst. Een getal naast een typefout ziet eruit als een bevestiging.
+  if (K < KOERS_MIN || K > KOERS_MAX) { uit(`Strike ${fmt(K, 0)} klopt niet — verwacht tussen ${fmt(KOERS_MIN, 0)} en ${fmt(KOERS_MAX, 0)}.`); return; }
+  if (Math.abs(K % 5) > 1e-9)         { uit('Strikes gaan in stappen van 5.'); return; }
+  if (K === koers)                    { uit('Strike gelijk aan de koers — geen uitkomst.'); return; }
+
+  const kant = K < koers ? 'put' : 'call';
+  const g    = strikeGetallen(kant, K, koers, vstoxx, kas);
+  const pf   = otmNaarPEquiv(g.afstandPct, vstoxx, kant).pFloat;
+  const vloer = kant === 'put' ? vloerStrike(koers) : callVloerStrike(koers);
+  const teDicht = kant === 'put' ? K > vloer : K < vloer;
+  const zin = teDicht
+    ? `<div class="te-dicht">Te dicht bij de koers · ${kant === 'put' ? 'niet boven' : 'niet onder'} ${fmt(vloer, 0)}</div>` : '';
+  setHTML('strike-check-uit', `<div class="advies">
+    <div class="advies-kop">${kant === 'put' ? 'PUT' : 'CALL'} ${fmt(K, 0)}</div>
+    <div class="p-groot">${pFloatLabel(pf)}</div>
+    <div class="afstand">${afstandTekst(g)}</div>
+    ${zin}
+    ${getallenRijen(g, false)}
+  </div>`);
+}
+
+// ═══ ACHTERGROND — raakrisico en alle P-niveaus ═══════════
+function tekenAllePNiveaus(koers, vstoxx) {
+  const p = activeP, r = vstoxxRegime(vstoxx);
+  const mPct = getRaakRisico(vstoxx, p);
+  const mOnbekend = (mPct === null);
+  const mSub = mOnbekend
+    ? 'niet berekend voor dit P-niveau — geen conclusie mogelijk'
+    : 'kans dat de PUT-strike geraakt wordt · CALL-zijde niet berekend';
+  const vPut = vloerStrike(koers), vCall = callVloerStrike(koers);
+  let rows = '', grendel = false, vloerPutAan = false, vloerCallAan = false;
+  let actPutPct = null, actCallPct = null;
+  [97, 98, 99, 999].forEach(pN => {
+    const a = maakAdvies('put',  koers, vstoxx, 1, pN);
+    const c = maakAdvies('call', koers, vstoxx, 1, pN);
+    if (a === null || c === null) return;
+    if (a.grendel || c.grendel) grendel = true;
+    if (a.vloerActief) vloerPutAan = true;
+    if (c.vloerActief) vloerCallAan = true;
+    if (pN === p) { actPutPct = a.afstandPct; actCallPct = c.afstandPct; }
+    rows += `<tr${pN === p ? ' class="hl"' : ''}>
+      <td>${pLabel(pN)}${pN === p ? ' ★' : ''}</td>
+      <td>${fmt(a.K, 0)}${a.grendel ? ' ⛓' : ''}<span class="exact">${fmt(a.raw, 1)}</span></td>
+      <td>${fmt(a.afstandPct, 1)}%</td>
+      <td>${fmt(c.K, 0)}${c.grendel ? ' ⛓' : ''}<span class="exact">${fmt(c.raw, 1)}</span></td>
+      <td>${fmt(c.afstandPct, 1)}%</td>
+    </tr>`;
+  });
+  const vloerZin = [vloerPutAan ? `PUT niet boven ${fmt(vPut, 0)}` : null,
+                    vloerCallAan ? `CALL niet onder ${fmt(vCall, 0)}` : null].filter(Boolean).join(' · ');
+  setHTML('alle-p', `
+    <p style="margin:0;"><strong>Raakrisico ${r.naam} · ${pLabel(p)}: ${mOnbekend ? '—' : fmt(mPct, 1) + '%'}</strong></p>
+    <p class="noot">${mSub}</p>
+    <p class="noot">Afstand tot de koers: PUT ${fmt(actPutPct, 1)}% · CALL ${fmt(actCallPct, 1)}%</p>
+    <div class="tabel-wrap" style="margin-top:10px;"><table>
+      <thead><tr><th>P</th><th>PUT</th><th>afstand</th><th>CALL</th><th>afstand</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+    <p class="noot">VSTOXX-band ${r.naam} · O→Low/High · stappen van 5 · PUT omlaag, CALL omhoog · kleine regel = exact${vloerZin ? ' · vloer actief: ' + vloerZin : ''}${grendel ? '<br>⛓ = monotoniegrendel actief — een láger VSTOXX-regime gaf op dit P-niveau méér buffer; de diepste waarde wint (Skill A 7.2).' : ''}</p>`);
+}
+
+// ═══ REGIME REFERENTIE TABEL ═══════════════════════════════
+function bouwRegimeTabel() {
+  const tbody = document.getElementById('regime-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  const regimesDisplay = [
+    { naam: 'Rustig',   bereik: '≤ 15' },
+    { naam: 'Normaal',  bereik: '15–18' },
+    { naam: 'Verhoogd', bereik: '18–22' },
+    { naam: 'Onrustig', bereik: '22–28' },
+    { naam: 'Stress',   bereik: '28–35' },
+  ];
+  let grendelInRef = false;
+  regimesDisplay.forEach(({ naam, bereik }) => {
+    const put99  = olowBuffer(naam, 99, 'put');
+    const call99 = olowBuffer(naam, 99, 'call');
+    const gr = olowGrendelActief(naam, 99, 'put');
+    if (gr) grendelInRef = true;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${bereik}</td><td>${naam}</td>
+      <td>${put99 !== null ? fmt(put99, 2) + '%' + (gr ? ' ⛓' : '') : '—'}</td>
+      <td>${call99 !== null ? '+' + fmt(call99, 2) + '%' : '—'}</td>`;
+    tbody.appendChild(tr);
+  });
+  const trBlok = document.createElement('tr');
+  trBlok.innerHTML = `<td>≥ ${INSTAP_BLOKKADE}</td><td>geen instap</td><td>—</td><td>—</td>`;
+  tbody.appendChild(trBlok);
+  const voet = document.getElementById('regime-voetnoot');
+  if (voet) {
+    voet.innerHTML =
+      'PUT- en CALL-buffer bij P99, na de monotoniegrendel (Skill A v3.8 sectie 7.2). '
+      + (grendelInRef ? '⛓ = de tabelwaarde van dit regime gaf mínder buffer dan een láger regime; de diepste waarde wint. ' : '')
+      + 'Normaal (−6,02%) en Verhoogd (−5,99%) liggen zo dicht bij elkaar dat het verschil binnen de meetruis van een P99-schatting valt — daarom twee decimalen. '
+      + 'Het raakrisico is een aparte meting op dezelfde 984 weken en kan dus een andere kant op wijzen dan de buffer (Verhoogd 1,2% tegen Normaal 1,4%). Dat is geen tegenspraak, maar twee schattingen die elk op weinig waarnemingen rusten.';
+  }
+}
+
+// ═══ VASTE REGELS (achter het vraagteken) ══════════════════
+// Uit de constanten, zodat tekst en rekenregel niet uit elkaar kunnen lopen.
+// Geen percentages bij grenzen (B72): de tool rekent de Exit, de gebruiker vergelijkt.
+function tekenVasteRegels() {
+  const ul = document.querySelector('#vaste-regels ul');
+  if (!ul) return;
+  ul.innerHTML = [
+    `Geen instap bij VSTOXX ${INSTAP_BLOKKADE} of hoger.`,
+    `PUT: exit als de koers 's avonds (ma–do, na 17:30) op of onder je Exit staat én de VSTOXX op of boven de drempel. Om 09:00 kijk je alleen naar de koers: opent die op of onder je Exit, dan koop je terug.`,
+    `CALL: exit als de koers 's avonds op of boven je Exit staat. Om 09:00 alleen de koers: opent die op of boven je Exit, dan koop je terug.`,
+    `Noodrem: VSTOXX ${INTRAWEEK_EXIT_ABS} of hoger, direct.`,
+    `Marge bij instap maximaal ${Math.round(SAXO_VEILIG * 100)}%.`,
+  ].map(t => `<li>${t}</li>`).join('');
+}
+
+// ═══ LOCALSTORAGE ══════════════════════════════════════════
+// v12.0 — nieuwe sleutel. De oude (v10_8) wordt eenmalig verwijderd en NIET
+// overgenomen (bouwplan §6, aanname 6): zij bevatte positievelden die niet meer bestaan.
+const LS_KEY     = 'oesx_rekentool_v12';
+const LS_KEY_OUD = 'oesx_rekentool_v10_8';
+
+function slaOp() {
+  if (bezigMetLaden) return;   // bug #48
+  try {
+    const lees = id => document.getElementById(id)?.value;
+    const data = {
+      p: activeP, toggle: activeToggle,
+      koers: lees('koers'), vstoxx: lees('vstoxx'), kas: lees('kas'),
+      strike_check: lees('strike-check'),
+      herkomst: herkomst,
+      tijdstip: new Date().toISOString()
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+    updateLsBalk(data);
+  } catch(e) {}
+}
+
+function laadOp() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) { updateLsBalk(null); return false; }
+    const data = JSON.parse(raw);
+    bezigMetLaden = true;
+    activeP = [97, 98, 99, 999].includes(data.p) ? data.p : 99;
+    activeToggle = ['put', 'call', 'strangle'].includes(data.toggle) ? data.toggle : 'put';
+    setP(activeP);
+    if (data.koers)        document.getElementById('koers').value        = data.koers;
+    if (data.vstoxx)       document.getElementById('vstoxx').value       = data.vstoxx;
+    if (data.kas)          document.getElementById('kas').value          = data.kas;
+    if (data.strike_check) document.getElementById('strike-check').value = data.strike_check;
+    const h = data.herkomst || {};
+    herkomst = { koers: h.koers || null, vstoxx: h.vstoxx || null, kas: h.kas || null };
+    bezigMetLaden = false;
+    updateLsBalk(data);
+    hertekenAlles();
+    return true;
+  } catch(e) { bezigMetLaden = false; updateLsBalk(null); return false; }
+}
+
+function wisInvoer() {
+  if (!confirm('Bewaarde invoer wissen?')) return;
+  try { localStorage.removeItem(LS_KEY); } catch(e) {}
+  ['koers', 'vstoxx', 'kas', 'strike-check'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  herkomst = { koers: null, vstoxx: null, kas: null };
+  activeToggle = 'put';
+  bezigMetLaden = true;    // setP() mag de lege stand niet als nieuwe invoer bewaren
+  setP(99);
+  bezigMetLaden = false;
+  updateLsBalk(null);
+}
+
+function updateLsBalk(data) {
+  const status = document.getElementById('ls-status');
+  const wisBtn = document.getElementById('ls-wis-btn');
+  if (!status || !wisBtn) return;
+  if (data && (data.koers || data.vstoxx || data.kas)) {
+    const d = new Date(data.tijdstip);
+    status.textContent = 'Bewaard · ' + d.toLocaleString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    wisBtn.style.display = '';
+  } else {
+    status.textContent = 'Nog geen bewaarde invoer';
+    wisBtn.style.display = 'none';
+  }
+}
+
+// ═══ UITLEG TOGGLE ═════════════════════════════════════════
+function toggleUitleg(id) {
+  const el  = document.getElementById(id);
+  const btn = el?.previousElementSibling;
+  if (!el) return;
+  el.classList.toggle('open');
+  if (btn) {
+    btn.textContent = btn.textContent.replace(
+      el.classList.contains('open') ? '▶' : '▼',
+      el.classList.contains('open') ? '▼' : '▶'
+    );
+  }
+}
+
+// ═══ INIT ══════════════════════════════════════════════════
+// AANNAME bewaakt — bug #46: Chrome herstelt formulierwaarden NA DOMContentLoaded
+// zonder input-event. `load` en `pageshow` (bfcache, iOS) rekenen daarom opnieuw;
+// hertekenAlles() is idempotent.
+function herstelEnBereken() { hertekenAlles(); }
+
+window.addEventListener('DOMContentLoaded', () => {
+  try { localStorage.removeItem(LS_KEY_OUD); } catch(e) {}
+  checkProtocol();
+  tekenVasteRegels();
+  bouwRegimeTabel();
+  if (!laadOp()) { bezigMetLaden = true; setP(99); bezigMetLaden = false; }
+});
+window.addEventListener('load',     herstelEnBereken);
+window.addEventListener('pageshow', herstelEnBereken);
+</script>
+</body>
+</html>
