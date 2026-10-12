@@ -1,0 +1,6 @@
+# Lokaal houden: de schets bevat de echte kas van de CEO (besluit CEO 10-10-2026)
+schets/
+# Startprompts blijven buiten de repo
+OESX_Startprompt_ClaudeCode_*.md
+# Projectgeheugen met beveiligingsdetails: nooit in de openbare repo (besluit architect 12-10-2026)
+CLAUDE.md
